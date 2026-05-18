@@ -6,7 +6,8 @@ const { style } = useThemeColor()
 
 <template>
   <div class="flex flex-col h-screen overflow-hidden bg-base" :style="style">
-    <div class="h-full flex-auto overflow-overlay">
+    <div class="flex-auto overflow-overlay min-h-0">
+      <!-- hapus h-full -->
       <RouterView />
     </div>
     <Progress />

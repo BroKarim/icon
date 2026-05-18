@@ -30,6 +30,7 @@ declare module 'vue' {
     Icons: typeof import('./components/Icons.vue')['default']
     IconSet: typeof import('./components/IconSet.vue')['default']
     InstallIconSet: typeof import('./components/InstallIconSet.vue')['default']
+    MainSearch: typeof import('./components/MainSearch.vue')['default']
     Modal: typeof import('./components/Modal.vue')['default']
     ModalDialog: typeof import('./components/ModalDialog.vue')['default']
     Navbar: typeof import('./components/Navbar.vue')['default']
