@@ -1,6 +1,7 @@
 <script setup lang='ts'>
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 import MainSearch from '../components/MainSearch.vue'
+import IconCanvas from '../components/IconCanvas.vue'
 
 const { query, results, loading } = useGlobalSearch()
 
@@ -33,9 +34,9 @@ function onClose() {
       </div>
     </div>
 
-    <!-- Results -->
-    <div v-if="query" class="flex-1 overflow-y-auto min-h-0">
-      <IconGrid
+    <!-- Canvas: infinite 2D space -->
+    <div v-if="query" class="flex-1 overflow-hidden">
+      <IconCanvas
         :results="results"
         :loading="loading"
         @select="onSelect"

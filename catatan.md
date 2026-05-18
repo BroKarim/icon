@@ -638,3 +638,140 @@ Langsung pake full `collections-meta.json` via `getFullMeta()`. Sample icons dar
 | `src/main.css` | **EXISTING** | **TETAP** — styling global |
 | `public/collections-meta.json` | **SUDAH ADA** | **TETAP** — data inti |
 | `scripts/prepare.ts` | **EXISTING** | **TETAP** — generator data |
+
+---
+
+# 🧪 Infinite Canvas — Fitur Baru di `/test`
+
+**Konsep:** Setelah user search, icon tidak muncul di grid biasa, tapi tersebar di infinite 2D canvas. User bisa pan/drag untuk explore hasil search.
+
+**Requirements:**
+- Icons muncul hanya setelah search (`query` aktif)
+- Icons tersebar di X/Y axis (random atau grid-based)
+- Pan/drag smooth 4 arah (atas, bawah, kiri, kanan)
+- Performant untuk ratusan/ribuan icon
+- `cursor-grab` / `cursor-grabbing`
+- Tetap pakai `@select="onSelect"` untuk modal detail
+- Canvas container: `flex-1 overflow-hidden`
+
+---
+
+## ✅ Checklist Implementasi
+
+### Step 1: Pilih Library / Approach ✅
+
+**Dipilih:** **Opsi B — `@vueuse/core` `useDraggable`**
+
+- [x] Install: sudah ada di `package.json` (`@vueuse/core`)
+- [x] Pakai `useDraggable` untuk pan logic
+- [x] Return `x`, `y` refs → apply ke `transform`
+- [x] **Pros:** Sudah tested, touch support, smooth, zero new deps
+
+### Step 2: Buat Canvas Container Component ✅
+
+**File dibuat:** `src/components/IconCanvas.vue` ✅
+
+- [x] Props: `results: SearchResult[]`, `loading: boolean`
+- [x] Emit: `select(iconFull: string)`
+- [x] Container: `flex-1 overflow-hidden relative`
+- [x] Canvas layer: `absolute inset-0` dengan `transform: translate3d(x, y, 0)`
+- [x] Draggable via `useDraggable` dari `@vueuse/core`
+- [x] Apply `x`, `y` ke style: `transform: translate3d(${x}px, ${y}px, 0)`
+- [x] Cursor: `cursor-grab` / `cursor-grabbing` (vueuse auto handle)
+- [x] Scatter icons randomly di 2D space (pseudo-random untuk stable positions)
+- [x] Virtualization: hanya render icon di dalam viewport + buffer
+- [x] Loading state + empty state
+- [x] Click icon → emit `select`
+
+### Step 3: Integrasi dengan `/test` Page ✅
+
+**File diupdate:** `src/pages/test.vue` ✅
+
+- [x] Ganti `<IconGrid>` dengan `<IconCanvas>`
+- [x] Hapus logic lama (IconGrid tidak dipakai)
+- [x] Modal detail tetap berfungsi
+
+---
+
+### ⏭️ Step 4: Icon Positioning Logic (Sudah di IconCanvas.vue)
+
+- [x] Scatter icons di 2D space dengan pseudo-random untuk stable positions
+- [x] Position tidak berubah saat pan/drag
+
+---
+
+### Step 7: UX Polish
+
+- [ ] **Bounds limiting:** Prevent pan terlalu jauh (optional):
+  ```ts
+  const boundedX = computed(() => Math.min(0, Math.max(-2000, x.value)))
+  const boundedY = computed(() => Math.min(0, Math.max(-2000, y.value)))
+  ```
+- [ ] **Zoom support (opsional):** Ctrl + scroll untuk zoom in/out
+- [ ] **Reset position button:** Double click canvas → reset ke (0, 0)
+- [ ] **Loading skeleton:** Show spinner saat `loading === true`
+- [ ] **Empty state:** "No icons found" saat results kosong
+- [ ] **Inertia / momentum (opsional):** Smooth deceleration setelah drag
+
+---
+
+### Step 8: Performance Optimization
+
+- [ ] **Debounce virtualization:** Jangan filter setiap frame (use `useDebounceFn`)
+- [ ] **`will-change: transform`:** Apply ke canvas layer
+- [ ] **`content-visibility: auto`:** Apply ke icon container (browser optimization)
+- [ ] **Web Worker (opsional):** Pindahkan fuzzy search + positioning logic ke worker
+- [ ] **Memoize positioned icons:** Jangan recalculate position setiap render
+
+---
+
+## 📦 Library Suggestions
+
+| Library | Bundle Size | Touch Support | Zoom | Virtualization | Recommendation |
+|---------|-------------|---------------|------|----------------|----------------|
+| **Vanilla JS + @vueuse** | ~0KB (vueuse sudah ada) | ✅ | ❌ (manual) | Manual | ⭐⭐⭐⭐⭐ Best |
+| `@panzoom/panzoom` | ~5KB | ✅ | ✅ | ❌ | ⭐⭐⭐⭐ Good |
+| `vue-panzoom` | ~6KB | ✅ | ✅ | ❌ | ⭐⭐⭐ OK |
+| `vue-virtual-scroller` | ~15KB | ❌ | ❌ | ✅ | ⭐⭐ (1D only) |
+| `konva` / `fabric.js` | ~100KB+ | ✅ | ✅ | ❌ | ⭐ (Overkill) |
+
+**👉 Final pick:** **`@vueuse/core` `useDraggable`** + manual virtualization. Zero new deps, full control, performant.
+
+---
+
+## 🎯 Acceptance Criteria
+
+Test case setelah implementasi:
+
+| Action | Expected |
+|--------|----------|
+| Ketik "car" → results muncul | Icons tersebar di canvas (random/grid) |
+| Drag canvas ke kiri/kanan/atas/bawah | Smooth pan, cursor grab/grabbing |
+| Scroll hasil banyak (500+ icon) | No lag, hanya render visible icons |
+| Klik icon | Modal detail terbuka |
+| Close modal → drag lagi | Canvas position tetap (tidak reset) |
+| Resize window | Viewport bounds update, visible icons recalculate |
+| Double click canvas (optional) | Reset position ke (0, 0) |
+
+---
+
+## 🔧 File Changes Summary
+
+| File | Action | Notes |
+|------|--------|-------|
+| `src/components/IconCanvas.vue` | **BARU** | Main canvas component |
+| `src/composables/useCanvasPan.ts` | **BARU** (optional) | Extract pan logic |
+| `src/composables/useCanvasVirtualization.ts` | **BARU** (optional) | Extract virtualization logic |
+| `src/pages/test.vue` | **UPDATE** | Ganti IconGrid → IconCanvas |
+| `src/components/IconGrid.vue` | **HAPUS** (optional) | Tidak dipakai lagi |
+
+---
+
+## 🚀 Next Steps
+
+1. [ ] **Pilih approach:** Vanilla JS vs vueuse vs panzoom
+2. [ ] **Buat `IconCanvas.vue`:** Container + pan logic
+3. [ ] **Implement virtualization:** Filter visible icons
+4. [ ] **Test performance:** 500+ icons, smooth pan
+5. [ ] **Polish UX:** Bounds, reset button, loading state
+6. [ ] **Cleanup:** Hapus IconGrid, refactor code

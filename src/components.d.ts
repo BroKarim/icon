@@ -24,6 +24,7 @@ declare module 'vue' {
     HelpPage: typeof import('./components/HelpPage.vue')['default']
     Icon: typeof import('./components/Icon.vue')['default']
     IconButton: typeof import('./components/IconButton.vue')['default']
+    IconCanvas: typeof import('./components/IconCanvas.vue')['default']
     IconCard: typeof import('./components/IconCard.vue')['default']
     IconDetail: typeof import('./components/IconDetail.vue')['default']
     IconGrid: typeof import('./components/IconGrid.vue')['default']
