@@ -488,32 +488,153 @@ Setelah implementasi, test case berikut harus berfungsi:
 
 ---
 
-## Ringkasan Arsitektur (perbandingan)
+---
 
-| Layer | icones (existing) | Project Baru |
-|-------|------------------|--------------|
-| Search | Per-collection, pake `fzf` | **Global search** semua collection, pake `fzf`/`flexsearch` |
-| Data collections | `scripts/prepare.ts` → `collections-info.json` (bundled static) | **Sama persis** |
-| Render SVG | `iconify-icon` web component | **Sama persis** |
-| UI | Navbar + Sidebar + Grid | **Search bar sentral**, grid hasil, modal detail |
-| Styling | UnoCSS (utility) | **Tailwind CSS** + shadcn/vue |
-| State | Vue refs + `@vueuse/core` | **Pinia** + `@vueuse/core` |
-| Animasi | Minimal | **Bubble reveal** staggered |
-| Platform | Web + Electron + VSCode | **Web only** |
-| PWA | Workbox penuh | Skip (lanjutan) |
-| Routing | Multi-page (home, collection, settings) | **Single page** (search → detail modal)
+# 🧪 Checklist: Halaman Testing (Playground) — di Project icones Ini
+
+**Tujuan:** Buat halaman `/test` di project icones yang sudah jalan. Halaman ini akan jadi playground untuk fitur baru tanpa mengganggu halaman existing. Nanti setelah fitur siap, halaman lama bisa dihapus.
+
+**Mengapa ini lebih mudah:**
+- Semua data (`collections-meta.json`, `collections-info.json`) SUDAH siap
+- `iconify-icon` web component SUDAH terkonfigurasi di vite.config.ts
+- `fzf` SUDAH ada di dependencies
+- Auto-import Vue/VueUse SUDAH jalan via `unplugin-auto-import`
+- Components SUDAH ada: `Icon.vue`, `SearchBar.vue`, `IconDetail.vue`, `Modal.vue`, `ColorPicker.vue`
+- File-based routing SUDAH via `vite-plugin-pages` — tinggal bikin `src/pages/test.vue`
+
+**Akses halaman:** `http://localhost:3333/test`
 
 ---
 
-## Ringkasan Arsitektur (perbandingan)
+## ✅ Step 1: Buat Global Search Hook
 
-| Layer | icones (existing) | Project Baru |
-|-------|------------------|--------------|
-| Search | Per-collection, pake `fzf` | **Global search** semua collection, pake `fzf`/`flexsearch` |
-| UI | Navbar + Sidebar + Grid | **Search bar sentral**, grid hasil, modal detail |
-| Styling | UnoCSS (utility) | **Tailwind CSS** + shadcn/vue |
-| State | Vue refs + `@vueuse/core` | **Pinia** + `@vueuse/core` |
-| Animasi | Minimal | **Bubble reveal** staggered |
-| Platform | Web + Electron + VSCode | **Web only** (simplified) |
-| PWA | Workbox penuh | Optional |
-| Routing | Multi-page (home, collection, settings) | **Single page** (search → detail modal)
+**File dibuat:** `src/composables/useGlobalSearch.ts`
+
+```ts
+interface SearchResult {
+  collectionId: string   // "mdi"
+  collectionName: string // "Material Design Icons"
+  iconName: string       // "car"
+  iconFull: string       // "mdi:car"
+  matchType: 'exact' | 'prefix' | 'fuzzy' | 'alias'
+}
+```
+
+- [x] Fetch `/collections-meta.json` — via `getFullMeta()` dari `src/data/index.ts`
+- [x] Flatten jadi array `{ collectionId, collectionName, iconName }[]`
+- [x] Init `AsyncFzf` dengan selector `iconName + collectionName`
+- [x] Alias expansion (copy pattern dari `hooks/search.ts`)
+- [x] Prioritaskan hasil: exact > prefix > fuzzy > alias
+- [x] Debounce 200ms via `useDebounceFn`
+- [x] Cache hasil fetch di memory (ref `metaLoaded`)
+- [x] Loading state
+
+---
+
+## ✅ Step 2: Buat Halaman `/test`
+
+**File dibuat:** `src/pages/test.vue`
+
+- [x] Full viewport (h-screen)
+- [x] Search bar di tengah vertikal saat kosong, pindah ke atas saat ngetik
+- [x] Hasil muncul di bawah search bar
+- [x] Saat field kosong → landing page bersih
+- [x] Dark mode support (pake class `bg-base` yang sudah ada)
+- [x] Import `useGlobalSearch` dari composables
+- [x] Reuse `Icon` component
+- [x] Reuse `IconDetail` + `Modal` untuk preview detail
+
+**Reuse (no changes):** `src/components/SearchBar.vue`, `src/components/Icon.vue`, `src/components/IconDetail.vue`, `src/components/Modal.vue`
+
+---
+
+## ✅ Step 3: Buat IconGrid + IconCard
+
+**File dibuat:**
+- `src/components/IconGrid.vue`
+- `src/components/IconCard.vue`
+
+- [x] `<TransitionGroup>` untuk animasi masuk/keluar
+- [x] Grid responsive: `grid-template-columns: repeat(auto-fill, minmax(80px, 1fr))`
+- [x] Render ikon via `<Icon :icon="iconFull" />`
+- [x] Label nama icon di bawah (truncated)
+- [x] Tooltip nama collection via `floating-vue` Tooltip
+- [x] Click → emit `select` ke parent
+
+---
+
+## ⏭️ Step 4: Sample Icons (Skip)
+
+Langsung pake full `collections-meta.json` via `getFullMeta()`. Sample icons dari `collections-info.json` tidak dipakai.
+
+---
+
+## ✅ Step 5: Bubble Reveal Animation
+
+- [x] CSS keyframes `bubble-in` (scale 0 → 1.08 → 1, fade in)
+- [x] Stagger delay per item: `animation-delay: calc(var(--i) * 25ms)`
+- [x] `<TransitionGroup name="bubble">` di IconGrid
+- [ ] `useAutoAnimate` — skip, CSS animation sudah cukup
+
+---
+
+## ✅ Step 6: Integrasi dengan IconDetail
+
+- [x] Modal `IconDetail` terbuka saat icon diklik
+- [x] Collections info di-import dari `src/data/index.ts`
+- [x] Copy snippet, download, color picker — semua reuse existing `IconDetail.vue`
+
+---
+
+## ✅ Step 7: Isolasi dari Halaman Existing
+
+- [x] Route `/test` milik sendiri — tidak sentuh `index.vue`, `collection/[id].vue`, dll
+- [x] Tidak ada perubahan ke `store/`, `Navbar`, `WithNavbar`
+- [x] Nanti setelah fitur siap: rename `test.vue` → `index.vue`, hapus pages lain
+
+---
+
+### 🎯 Ringkasan File (Final)
+
+| File | Status | Untuk dibersihkan nanti? |
+|------|--------|--------------------------|
+| `src/composables/useGlobalSearch.ts` | **BARU** ✅ | **TETAP** — komponen inti |
+| `src/pages/test.vue` | **BARU** ✅ | rename jadi `index.vue` |
+| `src/components/IconGrid.vue` | **BARU** ✅ | **TETAP** |
+| `src/components/IconCard.vue` | **BARU** ✅ | **TETAP** |
+| `src/pages/index.vue` | **EXISTING** | **HAPUS** — ganti test.vue |
+| `src/pages/settings.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/pages/[...all].vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/pages/collection/[id].vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/Navbar.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/WithNavbar.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/CollectionEntries.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/CollectionEntry.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/Footer.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/Drawer.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/IconSet.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/FAB.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/Bag.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/ActionsMenu.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/InstallIconSet.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/HelpPage.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/SettingsCollectionsList.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/SnippetPreview.vue` | **EXISTING** | **HAPUS** — ga dipake |
+| `src/components/electron/` (all) | **EXISTING** | **HAPUS** — ga dipake |
+| `src/hooks/search.ts` | **EXISTING** | **TETAP** — dipake useGlobalSearch (referensi) |
+| `src/hooks/color.ts` | **EXISTING** | **HAPUS** (?) — kalo `useThemeColor` ga dipake |
+| `src/store/indexedDB.ts` | **EXISTING** | **HAPUS** — fitur lanjutan |
+| `src/store/packing.ts` | **EXISTING** | **HAPUS** — fitur lanjutan |
+| `src/store/dialog.ts` | **EXISTING** | **HAPUS** — fitur lanjutan |
+| `src/store/progress.ts` | **EXISTING** | **HAPUS** — fitur lanjutan |
+| `src/store/collection.ts` | **EXISTING** | **HAPUS** — per-collection logic |
+| `src/store/dark.ts` | **EXISTING** | **HAPUS** — ganti preferensi manual |
+| `src/utils/pack.ts` | **EXISTING** | **HAPUS** — fitur lanjutan |
+| `src/utils/pack-worker-client.ts` | **EXISTING** | **HAPUS** — fitur lanjutan |
+| `src/utils/electron.ts` | **EXISTING** | **HAPUS** — electron only |
+| `src/utils/shiki.ts` | **EXISTING** | **HAPUS** — fitur lanjutan |
+| `src/env.ts` | **EXISTING** | **TETAP** (?) — maybe simplify |
+| `src/sw.ts` | **EXISTING** | **HAPUS** — fitur lanjutan |
+| `src/main.css` | **EXISTING** | **TETAP** — styling global |
+| `public/collections-meta.json` | **SUDAH ADA** | **TETAP** — data inti |
+| `scripts/prepare.ts` | **EXISTING** | **TETAP** — generator data |
