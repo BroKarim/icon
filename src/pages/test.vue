@@ -1,7 +1,7 @@
 <script setup lang='ts'>
-import { useGlobalSearch } from '../composables/useGlobalSearch'
-import MainSearch from '../components/MainSearch.vue'
 import IconCanvas from '../components/IconCanvas.vue'
+import MainSearch from '../components/MainSearch.vue'
+import { useGlobalSearch } from '../composables/useGlobalSearch'
 
 const { query, results, loading } = useGlobalSearch()
 
