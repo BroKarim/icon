@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import Icon from './Icon.vue'
 
 interface SearchResult {
@@ -18,176 +18,225 @@ interface Props {
 const props = defineProps<Props>()
 const emit = defineEmits<{ (e: 'select', iconFull: string): void }>()
 
-// ─── Canvas ref & viewport ───────────────────────────────────────────────────
-const canvasRef = ref<HTMLElement | null>(null)
+const scrollRef = ref<HTMLElement | null>(null)
 const vpW = ref(0)
 const vpH = ref(0)
+const scrollX = ref(0)
+const scrollY = ref(0)
 
 function measureViewport() {
-  if (!canvasRef.value)
+  if (!scrollRef.value)
     return
-  vpW.value = canvasRef.value.clientWidth
-  vpH.value = canvasRef.value.clientHeight
+
+  vpW.value = scrollRef.value.clientWidth
+  vpH.value = scrollRef.value.clientHeight
 }
 
-// ─── Pan state ───────────────────────────────────────────────────────────────
-const panX = ref(0)
-const panY = ref(0)
+function syncScroll() {
+  if (!scrollRef.value)
+    return
+
+  scrollX.value = scrollRef.value.scrollLeft
+  scrollY.value = scrollRef.value.scrollTop
+}
+
 const isDragging = ref(false)
 
 let startX = 0
 let startY = 0
-let startPanX = 0
-let startPanY = 0
-let moved = false // distinguish click vs drag
+let startScrollX = 0
+let startScrollY = 0
+let moved = false
 
 function onPointerDown(e: PointerEvent) {
-  if (e.button !== 0)
+  if (e.button !== 0 || !scrollRef.value)
     return
+
   isDragging.value = true
   moved = false
   startX = e.clientX
   startY = e.clientY
-  startPanX = panX.value
-  startPanY = panY.value
-  ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+  startScrollX = scrollRef.value.scrollLeft
+  startScrollY = scrollRef.value.scrollTop
+  scrollRef.value.setPointerCapture(e.pointerId)
 }
 
 function onPointerMove(e: PointerEvent) {
-  if (!isDragging.value)
+  if (!isDragging.value || !scrollRef.value)
     return
+
   const dx = e.clientX - startX
   const dy = e.clientY - startY
   if (Math.abs(dx) > 3 || Math.abs(dy) > 3)
     moved = true
-  // Math: new pan = startPan + delta mouse
-  panX.value = startPanX + dx
-  panY.value = startPanY + dy
+
+  scrollRef.value.scrollLeft = startScrollX - dx
+  scrollRef.value.scrollTop = startScrollY - dy
+  syncScroll()
 }
 
 function onPointerUp(e: PointerEvent) {
   isDragging.value = false
-  ;(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
+  if (scrollRef.value?.hasPointerCapture(e.pointerId))
+    scrollRef.value.releasePointerCapture(e.pointerId)
 }
 
-// ─── Icon layout ─────────────────────────────────────────────────────────────
-const ICON_SIZE = 72 // px per cell
-const COLS = 12 // icons per row → grid wraps every 12
+const ICON_BOX = 170
+const ICON_SIZE = 88
+const COLUMN_GAP = 240
+const ROW_GAP = 230
+const SURFACE_PADDING_X = 900
+const SURFACE_PADDING_Y = 520
+const TOP_OFFSET = 150
 
-/**
- * Grid layout: icons placed in a centered grid.
- * Row = Math.floor(i / COLS)
- * Col = i % COLS
- *
- * Center offset: shift grid so it starts centered in viewport
- * originX = -((COLS * ICON_SIZE) / 2)  → left edge of grid
- * originY = 0 → start from top, user pans up/down
- */
 const positionedIcons = computed(() => {
-  const totalWidth = COLS * ICON_SIZE
-  const originX = -(totalWidth / 2)
+  const columns = Math.max(6, Math.ceil(Math.sqrt(Math.max(props.results.length, 1) * 1.75)))
+  const contentOffsetX = SURFACE_PADDING_X + ICON_BOX / 2
+  const contentOffsetY = SURFACE_PADDING_Y + TOP_OFFSET
 
   return props.results.map((icon, i) => {
-    const col = i % COLS
-    const row = Math.floor(i / COLS)
+    const col = i % columns
+    const row = Math.floor(i / columns)
+    const xJitter = ((i * 37) % 28) - 14
+    const yJitter = ((i * 53) % 24) - 12
+
     return {
       ...icon,
-      x: originX + col * ICON_SIZE,
-      y: row * ICON_SIZE,
+      x: contentOffsetX + col * COLUMN_GAP + xJitter,
+      y: contentOffsetY + row * ROW_GAP + yJitter,
     }
   })
 })
 
-// ─── Virtualization (culling) ─────────────────────────────────────────────────
+const surfaceWidth = computed(() => {
+  const maxX = positionedIcons.value.length
+    ? Math.max(...positionedIcons.value.map(icon => icon.x))
+    : 0
+
+  return Math.max(vpW.value + SURFACE_PADDING_X * 2, maxX + SURFACE_PADDING_X)
+})
+
+const surfaceHeight = computed(() => {
+  const maxY = positionedIcons.value.length
+    ? Math.max(...positionedIcons.value.map(icon => icon.y))
+    : 0
+
+  return Math.max(vpH.value + SURFACE_PADDING_Y * 2, maxY + SURFACE_PADDING_Y)
+})
+
 const BUFFER = 150
 
 const visibleIcons = computed(() => {
-  const px = panX.value
-  const py = panY.value
-  const w = vpW.value
-  const h = vpH.value
+  const left = scrollX.value - BUFFER
+  const right = scrollX.value + vpW.value + BUFFER
+  const top = scrollY.value - BUFFER
+  const bottom = scrollY.value + vpH.value + BUFFER
 
   return positionedIcons.value.filter(({ x, y }) => {
-    // screenX = icon.x + panX  →  visible if inside viewport + buffer
-    const sx = x + px
-    const sy = y + py
-    return sx > -BUFFER && sx < w + BUFFER && sy > -BUFFER && sy < h + BUFFER
+    const iconLeft = x - ICON_BOX / 2
+    const iconRight = x + ICON_BOX / 2
+    const iconTop = y - ICON_BOX / 2
+    const iconBottom = y + ICON_BOX / 2
+
+    return iconRight > left && iconLeft < right && iconBottom > top && iconTop < bottom
   })
 })
 
-// ─── Click guard (no select on drag) ─────────────────────────────────────────
 function onIconClick(iconFull: string) {
   if (!moved)
     emit('select', iconFull)
 }
 
-// ─── Lifecycle ────────────────────────────────────────────────────────────────
+function centerCanvas() {
+  if (!scrollRef.value || !positionedIcons.value.length)
+    return
+
+  const columns = Math.max(6, Math.ceil(Math.sqrt(Math.max(props.results.length, 1) * 1.75)))
+  const contentWidth = Math.max(0, (columns - 1) * COLUMN_GAP)
+  const left = SURFACE_PADDING_X + contentWidth / 2 - vpW.value / 2
+  const top = SURFACE_PADDING_Y + TOP_OFFSET - 70
+
+  scrollRef.value.scrollLeft = Math.max(0, left)
+  scrollRef.value.scrollTop = Math.max(0, top)
+  syncScroll()
+}
+
 onMounted(() => {
   measureViewport()
-  // Center canvas horizontally so grid starts in middle
-  panX.value = vpW.value / 2
-  panY.value = 80 // small top padding
+  syncScroll()
+  nextTick(centerCanvas)
   window.addEventListener('resize', measureViewport)
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', measureViewport)
 })
+
+watch(() => [props.results.length, props.results[0]?.iconFull], async () => {
+  await nextTick()
+  measureViewport()
+  centerCanvas()
+})
 </script>
 
 <template>
   <div
-    ref="canvasRef"
-    class="relative w-full h-full overflow-hidden bg-base select-none"
+    ref="scrollRef"
+    class="absolute inset-0 overflow-auto select-none overscroll-contain"
     :class="isDragging ? 'cursor-grabbing' : 'cursor-grab'"
+    @scroll="syncScroll"
     @pointerdown="onPointerDown"
     @pointermove="onPointerMove"
     @pointerup="onPointerUp"
     @pointercancel="onPointerUp"
+    @dragstart.prevent
   >
-    <!-- Loading -->
-    <div v-if="loading" class="absolute inset-0 flex items-center justify-center">
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.72),_rgba(247,243,236,0.96)_56%,_rgba(244,238,228,1)_100%)]" />
+
+    <div v-if="loading" class="absolute inset-0 flex items-center justify-center z-20">
       <Icon icon="carbon:circle-dash" class="text-2xl animate-spin op50" />
     </div>
 
-    <!-- Empty -->
     <div
       v-else-if="!loading && results.length === 0"
-      class="absolute inset-0 flex items-center justify-center op40 text-sm"
+      class="absolute inset-0 flex items-center justify-center op40 text-sm z-20"
     >
       No icons found
     </div>
 
-    <!-- Canvas: GPU-accelerated via translate3d -->
     <div
       v-else
-      class="absolute top-0 left-0 will-change-transform"
-      :style="{ transform: `translate3d(${panX}px, ${panY}px, 0)` }"
+      class="relative"
+      :style="{
+        width: `${surfaceWidth}px`,
+        height: `${surfaceHeight}px`,
+      }"
     >
       <div
         v-for="icon in visibleIcons"
         :key="icon.iconFull"
-        class="absolute flex flex-col items-center justify-center gap-1 rounded-xl p-2 transition-colors duration-150 hover:bg-gray-100 dark:hover:bg-white/5"
+        class="group absolute flex items-center justify-center rounded-[32px] transition duration-200 ease-out hover:-translate-y-1 hover:scale-[1.03]"
         :style="{
           left: `${icon.x}px`,
           top: `${icon.y}px`,
-          width: `${ICON_SIZE}px`,
-          height: `${ICON_SIZE}px`,
+          marginLeft: `-${ICON_BOX / 2}px`,
+          marginTop: `-${ICON_BOX / 2}px`,
+          width: `${ICON_BOX}px`,
+          height: `${ICON_BOX}px`,
         }"
         @click.stop="onIconClick(icon.iconFull)"
       >
-        <Icon :icon="icon.iconFull" class="text-3xl pointer-events-none" />
-        <span class="text-[10px] op50 truncate w-full text-center leading-tight pointer-events-none">
+        <Icon
+          :icon="icon.iconFull"
+          class="pointer-events-none drop-shadow-[0_16px_20px_rgba(0,0,0,0.10)]"
+          :style="{ fontSize: `${ICON_SIZE}px` }"
+        />
+
+        <span class="pointer-events-none absolute top-full mt-3 rounded-full bg-white/84 px-3 py-1 text-[11px] font-medium text-black/52 opacity-0 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
           {{ icon.iconName }}
         </span>
       </div>
     </div>
-
-    <!-- Fade edges untuk nuansa infinite -->
-    <div class="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-base to-transparent pointer-events-none" />
-    <div class="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-base to-transparent pointer-events-none" />
-    <div class="absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-base to-transparent pointer-events-none" />
-    <div class="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-base to-transparent pointer-events-none" />
   </div>
 </template>
 
