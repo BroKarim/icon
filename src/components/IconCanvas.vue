@@ -15,6 +15,10 @@ interface Props {
   loading: boolean
 }
 
+interface DisplayIcon extends SearchResult {
+  repeatKey: string
+}
+
 const props = defineProps<Props>()
 const emit = defineEmits<{ (e: 'select', iconFull: string): void }>()
 
@@ -88,13 +92,66 @@ const ROW_GAP = 230
 const SURFACE_PADDING_X = 900
 const SURFACE_PADDING_Y = 520
 const TOP_OFFSET = 150
+const EXTRA_ROWS = 6
+
+const minColumns = computed(() => Math.max(6, Math.ceil(vpW.value / COLUMN_GAP) + 2))
+const minRows = computed(() => Math.max(4, Math.ceil(vpH.value / ROW_GAP) + EXTRA_ROWS))
+const displayCount = computed(() => Math.max(props.results.length, minColumns.value * minRows.value))
+const gridColumns = computed(() => Math.max(
+  minColumns.value,
+  Math.ceil(Math.sqrt(Math.max(displayCount.value, 1) * 1.75)),
+))
+
+const repeatedResults = computed<DisplayIcon[]>(() => {
+  const source = props.results
+  if (!source.length)
+    return []
+
+  const total = displayCount.value
+  const columns = gridColumns.value
+
+  if (source.length === 1) {
+    return Array.from({ length: total }, (_, i) => ({
+      ...source[0],
+      repeatKey: `${source[0].iconFull}-${i}`,
+    }))
+  }
+
+  if (source.length === 2) {
+    return Array.from({ length: total }, (_, i) => {
+      const row = Math.floor(i / columns)
+      const col = i % columns
+      const icon = source[(row + col) % 2]
+
+      return {
+        ...icon,
+        repeatKey: `${icon.iconFull}-${row}-${col}`,
+      }
+    })
+  }
+
+  const rowShift = getCoprimeShift(source.length, 2)
+  const colShift = getCoprimeShift(source.length, 1, rowShift)
+
+  return Array.from({ length: total }, (_, i) => {
+    const row = Math.floor(i / columns)
+    const col = i % columns
+    const index = (row * rowShift + col * colShift + (row % source.length)) % source.length
+    const icon = source[index]
+
+    return {
+      ...icon,
+      repeatKey: `${icon.iconFull}-${row}-${col}`,
+    }
+  })
+})
 
 const positionedIcons = computed(() => {
-  const columns = Math.max(6, Math.ceil(Math.sqrt(Math.max(props.results.length, 1) * 1.75)))
+  const columns = gridColumns.value
   const contentOffsetX = SURFACE_PADDING_X + ICON_BOX / 2
   const contentOffsetY = SURFACE_PADDING_Y + TOP_OFFSET
 
-  return props.results.map((icon, i) => {
+  return repeatedResults.value.map((icon, i) => {
     const col = i % columns
     const row = Math.floor(i / columns)
     const xJitter = ((i * 37) % 28) - 14
@@ -151,7 +208,7 @@ function centerCanvas() {
   if (!scrollRef.value || !positionedIcons.value.length)
     return
 
-  const columns = Math.max(6, Math.ceil(Math.sqrt(Math.max(props.results.length, 1) * 1.75)))
+  const columns = gridColumns.value
   const contentWidth = Math.max(0, (columns - 1) * COLUMN_GAP)
   const left = SURFACE_PADDING_X + contentWidth / 2 - vpW.value / 2
   const top = SURFACE_PADDING_Y + TOP_OFFSET - 70
@@ -177,6 +234,33 @@ watch(() => [props.results.length, props.results[0]?.iconFull], async () => {
   measureViewport()
   centerCanvas()
 })
+
+function getCoprimeShift(length: number, preferred: number, avoid?: number) {
+  for (let shift = preferred; shift < length; shift += 1) {
+    if (shift !== avoid && gcd(shift, length) === 1)
+      return shift
+  }
+
+  for (let shift = 1; shift < length; shift += 1) {
+    if (shift !== avoid)
+      return shift
+  }
+
+  return 1
+}
+
+function gcd(a: number, b: number): number {
+  let x = Math.abs(a)
+  let y = Math.abs(b)
+
+  while (y !== 0) {
+    const temp = y
+    y = x % y
+    x = temp
+  }
+
+  return x
+}
 </script>
 
 <template>
@@ -214,7 +298,7 @@ watch(() => [props.results.length, props.results[0]?.iconFull], async () => {
     >
       <div
         v-for="icon in visibleIcons"
-        :key="icon.iconFull"
+        :key="icon.repeatKey"
         class="group absolute flex items-center justify-center rounded-[32px] transition duration-200 ease-out hover:-translate-y-1 hover:scale-[1.03]"
         :style="{
           left: `${icon.x}px`,
