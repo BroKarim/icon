@@ -3,8 +3,12 @@
     "target": "esnext",
     "jsx": "preserve",
     "lib": ["DOM", "ESNext", "WebWorker"],
+    "baseUrl": ".",
     "module": "esnext",
     "moduleResolution": "Bundler",
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "resolveJsonModule": true,
     "types": [
       "vite/client",

@@ -9,14 +9,10 @@ import UnoCSS from 'unocss/vite'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
-import electron from 'vite-plugin-electron'
-import renderer from 'vite-plugin-electron-renderer'
-// @ts-expect-error type resolution
-import esmodule from 'vite-plugin-esmodule'
 import Pages from 'vite-plugin-pages'
 import { VitePWA } from 'vite-plugin-pwa'
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(async ({ mode }) => {
   const isElectron = mode === 'electron'
   const isBuild = process.argv.slice(2).includes('build')
 
@@ -25,7 +21,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [
-      isElectron && electron([
+      isElectron && (await import('vite-plugin-electron')).default([
         {
           entry: 'src/main/index.ts',
           vite: {
@@ -36,8 +32,8 @@ export default defineConfig(({ mode }) => {
           },
         },
       ]),
-      isElectron && renderer(),
-      isElectron && esmodule(['prettier']),
+      isElectron && (await import('vite-plugin-electron-renderer')).default(),
+      isElectron && (await import('vite-plugin-esmodule')).default(['prettier']),
       Vue({
         customElement: [
           'iconify-icon',
@@ -109,6 +105,7 @@ export default defineConfig(({ mode }) => {
     },
     resolve: {
       alias: {
+        '@': resolve(__dirname, 'src'),
         'iconify-icon': resolve(__dirname, 'node_modules/iconify-icon/dist/iconify-icon.mjs'),
       },
     },

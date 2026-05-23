@@ -15,10 +15,6 @@ interface Props {
   loading: boolean
 }
 
-interface DisplayIcon extends SearchResult {
-  repeatKey: string
-}
-
 const props = defineProps<Props>()
 const emit = defineEmits<{ (e: 'select', iconFull: string): void }>()
 
@@ -31,7 +27,6 @@ const scrollY = ref(0)
 function measureViewport() {
   if (!scrollRef.value)
     return
-
   vpW.value = scrollRef.value.clientWidth
   vpH.value = scrollRef.value.clientHeight
 }
@@ -39,13 +34,11 @@ function measureViewport() {
 function syncScroll() {
   if (!scrollRef.value)
     return
-
   scrollX.value = scrollRef.value.scrollLeft
   scrollY.value = scrollRef.value.scrollTop
 }
 
 const isDragging = ref(false)
-
 let startX = 0
 let startY = 0
 let startScrollX = 0
@@ -55,7 +48,6 @@ let moved = false
 function onPointerDown(e: PointerEvent) {
   if (e.button !== 0 || !scrollRef.value)
     return
-
   isDragging.value = true
   moved = false
   startX = e.clientX
@@ -68,12 +60,10 @@ function onPointerDown(e: PointerEvent) {
 function onPointerMove(e: PointerEvent) {
   if (!isDragging.value || !scrollRef.value)
     return
-
   const dx = e.clientX - startX
   const dy = e.clientY - startY
   if (Math.abs(dx) > 3 || Math.abs(dy) > 3)
     moved = true
-
   scrollRef.value.scrollLeft = startScrollX - dx
   scrollRef.value.scrollTop = startScrollY - dy
   syncScroll()
@@ -89,114 +79,68 @@ const ICON_BOX = 170
 const ICON_SIZE = 88
 const COLUMN_GAP = 240
 const ROW_GAP = 230
-const SURFACE_PADDING_X = 900
-const SURFACE_PADDING_Y = 520
-const TOP_OFFSET = 150
-const EXTRA_ROWS = 6
+const BUFFER = 300
 
-const minColumns = computed(() => Math.max(6, Math.ceil(vpW.value / COLUMN_GAP) + 2))
-const minRows = computed(() => Math.max(4, Math.ceil(vpH.value / ROW_GAP) + EXTRA_ROWS))
-const displayCount = computed(() => Math.max(props.results.length, minColumns.value * minRows.value))
-const gridColumns = computed(() => Math.max(
-  minColumns.value,
-  Math.ceil(Math.sqrt(Math.max(displayCount.value, 1) * 1.75)),
-))
+// Infinite surface: besar sekali, scroll mulai di tengah
+const SURFACE_SIZE = 200_000
 
-const repeatedResults = computed<DisplayIcon[]>(() => {
-  const source = props.results
+// Jumlah kolom yang konsisten (tidak bergantung vpW agar grid stabil)
+const GRID_COLUMNS = 30
+
+function iconAt(col: number, row: number, source: SearchResult[]) {
   if (!source.length)
+    return null
+  const len = source.length
+
+  if (len === 1)
+    return source[0]
+
+  // Distribusi 2D agar tidak ada pola stripe
+  // Gunakan coprime shift supaya setiap baris versatz
+  const rowShift = getCoprimeShift(len, 2)
+  const colShift = getCoprimeShift(len, 1, rowShift)
+  const index = ((row * rowShift + col * colShift + (row % len)) % len + len) % len
+  return source[index]
+}
+
+// Virtual grid: hanya render icon yang visible berdasarkan scroll position
+const visibleIcons = computed(() => {
+  if (!props.results.length)
     return []
 
-  const total = displayCount.value
-  const columns = gridColumns.value
-
-  if (source.length === 1) {
-    return Array.from({ length: total }, (_, i) => ({
-      ...source[0],
-      repeatKey: `${source[0].iconFull}-${i}`,
-    }))
-  }
-
-  if (source.length === 2) {
-    return Array.from({ length: total }, (_, i) => {
-      const row = Math.floor(i / columns)
-      const col = i % columns
-      const icon = source[(row + col) % 2]
-
-      return {
-        ...icon,
-        repeatKey: `${icon.iconFull}-${row}-${col}`,
-      }
-    })
-  }
-
-  const rowShift = getCoprimeShift(source.length, 2)
-  const colShift = getCoprimeShift(source.length, 1, rowShift)
-
-  return Array.from({ length: total }, (_, i) => {
-    const row = Math.floor(i / columns)
-    const col = i % columns
-    const index = (row * rowShift + col * colShift + (row % source.length)) % source.length
-    const icon = source[index]
-
-    return {
-      ...icon,
-      repeatKey: `${icon.iconFull}-${row}-${col}`,
-    }
-  })
-})
-
-const positionedIcons = computed(() => {
-  const columns = gridColumns.value
-  const contentOffsetX = SURFACE_PADDING_X + ICON_BOX / 2
-  const contentOffsetY = SURFACE_PADDING_Y + TOP_OFFSET
-
-  return repeatedResults.value.map((icon, i) => {
-    const col = i % columns
-    const row = Math.floor(i / columns)
-    const xJitter = ((i * 37) % 28) - 14
-    const yJitter = ((i * 53) % 24) - 12
-
-    return {
-      ...icon,
-      x: contentOffsetX + col * COLUMN_GAP + xJitter,
-      y: contentOffsetY + row * ROW_GAP + yJitter,
-    }
-  })
-})
-
-const surfaceWidth = computed(() => {
-  const maxX = positionedIcons.value.length
-    ? Math.max(...positionedIcons.value.map(icon => icon.x))
-    : 0
-
-  return Math.max(vpW.value + SURFACE_PADDING_X * 2, maxX + SURFACE_PADDING_X)
-})
-
-const surfaceHeight = computed(() => {
-  const maxY = positionedIcons.value.length
-    ? Math.max(...positionedIcons.value.map(icon => icon.y))
-    : 0
-
-  return Math.max(vpH.value + SURFACE_PADDING_Y * 2, maxY + SURFACE_PADDING_Y)
-})
-
-const BUFFER = 150
-
-const visibleIcons = computed(() => {
+  const source = props.results
   const left = scrollX.value - BUFFER
   const right = scrollX.value + vpW.value + BUFFER
   const top = scrollY.value - BUFFER
   const bottom = scrollY.value + vpH.value + BUFFER
 
-  return positionedIcons.value.filter(({ x, y }) => {
-    const iconLeft = x - ICON_BOX / 2
-    const iconRight = x + ICON_BOX / 2
-    const iconTop = y - ICON_BOX / 2
-    const iconBottom = y + ICON_BOX / 2
+  // Hitung range kolom & baris yang visible
+  const colStart = Math.floor(left / COLUMN_GAP)
+  const colEnd = Math.ceil(right / COLUMN_GAP)
+  const rowStart = Math.floor(top / ROW_GAP)
+  const rowEnd = Math.ceil(bottom / ROW_GAP)
 
-    return iconRight > left && iconLeft < right && iconBottom > top && iconTop < bottom
-  })
+  const icons = []
+  for (let row = rowStart; row <= rowEnd; row++) {
+    for (let col = colStart; col <= colEnd; col++) {
+      const icon = iconAt(col, row, source)
+      if (!icon)
+        continue
+
+      // Jitter deterministik berdasarkan posisi grid
+      const idx = Math.abs(row * GRID_COLUMNS + col)
+      const xJitter = ((idx * 37) % 28) - 14
+      const yJitter = ((idx * 53) % 24) - 12
+
+      icons.push({
+        ...icon,
+        repeatKey: `${col}-${row}`,
+        x: col * COLUMN_GAP + ICON_BOX / 2 + xJitter,
+        y: row * ROW_GAP + ICON_BOX / 2 + yJitter,
+      })
+    }
+  }
+  return icons
 })
 
 function onIconClick(iconFull: string) {
@@ -205,16 +149,11 @@ function onIconClick(iconFull: string) {
 }
 
 function centerCanvas() {
-  if (!scrollRef.value || !positionedIcons.value.length)
+  if (!scrollRef.value)
     return
-
-  const columns = gridColumns.value
-  const contentWidth = Math.max(0, (columns - 1) * COLUMN_GAP)
-  const left = SURFACE_PADDING_X + contentWidth / 2 - vpW.value / 2
-  const top = SURFACE_PADDING_Y + TOP_OFFSET - 70
-
-  scrollRef.value.scrollLeft = Math.max(0, left)
-  scrollRef.value.scrollTop = Math.max(0, top)
+  // Scroll ke tengah surface
+  scrollRef.value.scrollLeft = SURFACE_SIZE / 2 - vpW.value / 2
+  scrollRef.value.scrollTop = SURFACE_SIZE / 2 - vpH.value / 2
   syncScroll()
 }
 
@@ -236,29 +175,21 @@ watch(() => [props.results.length, props.results[0]?.iconFull], async () => {
 })
 
 function getCoprimeShift(length: number, preferred: number, avoid?: number) {
-  for (let shift = preferred; shift < length; shift += 1) {
+  for (let shift = preferred; shift < length; shift++) {
     if (shift !== avoid && gcd(shift, length) === 1)
       return shift
   }
-
-  for (let shift = 1; shift < length; shift += 1) {
+  for (let shift = 1; shift < length; shift++) {
     if (shift !== avoid)
       return shift
   }
-
   return 1
 }
 
 function gcd(a: number, b: number): number {
   let x = Math.abs(a)
   let y = Math.abs(b)
-
-  while (y !== 0) {
-    const temp = y
-    y = x % y
-    x = temp
-  }
-
+  while (y !== 0) { const t = y; y = x % y; x = t }
   return x
 }
 </script>
@@ -288,13 +219,11 @@ function gcd(a: number, b: number): number {
       No icons found
     </div>
 
+    <!-- Surface besar untuk infinite scroll -->
     <div
       v-else
       class="relative"
-      :style="{
-        width: `${surfaceWidth}px`,
-        height: `${surfaceHeight}px`,
-      }"
+      :style="{ width: `${SURFACE_SIZE}px`, height: `${SURFACE_SIZE}px` }"
     >
       <div
         v-for="icon in visibleIcons"
@@ -315,7 +244,6 @@ function gcd(a: number, b: number): number {
           class="pointer-events-none drop-shadow-[0_16px_20px_rgba(0,0,0,0.10)]"
           :style="{ fontSize: `${ICON_SIZE}px` }"
         />
-
         <span class="pointer-events-none absolute top-full mt-3 rounded-full bg-white/84 px-3 py-1 text-[11px] font-medium text-black/52 opacity-0 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
           {{ icon.iconName }}
         </span>
