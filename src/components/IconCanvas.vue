@@ -14,10 +14,12 @@ interface Props {
   results: SearchResult[]
   loading: boolean
   iconScale?: number
+  iconColor?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   iconScale: 1,
+  iconColor: '#000000',
 })
 const emit = defineEmits<{ (e: 'select', iconFull: string): void }>()
 
@@ -245,6 +247,7 @@ function gcd(a: number, b: number): number {
           marginTop: `-${ICON_BOX / 2}px`,
           width: `${ICON_BOX}px`,
           height: `${ICON_BOX}px`,
+          color: iconColor,
         }"
         @click.stop="onIconClick(icon.iconFull)"
       >
