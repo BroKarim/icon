@@ -9,6 +9,7 @@ const { query, results, browseResults, loading, ensureLoaded } = useGlobalSearch
 
 const showDetail = ref(false)
 const selectedIcon = ref('')
+const iconScale = ref(1)
 
 const canvasResults = computed(() => query.value.trim() ? results.value : browseResults.value)
 
@@ -31,12 +32,14 @@ function onClose() {
   <div class="relative h-screen overflow-hidden bg-[#f7f3ec] text-slate-900">
     <SearchHeader
       v-model="query"
+      v-model:icon-scale="iconScale"
       :results-count="canvasResults.length"
     />
 
     <IconCanvas
       :results="canvasResults"
       :loading="loading"
+      :icon-scale="iconScale"
       @select="onSelect"
     />
 

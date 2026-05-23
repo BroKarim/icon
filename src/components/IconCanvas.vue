@@ -13,9 +13,12 @@ interface SearchResult {
 interface Props {
   results: SearchResult[]
   loading: boolean
+  iconScale?: number
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  iconScale: 1,
+})
 const emit = defineEmits<{ (e: 'select', iconFull: string): void }>()
 
 const scrollRef = ref<HTMLElement | null>(null)
@@ -75,10 +78,10 @@ function onPointerUp(e: PointerEvent) {
     scrollRef.value.releasePointerCapture(e.pointerId)
 }
 
-const ICON_BOX = 170
-const ICON_SIZE = 88
-const COLUMN_GAP = 240
-const ROW_GAP = 230
+const ICON_SIZE = computed(() => 88 * props.iconScale)
+const ICON_BOX = computed(() => 170 * props.iconScale)
+const COLUMN_GAP = computed(() => 240 * props.iconScale)
+const ROW_GAP = computed(() => 230 * props.iconScale)
 const BUFFER = 300
 
 // Infinite surface: besar sekali, scroll mulai di tengah
@@ -115,10 +118,10 @@ const visibleIcons = computed(() => {
   const bottom = scrollY.value + vpH.value + BUFFER
 
   // Hitung range kolom & baris yang visible
-  const colStart = Math.floor(left / COLUMN_GAP)
-  const colEnd = Math.ceil(right / COLUMN_GAP)
-  const rowStart = Math.floor(top / ROW_GAP)
-  const rowEnd = Math.ceil(bottom / ROW_GAP)
+  const colStart = Math.floor(left / COLUMN_GAP.value)
+  const colEnd = Math.ceil(right / COLUMN_GAP.value)
+  const rowStart = Math.floor(top / ROW_GAP.value)
+  const rowEnd = Math.ceil(bottom / ROW_GAP.value)
 
   const icons = []
   for (let row = rowStart; row <= rowEnd; row++) {
@@ -135,8 +138,8 @@ const visibleIcons = computed(() => {
       icons.push({
         ...icon,
         repeatKey: `${col}-${row}`,
-        x: col * COLUMN_GAP + ICON_BOX / 2 + xJitter,
-        y: row * ROW_GAP + ICON_BOX / 2 + yJitter,
+        x: col * COLUMN_GAP.value + ICON_BOX.value / 2 + xJitter,
+        y: row * ROW_GAP.value + ICON_BOX.value / 2 + yJitter,
       })
     }
   }
@@ -169,6 +172,12 @@ onUnmounted(() => {
 })
 
 watch(() => [props.results.length, props.results[0]?.iconFull], async () => {
+  await nextTick()
+  measureViewport()
+  centerCanvas()
+})
+
+watch(() => props.iconScale, async () => {
   await nextTick()
   measureViewport()
   centerCanvas()

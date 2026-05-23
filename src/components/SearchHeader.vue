@@ -2,10 +2,12 @@
 interface Props {
   modelValue: string
   resultsCount: number
+  iconScale?: number
 }
 
 interface Emits {
   (e: 'update:modelValue', value: string): void
+  (e: 'update:iconScale', value: number): void
 }
 
 const props = defineProps<Props>()
@@ -16,7 +18,10 @@ const query = computed({
   set: v => emit('update:modelValue', v),
 })
 
-const iconSize = ref(64)
+const iconScaleModel = computed({
+  get: () => [props.iconScale ?? 1],
+  set: v => emit('update:iconScale', v[0]),
+})
 </script>
 
 <template>
@@ -44,10 +49,11 @@ const iconSize = ref(64)
         <div class="hidden items-center gap-3 rounded-full bg-white/60 px-4 py-2 md:flex">
           <Icon icon="carbon:collapse-all" class="text-sm text-black/45" />
           <Slider
-            v-model="iconSize"
-            :min="32"
-            :max="128"
-            class="w-16"
+            v-model="iconScaleModel"
+            :min="0.5"
+            :max="2"
+            :step="0.01"
+            class="w-32"
           />
           <Icon icon="carbon:expand-all" class="text-sm text-black/45" />
         </div>
