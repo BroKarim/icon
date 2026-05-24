@@ -40,9 +40,11 @@
     "motion-v": "^2.2.1",
     "prettier": "^3.7.3",
     "reka-ui": "^2.9.8",
+    "sax": "^1.6.0",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.0",
     "ultrahtml": "^1.6.0",
+    "vaul-vue": "^0.4.1",
     "vue": "^3.5.25",
     "vue-chemistry": "^0.2.2",
     "vue-router": "^4.6.3"

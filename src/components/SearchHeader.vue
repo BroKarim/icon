@@ -1,6 +1,4 @@
 <script setup lang='ts'>
-import { onClickOutside } from '@vueuse/core'
-
 interface Props {
   modelValue: string
   resultsCount: number
@@ -27,19 +25,54 @@ const iconScaleModel = computed({
   set: v => emit('update:iconScale', v[0]),
 })
 
-const colorPickerOpen = ref(false)
-const colorPickerRef = ref<HTMLElement | null>(null)
+function normalizeHexColor(color?: string) {
+  const value = color?.trim() ?? ''
 
-onClickOutside(colorPickerRef, () => {
-  colorPickerOpen.value = false
+  if (/^#[\da-f]{6}$/i.test(value))
+    return value.toUpperCase()
+
+  if (/^#[\da-f]{3}$/i.test(value)) {
+    const [r, g, b] = value.slice(1).split('')
+    return `#${r}${r}${g}${g}${b}${b}`.toUpperCase()
+  }
+
+  return '#000000'
+}
+
+function shortenHexColor(color: string) {
+  const normalized = normalizeHexColor(color)
+
+  if (
+    normalized[1] === normalized[2]
+    && normalized[3] === normalized[4]
+    && normalized[5] === normalized[6]
+  ) {
+    return `#${normalized[1]}${normalized[3]}${normalized[5]}`
+  }
+
+  return normalized
+}
+
+function getRgbChannels(color: string) {
+  const normalized = normalizeHexColor(color)
+  return {
+    r: Number.parseInt(normalized.slice(1, 3), 16),
+    g: Number.parseInt(normalized.slice(3, 5), 16),
+    b: Number.parseInt(normalized.slice(5, 7), 16),
+  }
+}
+
+const currentIconColor = computed(() => normalizeHexColor(props.iconColor))
+
+const displayIconColor = computed(() => shortenHexColor(currentIconColor.value))
+
+const colorIsLight = computed(() => {
+  const { r, g, b } = getRgbChannels(currentIconColor.value)
+  return (r * 299 + g * 587 + b * 114) / 1000 >= 160
 })
 
-const presetColors = [
-  '#000000', '#6b7280', '#ef4444', '#f97316', '#eab308',
-  '#22c55e', '#06b6d4', '#3b82f6', '#8b5cf6', '#ec4899',
-  '#78716c', '#a8a29e', '#dc2626', '#d97706', '#ca8a04',
-  '#16a34a', '#0891b2', '#2563eb', '#7c3aed', '#db2777',
-]
+const colorButtonText = computed(() => colorIsLight.value ? '#111827' : '#FFFFFF')
+const colorButtonBorder = computed(() => colorIsLight.value ? 'rgba(17, 24, 39, 0.14)' : 'rgba(255, 255, 255, 0.26)')
 </script>
 
 <template>
@@ -49,15 +82,15 @@ const presetColors = [
         <Input
           v-model="query"
           placeholder="Search 10,000 Things"
-          class="h-10 w-full"
+          class="h-10 w-full rounded-full border-0 bg-white/30 px-4 text-sm text-black placeholder:text-black/50 shadow-sm backdrop-blur-md transition focus-within:bg-white/50 focus:outline-none focus:ring-0"
         />
       </div>
 
       <!-- Right section -->
       <div class="pointer-events-auto px-4 py-3 flex items-center gap-2 shrink-0">
         <!-- Icon size slider -->
-        <div class="hidden items-center gap-3 rounded-full bg-white/60 px-4 py-2 md:flex">
-          <Icon icon="carbon:collapse-all" class="text-sm text-black/45" />
+        <div class="hidden items-center gap-3 rounded-full bg-white/30 px-4 h-10 backdrop-blur-md transition hover:bg-white/50 md:flex">
+          <span class="min-w-[3ch] text-center text-xs font-medium tabular-nums text-black/60">{{ Math.round(iconScaleModel[0] * 32) }}px</span>
           <Slider
             v-model="iconScaleModel"
             :min="0.5"
@@ -65,63 +98,29 @@ const presetColors = [
             :step="0.01"
             class="w-32"
           />
-          <Icon icon="carbon:expand-all" class="text-sm text-black/45" />
         </div>
 
         <!-- Color picker -->
-        <div ref="colorPickerRef" class="relative">
-          <button
-            type="button"
-            class="flex h-9 w-9 items-center justify-center rounded-full bg-white/60 transition hover:bg-white/80"
-            @click="colorPickerOpen = !colorPickerOpen"
+        <ColorPicker
+          :value="currentIconColor"
+          class="inline-flex"
+          @update:value="emit('update:iconColor', $event)"
+        >
+          <Button
+            as="div"
+            variant="outline"
+            class="h-10 rounded-full px-3 shadow-sm backdrop-blur-md transition hover:brightness-[1.03]"
+            :style="{
+              backgroundColor: currentIconColor,
+              color: colorButtonText,
+              borderColor: colorButtonBorder,
+            }"
           >
-            <div
-              class="h-5 w-5 rounded-full border-2 border-white shadow-sm"
-              :style="{ backgroundColor: iconColor }"
-            />
-          </button>
-
-          <Transition
-            enter-active-class="transition duration-150 ease-out"
-            enter-from-class="opacity-0 scale-95"
-            enter-to-class="opacity-100 scale-100"
-            leave-active-class="transition duration-100 ease-in"
-            leave-from-class="opacity-100 scale-100"
-            leave-to-class="opacity-0 scale-95"
-          >
-            <div
-              v-if="colorPickerOpen"
-              class="absolute right-0 top-12 z-50 w-52 rounded-2xl bg-white p-3 shadow-xl ring-1 ring-black/5"
-            >
-              <div class="grid grid-cols-5 gap-1.5">
-                <button
-                  v-for="color in presetColors"
-                  :key="color"
-                  class="h-7 w-7 cursor-pointer rounded-full border border-black/10 transition hover:scale-110"
-                  :class="iconColor === color ? 'ring-2 ring-black/40 ring-offset-1' : ''"
-                  :style="{ backgroundColor: color }"
-                  @click="emit('update:iconColor', color)"
-                />
-              </div>
-
-              <div class="mt-3 flex items-center gap-2">
-                <input
-                  type="color"
-                  :value="iconColor"
-                  class="h-8 w-8 cursor-pointer rounded border border-black/10"
-                  @input="emit('update:iconColor', ($event.target as HTMLInputElement).value)"
-                >
-                <input
-                  type="text"
-                  :value="iconColor"
-                  class="h-8 flex-1 rounded-lg border border-black/10 px-2 text-xs font-mono"
-                  maxlength="7"
-                  @change="emit('update:iconColor', ($event.target as HTMLInputElement).value)"
-                >
-              </div>
-            </div>
-          </Transition>
-        </div>
+            <span class="font-mono text-xs font-semibold tracking-[0.18em]">
+              {{ displayIconColor }}
+            </span>
+          </Button>
+        </ColorPicker>
       </div>
     </div>
   </div>

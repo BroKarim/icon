@@ -54,7 +54,7 @@ let moved = false
 let stopMovingTimer: ReturnType<typeof setTimeout> | null = null
 
 // ─── computed grid size ───────────────────────────────────────────────────────
-const GRID_SIZE = computed(() => Math.round(220 * (props.iconScale ?? 1)))
+const GRID_SIZE = computed(() => Math.round(130 * (props.iconScale ?? 1)))
 const ICON_SIZE = computed(() => Math.round(88 * (props.iconScale ?? 1)))
 
 // ─── grid index via spiral ────────────────────────────────────────────────────
@@ -113,9 +113,7 @@ function iconForIndex(gridIndex: number): SearchResult | null {
 }
 
 function jitterForIndex(gridIndex: number) {
-  const xJitter = ((gridIndex * 37) % 28) - 14
-  const yJitter = ((gridIndex * 53) % 24) - 12
-  return { xJitter, yJitter }
+  return { xJitter: 0, yJitter: 0 }
 }
 
 // ─── visible items ────────────────────────────────────────────────────────────
@@ -382,7 +380,7 @@ watch(() => props.iconScale, () => {
       <div
         v-for="icon in visibleItems"
         :key="`${icon.position.x}-${icon.position.y}`"
-        class="group absolute flex items-center justify-center rounded-[32px] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.03]"
+        class="group absolute flex flex-col items-center justify-center rounded-[32px] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.03]"
         :style="{
           width: `${GRID_SIZE}px`,
           height: `${GRID_SIZE}px`,
@@ -398,7 +396,7 @@ watch(() => props.iconScale, () => {
           class="pointer-events-none drop-shadow-[0_16px_20px_rgba(0,0,0,0.10)]"
           :style="{ fontSize: `${ICON_SIZE}px` }"
         />
-        <span class="pointer-events-none absolute top-full mt-3 rounded-full bg-white/84 px-3 py-1 text-[11px] font-medium text-black/52 opacity-0 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 whitespace-nowrap">
+        <span class="pointer-events-none mt-1.5 rounded-full bg-white/84 px-2.5 py-0.5 text-[10px] font-medium text-black/52 opacity-0 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 whitespace-nowrap">
           {{ icon.iconName }}
         </span>
       </div>

@@ -1,8 +1,8 @@
 <script setup lang='ts'>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import IconCanvas from '../components/IconCanvas.vue'
 import IconDetail from '../components/IconDetail.vue'
-import Modal from '../components/Modal.vue'
+import ShDrawer from '../components/ui/drawer/Drawer.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
 const { query, results, browseResults, loading, ensureLoaded } = useGlobalSearch()
@@ -27,6 +27,11 @@ function onClose() {
   showDetail.value = false
   selectedIcon.value = ''
 }
+
+watch(showDetail, (val) => {
+  if (!val)
+    selectedIcon.value = ''
+})
 </script>
 
 <template>
@@ -46,13 +51,16 @@ function onClose() {
       @select="onSelect"
     />
 
-    <Modal :value="showDetail" @close="onClose">
-      <IconDetail
-        v-if="selectedIcon"
-        :icon="selectedIcon"
-        :show-collection="true"
-        @close="onClose"
-      />
-    </Modal>
+    <ShDrawer v-model:open="showDetail">
+      <DrawerContent class="bg-white border-t-2 border-black">
+        <IconDetail
+          v-if="selectedIcon"
+          :icon="selectedIcon"
+          :show-collection="true"
+          :icon-color="iconColor"
+          @close="onClose"
+        />
+      </DrawerContent>
+    </ShDrawer>
   </div>
 </template>

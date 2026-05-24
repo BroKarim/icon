@@ -15,12 +15,16 @@ const props = defineProps({
     type: Boolean,
     required: true,
   },
+  iconColor: {
+    type: String,
+    default: '#000000',
+  },
 })
 
 const emit = defineEmits(['close', 'copy', 'next', 'prev'])
 
 const caseSelector = ref<HTMLDivElement>()
-const transformedId = computed(() => getTransformedId(props.icon))
+// const transformedId = computed(() => getTransformedId(props.icon))
 const color = computed(() => copyPreviewColor.value ? previewColor.value : 'currentColor')
 
 onClickOutside(caseSelector, () => {
@@ -113,18 +117,17 @@ const collection = computed(() => {
 </script>
 
 <template>
-  <div class="p-2 flex flex-col flex-wrap md:flex-row md:text-left relative">
+  <div class="p-2 flex flex-col flex-wrap md:flex-row md:text-left relative text-black">
     <IconButton
       class="absolute top-0 right-0 p-3 text-2xl flex-none leading-none" icon="carbon:close"
       @click="$emit('close')"
     />
-    <div :style="{ color: previewColor }">
-      <ColorPicker v-model:value="previewColor" class="inline-block">
-        <Icon :key="icon" outer-class="p-4 text-8xl" :icon="icon" />
-      </ColorPicker>
+    <div class="flex  items-end gap-1 w-full " :style="{ color: iconColor }">
+      <Icon :key="icon" outer-class="text-8xl" :icon="icon" />
+      <span class=" text-sm font-mono text-black/60">{{ icon.split(':')[1] }}</span>
     </div>
     <div class="px-6 py-2 mb-2 md:px-2 md:py-4">
-      <button class="op35 hover:text-primary hover:op100 text-sm !outline-none" @click="showHelp = !showHelp">
+      <!-- <button class="op35 hover:text-primary hover:op100 text-sm !outline-none" @click="showHelp = !showHelp">
         How to use the icon?
       </button>
       <div class="flex op75 relative font-mono">
@@ -161,14 +164,14 @@ const collection = computed(() => {
         >
           {{ collection.name }}
         </RouterLink>
-      </p>
+      </p> -->
 
       <div>
         <button
           class="
-            inline-block leading-1em border border-base my-2 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
+            inline-block text-black leading-1em border-2 border-black my-2 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
             hover:bg-gray-50 dark:hover:bg-dark-200
-          " :class="inBag(icon) ? 'text-primary' : 'op50'" @click="toggleBag(icon)"
+          " :class="inBag(icon) ? 'text-black' : 'op50'" @click="toggleBag(icon)"
         >
           <template v-if="inBag(icon)">
             <Icon class="inline-block text-lg align-middle" icon="carbon:shopping-bag" />
@@ -182,9 +185,9 @@ const collection = computed(() => {
 
         <button
           v-if="inBag(icon)" class="
-            inline-block leading-1em border border-base my-2 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
+            inline-block leading-1em border-2 border-black my-2 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
             hover:bg-gray-50 dark:hover:bg-dark-200
-          " :class="activeMode === 'select' ? 'text-primary' : 'op50'" @click="toggleSelectingMode"
+          " :class="activeMode === 'select' ? 'text-black' : 'op50'" @click="toggleSelectingMode"
         >
           <Icon class="inline-block text-lg align-middle" icon="carbon:list-checked" />
           <span class="inline-block align-middle ml1">multiple select</span>
@@ -192,7 +195,7 @@ const collection = computed(() => {
 
         <button
           class="
-            inline-block leading-1em border border-base my-2 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
+            inline-block leading-1em border-2 border-black my-2 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
             hover:bg-gray-50 dark:hover:bg-dark-200
           " :class="copyPreviewColor ? 'text-primary' : 'op50'" @click="copyPreviewColor = !copyPreviewColor"
         >
@@ -279,7 +282,7 @@ const collection = computed(() => {
         </div>
       </div>
 
-      <InstallIconSet v-if="collection" :collection="collection" />
+      <!-- <InstallIconSet v-if="collection" :collection="collection" /> -->
     </div>
   </div>
 </template>
