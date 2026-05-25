@@ -7,12 +7,12 @@ const timeAgo = useTimeAgo(new Date(buildTime))
 <template>
   <footer class="text-center text-sm pt-8 pb-6">
     <p class="color-fade">
-      built by
+      maintained by
       <a
         class="opacity-75 hover:opacity-100"
-        href="https://github.com/antfu"
+        href="https://github.com/BroKarim"
         target="_blank"
-      >@antfu</a>,
+      >Brokarim</a>,
       powered by
       <a
         class="opacity-75 hover:opacity-100"

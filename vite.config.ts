@@ -65,8 +65,8 @@ export default defineConfig(async ({ mode }) => {
         filename: 'sw.ts',
         registerType: 'autoUpdate',
         manifest: {
-          name: 'Icônes',
-          short_name: 'Icônes',
+          name: 'Icons',
+          short_name: 'Icons',
           icons: [
             {
               src: '/web-app-manifest-192x192.png',

@@ -23,7 +23,7 @@
       Atomic CSS
     </h2>
     <p>
-      Created by the author of <b>Icônes</b>. With the power of <a href="https://github.com/antfu/unocss">UnoCSS</a>, you can use the icons with <b>Pure CSS</b> using <a href="https://github.com/unocss/unocss/tree/main/packages-presets/preset-icons" target="_blank"><code>@unocss/preset-icons</code></a>.
+      Created by the author of <b>Icônes</b> (fork: <b>Icons</b>). With the power of <a href="https://github.com/antfu/unocss">UnoCSS</a>, you can use the icons with <b>Pure CSS</b> using <a href="https://github.com/unocss/unocss/tree/main/packages-presets/preset-icons" target="_blank"><code>@unocss/preset-icons</code></a>.
     </p>
     <p class="mt-2">
       Check out <a href="https://antfu.me/posts/icons-in-pure-css" target="_blank">this blog post</a> for more.
@@ -33,7 +33,7 @@
       Components
     </h2>
     <p>
-      Created by the author of <b>Icônes</b>, <a href="https://github.com/antfu/unplugin-icons" target="_blank"><code>unplugin-icons</code></a> is a on-demand
+      Created by the author of <b>Icônes</b> (fork: <b>Icons</b>), <a href="https://github.com/antfu/unplugin-icons" target="_blank"><code>unplugin-icons</code></a> is a on-demand
       solution to generate icons as components on the fly.
     </p>
     <p class="mt-2">
