@@ -32,6 +32,10 @@ const FRICTION = 0.997
 const VELOCITY_SCALE = 16
 const BUFFER = 1
 
+// ─── center clear zone ───────────────────────────────────────────────────────
+const CENTER_CLEAR_RADIUS_X = 220
+const CENTER_CLEAR_RADIUS_Y = 140
+
 // ─── refs ────────────────────────────────────────────────────────────────────
 const containerRef = ref<HTMLElement | null>(null)
 const offset = ref({ x: 0, y: 0 })
@@ -128,7 +132,13 @@ const visibleItems = computed(() => {
       const y = item.position.y * GRID_SIZE.value + cachedHeight / 2 + yJitter
       return { ...icon, x, y, gridIndex: item.gridIndex, position: item.position }
     })
-    .filter(Boolean) as (SearchResult & { x: number, y: number, gridIndex: number, position: { x: number, y: number } })[]
+    .filter(Boolean)
+    .filter((icon) => {
+      // skip icon yang berada di area center agar slot center tidak tertimpa
+      const relX = Math.abs(icon!.x - cachedWidth / 2)
+      const relY = Math.abs(icon!.y - cachedHeight / 2)
+      return relX > CENTER_CLEAR_RADIUS_X || relY > CENTER_CLEAR_RADIUS_Y
+    }) as (SearchResult & { x: number, y: number, gridIndex: number, position: { x: number, y: number } })[]
 })
 
 // ─── grid calculation ─────────────────────────────────────────────────────────
@@ -377,6 +387,13 @@ watch(() => props.iconScale, () => {
         willChange: 'transform',
       }"
     >
+      <!-- center content slot — moves with the canvas -->
+      <div
+        class="absolute pointer-events-none flex flex-col items-center justify-center text-center select-none"
+        style="left: 50%; top: 50%; transform: translate(-50%, -50%); min-width: 400px; min-height: 250px; "
+      >
+        <slot name="center" />
+      </div>
       <div
         v-for="icon in visibleItems"
         :key="`${icon.position.x}-${icon.position.y}`"

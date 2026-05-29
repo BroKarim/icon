@@ -166,6 +166,33 @@ const collection = computed(() => {
         </RouterLink>
       </p> -->
 
+      <div class="flex items-center gap-4 mt-3 text-sm" v-if="collection">
+        <div>
+          <span class="op50">Collection: </span>
+          <RouterLink
+            class="text-primary hover:underline"
+            :to="`/collection/${collection.id}`"
+          >
+            {{ collection.name }}
+          </RouterLink>
+        </div>
+        <div v-if="collection.author">
+          <span class="op50">Author: </span>
+          <a
+            class="text-primary hover:underline"
+            :href="collection.author.url"
+            target="_blank"
+          >{{ collection.author.name }}</a>
+        </div>
+        <div v-if="collection.license">
+          <span class="op50">License: </span>
+          <a
+            class="text-primary hover:underline"
+            :href="collection.license.url"
+            target="_blank"
+          >{{ collection.license.title }}</a>
+        </div>
+      </div>
       <div>
         <button
           class="
@@ -204,6 +231,8 @@ const collection = computed(() => {
           <span class="inline-block align-middle ml1">copy with color</span>
         </button>
       </div>
+
+      
 
       <div class="flex flex-wrap mt-2">
         <template v-for="(group, groupName) in SnippetMap" :key="groupName">
