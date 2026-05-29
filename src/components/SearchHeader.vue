@@ -1,19 +1,26 @@
 <script setup lang='ts'>
+import { Dice5 } from '@lucide/vue'
+import { Motion } from 'motion-v'
+
 interface Props {
   modelValue: string
   resultsCount: number
   iconScale?: number
   iconColor?: string
+  bgColor?: string
 }
 
 interface Emits {
   (e: 'update:modelValue', value: string): void
   (e: 'update:iconScale', value: number): void
   (e: 'update:iconColor', value: string): void
+  (e: 'update:bgColor', value: string): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
+
+const booped = ref(false)
 
 const query = computed({
   get: () => props.modelValue,
@@ -62,6 +69,36 @@ function getRgbChannels(color: string) {
   }
 }
 
+function randomHexColor() {
+  return `#${Math.floor(Math.random() * 0xFFFFFF + 1).toString(16).padStart(6, '0')}`
+}
+
+function randomLightColor() {
+  const h = Math.floor(Math.random() * 360)
+  const s = 20 + Math.floor(Math.random() * 30)
+  const l = 85 + Math.floor(Math.random() * 10)
+  return hslToHex(h, s, l)
+}
+
+function hslToHex(h: number, s: number, l: number) {
+  s /= 100
+  l /= 100
+  const c = (1 - Math.abs(2 * l - 1)) * s
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1))
+  const m = l - c / 2
+  let r = 0, g = 0, b = 0
+
+  if (h < 60) { r = c; g = x; b = 0 }
+  else if (h < 120) { r = x; g = c; b = 0 }
+  else if (h < 180) { r = 0; g = c; b = x }
+  else if (h < 240) { r = 0; g = x; b = c }
+  else if (h < 300) { r = x; g = 0; b = c }
+  else { r = c; g = 0; b = x }
+
+  const toHex = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, '0')
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase()
+}
+
 const currentIconColor = computed(() => normalizeHexColor(props.iconColor))
 
 const displayIconColor = computed(() => shortenHexColor(currentIconColor.value))
@@ -73,6 +110,18 @@ const colorIsLight = computed(() => {
 
 const colorButtonText = computed(() => colorIsLight.value ? '#111827' : '#FFFFFF')
 const colorButtonBorder = computed(() => colorIsLight.value ? 'rgba(17, 24, 39, 0.14)' : 'rgba(255, 255, 255, 0.26)')
+
+function randomizeTheme() {
+  booped.value = true
+  const newIconColor = randomHexColor()
+  const newBgColor = randomLightColor()
+  emit('update:iconColor', newIconColor)
+  emit('update:bgColor', newBgColor)
+}
+
+function onBoopEnd() {
+  booped.value = false
+}
 </script>
 
 <template>
@@ -99,6 +148,23 @@ const colorButtonBorder = computed(() => colorIsLight.value ? 'rgba(17, 24, 39, 
             class="w-32"
           />
         </div>
+
+        <!-- Randomize button -->
+        <button
+          class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white/30 shadow-sm backdrop-blur-md transition hover:bg-white/50 cursor-pointer"
+          title="Randomize theme"
+          @click="randomizeTheme"
+        >
+          <Motion
+            :animate="booped
+              ? { y: [0, -6, 0], rotate: [0, -10, 10, -10, 0] }
+              : {}"
+            :transition="{ duration: 0.5 }"
+            @animation-end="onBoopEnd"
+          >
+            <Dice5 :size="20" class="text-black/60" />
+          </Motion>
+        </button>
 
         <!-- Color picker -->
         <ColorPicker

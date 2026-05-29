@@ -11,6 +11,7 @@ const showDetail = ref(false)
 const selectedIcon = ref('')
 const iconScale = ref(1)
 const iconColor = ref('#000000')
+const bgColor = ref('#f7f3ec')
 
 const canvasResults = computed(() => query.value.trim() ? results.value : browseResults.value)
 
@@ -35,11 +36,12 @@ watch(showDetail, (val) => {
 </script>
 
 <template>
-  <div class="relative h-screen overflow-hidden bg-[#f7f3ec] text-slate-900">
+  <div class="relative h-screen overflow-hidden text-slate-900" :style="{ backgroundColor: bgColor }">
     <SearchHeader
       v-model="query"
       v-model:icon-scale="iconScale"
       v-model:icon-color="iconColor"
+      v-model:bg-color="bgColor"
       :results-count="canvasResults.length"
     />
 
@@ -48,6 +50,7 @@ watch(showDetail, (val) => {
       :loading="loading"
       :icon-scale="iconScale"
       :icon-color="iconColor"
+      :bg-color="bgColor"
       @select="onSelect"
     />
 

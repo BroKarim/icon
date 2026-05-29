@@ -15,11 +15,13 @@ interface Props {
   loading: boolean
   iconColor?: string
   iconScale?: number
+  bgColor?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   iconColor: '#000000',
   iconScale: 1,
+  bgColor: '#f7f3ec',
 })
 
 const emit = defineEmits<{ (e: 'select', iconFull: string): void }>()
@@ -60,6 +62,14 @@ let stopMovingTimer: ReturnType<typeof setTimeout> | null = null
 // ─── computed grid size ───────────────────────────────────────────────────────
 const GRID_SIZE = computed(() => Math.round(130 * (props.iconScale ?? 1)))
 const ICON_SIZE = computed(() => Math.round(88 * (props.iconScale ?? 1)))
+
+const bgStyle = computed(() => {
+  const hex = props.bgColor.replace('#', '')
+  const r = Number.parseInt(hex.slice(0, 2), 16)
+  const g = Number.parseInt(hex.slice(2, 4), 16)
+  const b = Number.parseInt(hex.slice(4, 6), 16)
+  return `radial-gradient(circle at top, rgba(255,255,255,0.72), rgba(${r},${g},${b},0.96) 56%, rgba(${r},${g},${b},1) 100%)`
+})
 
 // ─── grid index via spiral ────────────────────────────────────────────────────
 function getItemIndexForPosition(x: number, y: number): number {
@@ -363,7 +373,7 @@ watch(() => props.iconScale, () => {
     @dragstart.prevent
   >
     <!-- background -->
-    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.72),_rgba(247,243,236,0.96)_56%,_rgba(244,238,228,1)_100%)]" />
+    <div class="pointer-events-none absolute inset-0" :style="{ background: bgStyle }" />
 
     <!-- loading -->
     <div v-if="loading" class="absolute inset-0 flex items-center justify-center z-20">
@@ -390,7 +400,14 @@ watch(() => props.iconScale, () => {
       <!-- center content slot — moves with the canvas -->
       <div
         class="absolute pointer-events-none flex flex-col items-center justify-center text-center select-none"
-        style="left: 50%; top: 50%; transform: translate(-50%, -50%); min-width: 400px; min-height: 250px; "
+        :style="{
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '400px',
+          minHeight: '250px',
+          background: `radial-gradient(circle, ${bgColor} 40%, ${bgColor}cc 60%, transparent 100%)`,
+        }"
       >
         <slot name="center" />
       </div>
