@@ -35,8 +35,10 @@ const VELOCITY_SCALE = 16
 const BUFFER = 1
 
 // ─── center clear zone ───────────────────────────────────────────────────────
-const CENTER_CLEAR_RADIUS_X = 220
-const CENTER_CLEAR_RADIUS_Y = 140
+const CENTER_CLEAR_BASE_X = 220
+const CENTER_CLEAR_BASE_Y = 140
+const centerClearRadiusX = computed(() => CENTER_CLEAR_BASE_X * (props.iconScale ?? 1))
+const centerClearRadiusY = computed(() => CENTER_CLEAR_BASE_Y * (props.iconScale ?? 1))
 
 // ─── refs ────────────────────────────────────────────────────────────────────
 const containerRef = ref<HTMLElement | null>(null)
@@ -151,10 +153,9 @@ const visibleItems = computed(() => {
     })
     .filter(Boolean)
     .filter((icon) => {
-      // skip icon yang berada di area center agar slot center tidak tertimpa
       const relX = Math.abs(icon!.x - cachedWidth / 2)
       const relY = Math.abs(icon!.y - cachedHeight / 2)
-      return relX > CENTER_CLEAR_RADIUS_X || relY > CENTER_CLEAR_RADIUS_Y
+      return relX > centerClearRadiusX.value || relY > centerClearRadiusY.value
     }) as (SearchResult & { x: number, y: number, gridIndex: number, position: { x: number, y: number } })[]
 })
 
@@ -410,9 +411,9 @@ watch(() => props.iconScale, () => {
         :style="{
           left: '50%',
           top: '50%',
-          transform: 'translate(-50%, -50%)',
-          minWidth: '400px',
-          minHeight: '250px',
+          transform: `translate(-50%, -50%) scale(${props.iconScale ?? 1})`,
+          minWidth: `${400 * (props.iconScale ?? 1)}px`,
+          minHeight: `${250 * (props.iconScale ?? 1)}px`,
           background: `radial-gradient(circle, ${bgColor} 40%, ${bgColor}cc 60%, transparent 100%)`,
         }"
       >
