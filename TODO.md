@@ -53,3 +53,69 @@
   - [ ] Referensi visual utama: `https://www.thiings.co/things`
   - [ ] Referensi behavior canvas: `https://infinite-kanvas.com/`
   - [ ] Referensi detail controls: Phosphor Icons customizer behavior
+
+---
+
+## Dokumentasi: Pendekatan Collection Detail Page
+
+### Masalah Awal
+Halaman detail collection (`src/pages/collection/[id].vue`) sebelumnya menggunakan komponen `IconSet` (grid tradisional) untuk menampilkan icon. User ingin pendekatan infinite canvas seperti homepage, tapi dengan:
+1. Hanya menampilkan icon dari collection tersebut
+2. Info collection (nama, author, license) di tengah canvas
+3. Search bar untuk filter icon dalam collection
+4. Icon tidak boleh menimpa info collection
+
+### Pendekatan 1: Buat Komponen Canvas Baru
+Membuat komponen `CollectionCanvas.vue` terpisah dari `IconCanvas.vue`.
+
+**Kelebihan:**
+- Kontrol penuh atas perilaku khusus collection
+
+**Kekurangan:**
+- Duplikasi kode ~400 baris (physics, spiral, drag handling)
+- Maintenance dua file dengan logic mirip
+- Sulit sync perubahan UI/UX lintas halaman
+
+### Pendekatan 2: Reuse IconCanvas + Slot (DIPILIH)
+Modifikasi `IconCanvas.vue` dengan menambahkan slot `#center`, lalu gunakan komponen yang sama di halaman collection.
+
+**Kelebihan:**
+- Zero duplikasi kode — satu komponen untuk homepage DAN collection
+- Perubahan physics/scroll/hover otomatis berlaku di semua halaman
+- API bersih: parent tinggal isi `#center` slot dengan konten apapun
+- Maintenance lebih mudah karena logic canvas di satu tempat
+
+**Kekurangan:**
+- Perlu tambahan filtering logic di parent (collection page) untuk search
+- Slot center harus hati-hati agar tidak conflict dengan icon positioning
+
+### Implementasi
+
+**1. Center Slot di `IconCanvas.vue`**
+```
+IconCanvas.vue:380-396
+```
+- Slot `#center` ditempatkan di dalam canvas div (yang punya `transform: translate3d`)
+- Posisi: `left: 50%; top: 50%; transform: translate(-50%, -50%)`
+- Background: radial gradient yang match dengan canvas background (#f7f3ec) — memastikan icon tidak terlihat di belakang text
+
+**2. Center Clear Zone**
+```
+IconCanvas.vue:35-37, 136-141
+```
+- Constants `CENTER_CLEAR_RADIUS_X = 220` dan `CENTER_CLEAR_RADIUS_Y = 140`
+- Filter di `visibleItems` computed: skip icon yang berada di area center
+- Ini mencegah icon muncul di area info collection tanpa perlu mengubah algoritma spiral
+
+**3. Collection Page (`collection/[id].vue`)**
+- Convert `collection.icons[]` ke format `SearchResult[]`
+- Search filtering pakai `includes()` case-insensitive
+- `SearchHeader` ditambahkan dengan icon scale/color controls
+- `ShDrawer` + `IconDetail` untuk detail view (sama seperti homepage)
+
+### Hasil
+- Halaman collection menampilkan infinite canvas dengan icon dari collection tersebut
+- Info collection (nama, author, license) muncul di tengah dengan background yang menyembunyikan icon
+- User bisa search, zoom, dan ganti warna icon
+- Klik icon membuka drawer detail (sama seperti homepage)
+- Semua physics dan interaction otomatis sama dengan homepage

@@ -1,9 +1,9 @@
 <script setup lang='ts'>
 import type { SearchResult } from '../../composables/useGlobalSearch'
-import { pushRecentCollection, setCurrentCollection, useCurrentCollection } from '../../store'
 import IconCanvas from '../../components/IconCanvas.vue'
 import IconDetail from '../../components/IconDetail.vue'
 import ShDrawer from '../../components/ui/drawer/Drawer.vue'
+import { pushRecentCollection, setCurrentCollection, useCurrentCollection } from '../../store'
 
 const props = defineProps<{
   id: string

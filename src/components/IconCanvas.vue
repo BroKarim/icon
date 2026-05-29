@@ -116,7 +116,7 @@ function iconForIndex(gridIndex: number): SearchResult | null {
   return source[idx]
 }
 
-function jitterForIndex(gridIndex: number) {
+function jitterForIndex(_gridIndex: number) {
   return { xJitter: 0, yJitter: 0 }
 }
 
