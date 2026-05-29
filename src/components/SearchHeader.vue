@@ -127,7 +127,10 @@ function onBoopEnd() {
 <template>
   <div class="pointer-events-none absolute inset-x-0 top-0 z-20 px-4 pt-4">
     <div class="mx-auto flex justify-between w-full items-center gap-3 rounded-[30px]">
-      <div class=" pointer-events-auto">
+      <div class="flex items-center gap-2 pointer-events-auto">
+        <a href="/" class="flex-shrink-0" title="Home">
+          <img src="/favicon.svg" alt="Icons" class="h-10 w-10 bg-transparent " />
+        </a>
         <Input
           v-model="query"
           placeholder="Search 10,000 Things"
