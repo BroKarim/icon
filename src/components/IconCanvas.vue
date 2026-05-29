@@ -71,6 +71,13 @@ const bgStyle = computed(() => {
   return `radial-gradient(circle at top, rgba(255,255,255,0.72), rgba(${r},${g},${b},0.96) 56%, rgba(${r},${g},${b},1) 100%)`
 })
 
+const iconWeight = computed(() => {
+  const scale = props.iconScale ?? 1
+  const BASE_STROKE = 1.5
+  const WEIGHT_FACTOR = 0.3
+  return +(BASE_STROKE * (1 + (scale - 1) * WEIGHT_FACTOR)).toFixed(2)
+})
+
 // ─── grid index via spiral ────────────────────────────────────────────────────
 function getItemIndexForPosition(x: number, y: number): number {
   if (x === 0 && y === 0)
@@ -362,7 +369,7 @@ watch(() => props.iconScale, () => {
   <div
     ref="containerRef"
     class="absolute inset-0 select-none overflow-hidden"
-    :style="{ touchAction: 'none', cursor: isDragging ? 'grabbing' : 'grab' }"
+    :style="{ touchAction: 'none', cursor: isDragging ? 'grabbing' : 'grab', '--icon-weight': `${iconWeight}px` }"
     @mousedown="onMouseDown"
     @mousemove="onMouseMove"
     @mouseup="onMouseUp"
@@ -449,5 +456,12 @@ watch(() => props.iconScale, () => {
   to {
     transform: rotate(360deg);
   }
+}
+</style>
+
+<style>
+/* icon weight — applies stroke-width to stroke-based icons (Lucide, Feather, etc.) */
+iconify-icon svg {
+  stroke-width: var(--icon-weight, 1.5px);
 }
 </style>
