@@ -1,10 +1,12 @@
-<script setup lang='ts'>
+<script setup lang="ts">
+import { Analytics } from '@vercel/analytics/vue'
 import { useThemeColor } from './hooks'
 
 const { style } = useThemeColor()
 </script>
 
 <template>
+  <Analytics />
   <div class="flex flex-col h-screen overflow-hidden bg-base" :style="style">
     <div class="flex-auto overflow-overlay min-h-0">
       <!-- hapus h-full -->

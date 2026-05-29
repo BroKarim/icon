@@ -17,6 +17,9 @@ importers:
       '@tailwindcss/vite':
         specifier: ^4.3.0
         version: 4.3.0(vite@7.2.6(@types/node@25.9.1)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.33.0)(tsx@4.19.2)(yaml@2.8.1))
+      '@vercel/analytics':
+        specifier: ^2.0.1
+        version: 2.0.1(vue-router@4.6.3(vue@3.5.25(typescript@5.9.3)))(vue@3.5.25(typescript@5.9.3))
       '@vueuse/core':
         specifier: ^14.1.0
         version: 14.1.0(vue@3.5.25(typescript@5.9.3))
@@ -1960,6 +1963,35 @@ packages:
     resolution: {integrity: sha512-ejgiK9UqrSTtzgZCfph42Asun2N1OMNx4Z1wINgmLR8F0Xlpw7ECptdoLMrQaS+v4p/fY/fKqWqlX0rvfloUdA==}
     peerDependencies:
       vite: ^2.9.0 || ^3.0.0-0 || ^4.0.0 || ^5.0.0-0 || ^6.0.0-0 || ^7.0.0-0
+
+  '@vercel/analytics@2.0.1':
+    resolution: {integrity: sha512-MTQG6V9qQrt1tsDeF+2Uoo5aPjqbVPys1xvnIftXSJYG2SrwXRHnqEvVoYID7BTruDz4lCd2Z7rM1BdkUehk2g==}
+    peerDependencies:
+      '@remix-run/react': ^2
+      '@sveltejs/kit': ^1 || ^2
+      next: '>= 13'
+      nuxt: '>= 3'
+      react: ^18 || ^19 || ^19.0.0-rc
+      svelte: '>= 4'
+      vue: ^3
+      vue-router: ^4
+    peerDependenciesMeta:
+      '@remix-run/react':
+        optional: true
+      '@sveltejs/kit':
+        optional: true
+      next:
+        optional: true
+      nuxt:
+        optional: true
+      react:
+        optional: true
+      svelte:
+        optional: true
+      vue:
+        optional: true
+      vue-router:
+        optional: true
 
   '@vitejs/plugin-vue@6.0.2':
     resolution: {integrity: sha512-iHmwV3QcVGGvSC1BG5bZ4z6iwa1SOpAPWmnjOErd4Ske+lZua5K9TtAVdx0gMBClJ28DViCbSmZitjWZsWO3LA==}
@@ -7382,6 +7414,11 @@ snapshots:
       tinyglobby: 0.2.15
       unplugin-utils: 0.3.1
       vite: 7.2.6(@types/node@25.9.1)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.33.0)(tsx@4.19.2)(yaml@2.8.1)
+
+  '@vercel/analytics@2.0.1(vue-router@4.6.3(vue@3.5.25(typescript@5.9.3)))(vue@3.5.25(typescript@5.9.3))':
+    optionalDependencies:
+      vue: 3.5.25(typescript@5.9.3)
+      vue-router: 4.6.3(vue@3.5.25(typescript@5.9.3))
 
   '@vitejs/plugin-vue@6.0.2(vite@7.2.6(@types/node@25.9.1)(jiti@2.6.1)(lightningcss@1.32.0)(terser@5.33.0)(tsx@4.19.2)(yaml@2.8.1))(vue@3.5.25(typescript@5.9.3))':
     dependencies:
