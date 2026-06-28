@@ -128,8 +128,7 @@ watch(showDetail, (val) => {
 
     <Sheet v-model:open="showDetail">
       <SheetContent
-        side="bottom"
-        class="bg-white border-t-2 border-black max-h-[90vh] overflow-y-auto p-0 gap-0"
+        class="bg-white p-0 gap-0 w-full sm:max-w-md overflow-y-auto"
       >
         <IconDetail
           v-if="selectedIcon"
