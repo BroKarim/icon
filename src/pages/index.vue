@@ -1,8 +1,8 @@
 <script setup lang='ts'>
 import { computed, onMounted, ref, watch } from 'vue'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../components/IconCanvas.vue'
 import IconDetail from '../components/IconDetail.vue'
-import ShDrawer from '../components/ui/drawer/Drawer.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
 const { query, results, browseResults, loading, ensureLoaded } = useGlobalSearch()
@@ -126,8 +126,11 @@ watch(showDetail, (val) => {
       </template>
     </IconCanvas>
 
-    <ShDrawer v-model:open="showDetail">
-      <DrawerContent class="bg-white border-t-2 border-black">
+    <Sheet v-model:open="showDetail">
+      <SheetContent
+        side="bottom"
+        class="bg-white border-t-2 border-black max-h-[90vh] overflow-y-auto p-0 gap-0"
+      >
         <IconDetail
           v-if="selectedIcon"
           :icon="selectedIcon"
@@ -135,7 +138,7 @@ watch(showDetail, (val) => {
           :icon-color="iconColor"
           @close="onClose"
         />
-      </DrawerContent>
-    </ShDrawer>
+      </SheetContent>
+    </Sheet>
   </div>
 </template>
