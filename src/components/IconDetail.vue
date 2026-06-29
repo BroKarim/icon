@@ -126,10 +126,6 @@ async function copyHref(href: string) {
 
 <template>
   <div class="p-2 flex flex-col text-black">
-    <IconButton
-      class="absolute top-0 right-0 p-3 text-2xl flex-none leading-none z-20" icon="carbon:close"
-      @click="$emit('close')"
-    />
     <div class="flex items-end gap-1 w-full pr-10" :style="{ color: iconColor }">
       <Icon :key="icon" outer-class="text-8xl" :icon="icon" />
       <span class="text-sm font-mono text-black/60">{{ icon.split(':')[1] }}</span>
