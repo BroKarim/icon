@@ -306,7 +306,7 @@ async function copyHref(href: string) {
               <div class="flex gap-2">
                 <button
                   type="button"
-                  class="inline-flex items-center gap-1.5 rounded-md border bg-background px-2.5 py-1 text-xs font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  class="inline-flex items-center gap-1.5 rounded-md text-white border bg-background px-2.5 py-1 text-xs font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                   @click="copyHref(link.href)"
                 >
                   Copy URL
@@ -315,7 +315,7 @@ async function copyHref(href: string) {
                   :href="link.href"
                   target="_blank"
                   rel="noopener"
-                  class="inline-flex items-center gap-1.5 rounded-md border bg-background px-2.5 py-1 text-xs font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  class="inline-flex items-center gap-1.5 rounded-md border bg-background px-2.5 text-white py-1 text-xs font-medium hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
                   Open ↗
                 </a>

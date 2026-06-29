@@ -127,8 +127,7 @@ onBeforeUnmount(() => {
       @click="onCopy"
     >
       <Check v-if="copied" class="size-3.5 text-emerald-500" />
-      <Copy v-else class="size-3.5" />
-      <span>{{ copied ? 'Copied' : 'Copy' }}</span>
+      <Copy v-else class="size-3.5 text-white" />
     </button>
 
     <div v-if="isFetching" class="flex items-center gap-2 p-4 text-sm text-muted-foreground">
@@ -138,7 +137,7 @@ onBeforeUnmount(() => {
 
     <div
       v-else-if="highlightedCode"
-      class="max-h-80 overflow-auto p-4 text-sm [&_pre]:!bg-transparent [&_pre]:p-0 [&_pre]:m-0"
+      class="max-h-80 overflow-auto p-4 pr-12 text-sm [&_pre]:!bg-transparent [&_pre]:p-0 [&_pre]:m-0"
       v-html="highlightedCode"
     />
   </div>

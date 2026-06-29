@@ -6,8 +6,8 @@ export const shiki = computedAsync<HighlighterCore>(async (onCancel) => {
   const shiki = await createHighlighterCore({
     engine: createJavaScriptRegexEngine(),
     themes: [
-      () => import('shiki/themes/vitesse-dark.mjs'),
-      () => import('shiki/themes/vitesse-light.mjs'),
+      () => import('@shikijs/themes/tokyo-night'),
+      () => import('@shikijs/themes/github-light'),
     ],
     langs: [
       () => import('shiki/langs/html.mjs'),
@@ -30,8 +30,8 @@ export function highlight(code: string, lang: string) {
     lang,
     defaultColor: false,
     themes: {
-      dark: 'vitesse-dark',
-      light: 'vitesse-light',
+      dark: 'tokyo-night',
+      light: 'github-light',
     },
   })
 }
