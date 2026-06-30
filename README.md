@@ -8,8 +8,8 @@
 
 A modern icon explorer built with Vue 3 and Vite. Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface.
 
-> **Fork of** [antfu-collective/icones](https://github.com/antfu-collective/icones)  
-> **Maintained by** [Brokarim](https://github.com/BroKarim)  
+> **Fork of** [antfu-collective/icones](https://github.com/antfu-collective/icones)
+> **Maintained by** [Brokarim](https://github.com/BroKarim)
 > **Icons powered by** [Iconify](https://github.com/iconify/iconify)
 
 ## ✨ Features

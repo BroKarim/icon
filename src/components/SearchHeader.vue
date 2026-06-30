@@ -86,7 +86,7 @@ function hslToHex(h: number, s: number, l: number) {
   const c = (1 - Math.abs(2 * l - 1)) * s
   const x = c * (1 - Math.abs((h / 60) % 2 - 1))
   const m = l - c / 2
-  let r = 0, g = 0, b = 0
+  let r = 0; let g = 0; let b = 0
 
   if (h < 60) { r = c; g = x; b = 0 }
   else if (h < 120) { r = x; g = c; b = 0 }
@@ -129,7 +129,7 @@ function onBoopEnd() {
     <div class="mx-auto flex justify-between w-full items-center gap-3 rounded-[30px]">
       <div class="flex items-center gap-2 pointer-events-auto">
         <a href="/" class="flex-shrink-0" title="Home">
-          <img src="/favicon.svg" alt="Icons" class="h-10 w-10 bg-transparent " />
+          <img src="/favicon.svg" alt="Icons" class="h-10 w-10 bg-transparent ">
         </a>
         <Input
           v-model="query"

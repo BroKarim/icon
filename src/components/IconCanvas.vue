@@ -370,7 +370,7 @@ watch(() => props.iconScale, () => {
   <div
     ref="containerRef"
     class="absolute inset-0 select-none overflow-hidden"
-    :style="{ touchAction: 'none', cursor: isDragging ? 'grabbing' : 'grab', '--icon-weight': `${iconWeight}px` }"
+    :style="{ 'touchAction': 'none', 'cursor': isDragging ? 'grabbing' : 'grab', '--icon-weight': `${iconWeight}px` }"
     @mousedown="onMouseDown"
     @mousemove="onMouseMove"
     @mouseup="onMouseUp"
@@ -435,6 +435,7 @@ watch(() => props.iconScale, () => {
       >
         <Icon
           :icon="icon.iconFull"
+          :pause-animations="true"
           class="pointer-events-none drop-shadow-[0_16px_20px_rgba(0,0,0,0.10)]"
           :style="{ fontSize: `${ICON_SIZE}px` }"
         />

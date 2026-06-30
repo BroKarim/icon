@@ -132,7 +132,7 @@ async function copyHref(href: string) {
     </div>
 
     <div class="px-6 py-2 md:px-2 md:py-4 flex flex-col gap-4">
-      <div class="flex flex-wrap items-center gap-4 text-sm" v-if="collection">
+      <div v-if="collection" class="flex flex-wrap items-center gap-4 text-sm">
         <div>
           <span class="opacity-50">Collection: </span>
           <RouterLink
@@ -274,21 +274,41 @@ async function copyHref(href: string) {
           Download
         </h3>
         <div class="flex flex-wrap gap-1">
-          <button class="btn small opacity-75" @click="download('svg')">SVG</button>
-          <button class="btn small opacity-75" @click="download('png')">PNG</button>
-          <button class="btn small opacity-75" @click="download('vue')">Vue</button>
-          <button class="btn small opacity-75" @click="download('jsx')">React</button>
-          <button class="btn small opacity-75" @click="download('tsx')">React<sup class="opacity-50 -mr-1">TS</sup></button>
-          <button class="btn small opacity-75" @click="download('svelte')">Svelte</button>
-          <button class="btn small opacity-75" @click="download('qwik')">Qwik</button>
-          <button class="btn small opacity-75" @click="download('solid')">Solid</button>
-          <button class="btn small opacity-75" @click="download('astro')">Astro</button>
-          <button class="btn small opacity-75" @click="download('react-native')">React Native</button>
+          <button class="btn small opacity-75" @click="download('svg')">
+            SVG
+          </button>
+          <button class="btn small opacity-75" @click="download('png')">
+            PNG
+          </button>
+          <button class="btn small opacity-75" @click="download('vue')">
+            Vue
+          </button>
+          <button class="btn small opacity-75" @click="download('jsx')">
+            React
+          </button>
+          <button class="btn small opacity-75" @click="download('tsx')">
+            React<sup class="opacity-50 -mr-1">TS</sup>
+          </button>
+          <button class="btn small opacity-75" @click="download('svelte')">
+            Svelte
+          </button>
+          <button class="btn small opacity-75" @click="download('qwik')">
+            Qwik
+          </button>
+          <button class="btn small opacity-75" @click="download('solid')">
+            Solid
+          </button>
+          <button class="btn small opacity-75" @click="download('astro')">
+            Astro
+          </button>
+          <button class="btn small opacity-75" @click="download('react-native')">
+            React Native
+          </button>
         </div>
       </section>
 
       <!-- Section: View on -->
-      <section class="flex flex-col gap-2" v-if="collection">
+      <section v-if="collection" class="flex flex-col gap-2">
         <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           View on
         </h3>
