@@ -16,12 +16,14 @@ interface Props {
   iconColor?: string
   iconScale?: number
   bgColor?: string
+  disableCenterClearZone?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   iconColor: '#000000',
   iconScale: 1,
   bgColor: '#f7f3ec',
+  disableCenterClearZone: false,
 })
 
 const emit = defineEmits<{ (e: 'select', iconFull: string): void }>()
@@ -153,6 +155,8 @@ const visibleItems = computed(() => {
     })
     .filter(Boolean)
     .filter((icon) => {
+      if (props.disableCenterClearZone)
+        return true
       const relX = Math.abs(icon!.x - cachedWidth / 2)
       const relY = Math.abs(icon!.y - cachedHeight / 2)
       return relX > centerClearRadiusX.value || relY > centerClearRadiusY.value

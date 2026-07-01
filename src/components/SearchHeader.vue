@@ -131,11 +131,13 @@ function onBoopEnd() {
         <a href="/" class="flex-shrink-0" title="Home">
           <img src="/favicon.svg" alt="Icons" class="h-10 w-10 bg-transparent ">
         </a>
-        <Input
-          v-model="query"
-          placeholder="Search 10,000 Things"
-          class="h-10 w-full rounded-full border-0 bg-white/30 px-4 text-sm text-black placeholder:text-black/50 shadow-sm backdrop-blur-md transition focus-within:bg-white/50 focus:outline-none focus:ring-0"
-        />
+        <Motion layout-id="search-input" class="flex-1">
+          <Input
+            v-model="query"
+            placeholder="Search 10,000 Things"
+            class="h-10 w-full rounded-full border-0 bg-white/30 px-4 text-sm text-black placeholder:text-black/50 shadow-sm backdrop-blur-md transition focus-within:bg-white/50 focus:outline-none focus:ring-0"
+          />
+        </Motion>
       </div>
 
       <!-- Right section -->

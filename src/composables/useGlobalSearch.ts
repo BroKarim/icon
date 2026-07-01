@@ -130,7 +130,7 @@ export function useGlobalSearch() {
     debouncedSearch()
   })
 
-  return { query, results, browseResults, loading, ensureLoaded }
+  return { query, results, browseResults, loading, ensureLoaded, runSearch }
 }
 
 function classifyMatch(iconName: string, query: string, aliased: string[]): string {
