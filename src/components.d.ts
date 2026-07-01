@@ -69,6 +69,7 @@ declare module 'vue' {
     ScrollArea: typeof import('./components/ui/scroll-area/ScrollArea.vue')['default']
     ScrollBar: typeof import('./components/ui/scroll-area/ScrollBar.vue')['default']
     SearchBar: typeof import('./components/SearchBar.vue')['default']
+    SearchCenter: typeof import('./components/SearchCenter.vue')['default']
     SearchElectron: typeof import('./components/electron/SearchElectron.vue')['default']
     SearchHeader: typeof import('./components/SearchHeader.vue')['default']
     SettingsCollectionsList: typeof import('./components/SettingsCollectionsList.vue')['default']
@@ -88,6 +89,7 @@ declare module 'vue' {
     TabsContent: typeof import('./components/ui/tabs/TabsContent.vue')['default']
     TabsList: typeof import('./components/ui/tabs/TabsList.vue')['default']
     TabsTrigger: typeof import('./components/ui/tabs/TabsTrigger.vue')['default']
+    VersionSwitcher: typeof import('./components/VersionSwitcher.vue')['default']
     WithNavbar: typeof import('./components/WithNavbar.vue')['default']
   }
 }

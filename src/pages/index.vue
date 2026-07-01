@@ -5,6 +5,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../components/IconCanvas.vue'
 import IconDetail from '../components/IconDetail.vue'
 import SearchCenter from '../components/SearchCenter.vue'
+import VersionSwitcher from '../components/VersionSwitcher.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
 const { query, results, loading, ensureLoaded, runSearch } = useGlobalSearch()
@@ -48,6 +49,8 @@ watch(showDetail, (val) => {
 
 <template>
   <div class="relative h-screen overflow-hidden text-slate-900" :style="{ backgroundColor: bgColor }">
+    <VersionSwitcher />
+
     <LayoutGroup>
       <AnimatePresence mode="popLayout">
         <SearchCenter
