@@ -1,6 +1,14 @@
 <script setup lang='ts'>
+import type { GlassOptics } from '@samasante/liquid-glass'
+import type { Root } from 'react-dom/client'
+
 import { Dice5 } from '@lucide/vue'
+import { Glass } from '@samasante/liquid-glass'
 import { Motion } from 'motion-v'
+import { createElement } from 'react'
+import { createRoot } from 'react-dom/client'
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import VersionSwitcher from '@/components/VersionSwitcher.vue'
 
 interface Props {
   modelValue: string
@@ -20,12 +28,166 @@ interface Emits {
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const booped = ref(false)
+const mountRef = ref<HTMLDivElement | null>(null)
+const inputRef = ref<HTMLInputElement | null>(null)
+let root: Root | null = null
 
-const query = computed({
-  get: () => props.modelValue,
-  set: v => emit('update:modelValue', v),
+const sliderGlassRef = ref<HTMLDivElement | null>(null)
+const randomGlassRef = ref<HTMLDivElement | null>(null)
+const colorPickerGlassRef = ref<HTMLDivElement | null>(null)
+const roots: Root[] = []
+
+const CONTROL_OPTICS: Partial<GlassOptics> = {
+  mapSize: 256,
+  clipToShape: true,
+  softEdge: true,
+  strength: 0.08,
+  depth: 0.4,
+  curvature: 0.35,
+  bend: 0.12,
+  bendWidth: 0.06,
+  dispersion: 0.1,
+  specular: 1.2,
+  sheenAngle: 50,
+  glow: 0.25,
+  glowSpread: 1,
+  glowFalloff: 1.5,
+  sheen: 0.7,
+  sheenWidth: 2,
+  sheenFalloff: 1.5,
+  frost: 2,
+  brightness: 0.03,
+  saturate: 1.1,
+}
+
+function mountGlassControls() {
+  const mounts = [
+    { ref: sliderGlassRef, radius: '32px' },
+    { ref: randomGlassRef, radius: '9999px' },
+    { ref: colorPickerGlassRef, radius: '32px' },
+  ]
+  for (const { ref: mref, radius } of mounts) {
+    if (!mref.value)
+      continue
+    const r = createRoot(mref.value)
+    r.render(
+      createElement(
+        Glass,
+        {
+          optics: CONTROL_OPTICS,
+          style: {
+            width: '100%',
+            height: '100%',
+            borderRadius: radius,
+            overflow: 'hidden',
+          },
+        },
+        createElement('div', {
+          style: {
+            width: '100%',
+            height: '100%',
+            background: 'rgba(255,255,255,0.2)',
+          },
+        }),
+      ),
+    )
+    roots.push(r)
+  }
+}
+
+function unmountAllGlass() {
+  for (const r of roots) r.unmount()
+  roots.length = 0
+}
+
+const HEADER_OPTICS: Partial<GlassOptics> = {
+  mapSize: 512,
+  clipToShape: true,
+  softEdge: true,
+  strength: 0.12,
+  depth: 0.55,
+  curvature: 0.4,
+  bend: 0.18,
+  bendWidth: 0.08,
+  dispersion: 0.15,
+  specular: 1,
+  sheenAngle: 50,
+  glow: 0.2,
+  glowSpread: 1,
+  glowFalloff: 1.5,
+  sheen: 0.85,
+  sheenWidth: 2,
+  sheenFalloff: 1.5,
+  frost: 4,
+  brightness: 0.05,
+  saturate: 1.2,
+}
+
+function renderHeaderGlass() {
+  if (!root)
+    return
+  root.render(
+    createElement(
+      Glass,
+      {
+        optics: HEADER_OPTICS,
+        style: {
+          width: '100%',
+          height: '100%',
+          borderRadius: '9999px',
+          overflow: 'hidden',
+        },
+      },
+      createElement('input', {
+        ref: (el: HTMLInputElement | null) => {
+          inputRef.value = el
+          if (el && el.value !== props.modelValue)
+            el.value = props.modelValue
+        },
+        defaultValue: props.modelValue,
+        placeholder: 'Search 10,000 Things',
+        onInput: (e: Event) =>
+          emit('update:modelValue', (e.target as HTMLInputElement).value),
+        style: {
+          width: '100%',
+          height: '100%',
+          padding: '0 16px',
+          fontSize: '14px',
+          color: '#000',
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          borderRadius: 9999,
+          fontFamily: '-apple-system, SF Pro Text, system-ui, sans-serif',
+        },
+      }),
+    ),
+  )
+}
+
+onMounted(() => {
+  if (mountRef.value) {
+    root = createRoot(mountRef.value)
+    renderHeaderGlass()
+  }
+  mountGlassControls()
 })
+
+onBeforeUnmount(() => {
+  root?.unmount()
+  root = null
+  unmountAllGlass()
+})
+
+watch(
+  () => props.modelValue,
+  (v) => {
+    if (inputRef.value && inputRef.value.value !== v)
+      inputRef.value.value = v
+  },
+)
+
+const booped = ref(false)
 
 const iconScaleModel = computed({
   get: () => [props.iconScale ?? 1],
@@ -125,73 +287,77 @@ function onBoopEnd() {
 </script>
 
 <template>
-  <div class="pointer-events-none absolute inset-x-0 top-0 z-20 px-4 pt-4">
+  <div class="pointer-events-none absolute inset-x-0 top-0 z-[999] px-4 pt-4">
     <div class="mx-auto flex justify-between w-full items-center gap-3 rounded-[30px]">
       <div class="flex items-center gap-2 pointer-events-auto">
         <a href="/" class="flex-shrink-0" title="Home">
           <img src="/favicon.svg" alt="Icons" class="h-10 w-10 bg-transparent ">
         </a>
         <Motion layout-id="search-input" class="flex-1">
-          <Input
-            v-model="query"
-            placeholder="Search 10,000 Things"
-            class="h-10 w-full rounded-full border-0 bg-white/30 px-4 text-sm text-black placeholder:text-black/50 shadow-sm backdrop-blur-md transition focus-within:bg-white/50 focus:outline-none focus:ring-0"
-          />
+          <div ref="mountRef" class="h-10 w-full" />
         </Motion>
+        <VersionSwitcher />
       </div>
 
       <!-- Right section -->
       <div class="pointer-events-auto px-4 py-3 flex items-center gap-2 shrink-0">
         <!-- Icon size slider -->
-        <div class="hidden items-center gap-3 rounded-full bg-white/30 px-4 h-10 backdrop-blur-md transition hover:bg-white/50 md:flex">
-          <span class="min-w-[3ch] text-center text-xs font-medium tabular-nums text-black/60">{{ Math.round(iconScaleModel[0] * 32) }}px</span>
+        <div class="hidden relative items-center gap-3 overflow-hidden rounded-full px-4 h-10 md:flex">
+          <span ref="sliderGlassRef" class="absolute inset-0 z-0 pointer-events-none" />
+          <span class="relative z-10 min-w-[3ch] text-center text-xs font-medium tabular-nums text-black/60">{{ Math.round(iconScaleModel[0] * 32) }}px</span>
           <Slider
             v-model="iconScaleModel"
             :min="0.5"
             :max="2"
             :step="0.01"
-            class="w-32"
+            class="relative z-10 w-32"
           />
         </div>
 
         <!-- Randomize button -->
-        <button
-          class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-white/30 shadow-sm backdrop-blur-md transition hover:bg-white/50 cursor-pointer"
-          title="Randomize theme"
-          @click="randomizeTheme"
-        >
-          <Motion
-            :animate="booped
-              ? { y: [0, -6, 0], rotate: [0, -10, 10, -10, 0] }
-              : {}"
-            :transition="{ duration: 0.5 }"
-            @animation-end="onBoopEnd"
+        <div class="relative overflow-hidden rounded-full h-10 w-10">
+          <span ref="randomGlassRef" class="absolute inset-0 z-0 rounded-full pointer-events-none" />
+          <button
+            class="relative z-10 inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer border-0 bg-transparent"
+            title="Randomize theme"
+            @click="randomizeTheme"
           >
-            <Dice5 :size="20" class="text-black/60" />
-          </Motion>
-        </button>
+            <Motion
+              :animate="booped
+                ? { y: [0, -6, 0], rotate: [0, -10, 10, -10, 0] }
+                : {}"
+              :transition="{ duration: 0.5 }"
+              @animation-end="onBoopEnd"
+            >
+              <Dice5 :size="20" class="text-black/60" />
+            </Motion>
+          </button>
+        </div>
 
         <!-- Color picker -->
-        <ColorPicker
-          :value="currentIconColor"
-          class="inline-flex"
-          @update:value="emit('update:iconColor', $event)"
-        >
-          <Button
-            as="div"
-            variant="outline"
-            class="h-10 rounded-full px-3 shadow-sm backdrop-blur-md transition hover:brightness-[1.03]"
-            :style="{
-              backgroundColor: currentIconColor,
-              color: colorButtonText,
-              borderColor: colorButtonBorder,
-            }"
+        <div class="relative overflow-hidden rounded-full">
+          <span ref="colorPickerGlassRef" class="absolute inset-0 z-0 pointer-events-none" />
+          <ColorPicker
+            :value="currentIconColor"
+            class="relative z-10 inline-flex"
+            @update:value="emit('update:iconColor', $event)"
           >
-            <span class="font-mono text-xs font-semibold tracking-[0.18em]">
-              {{ displayIconColor }}
-            </span>
-          </Button>
-        </ColorPicker>
+            <Button
+              as="div"
+              variant="outline"
+              class="relative z-10 h-10 rounded-full px-3 transition hover:brightness-[1.03]"
+              :style="{
+                backgroundColor: currentIconColor,
+                color: colorButtonText,
+                borderColor: colorButtonBorder,
+              }"
+            >
+              <span class="font-mono text-xs font-semibold tracking-[0.18em]">
+                {{ displayIconColor }}
+              </span>
+            </Button>
+          </ColorPicker>
+        </div>
       </div>
     </div>
   </div>

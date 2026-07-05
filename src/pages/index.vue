@@ -49,7 +49,6 @@ watch(showDetail, (val) => {
 
 <template>
   <div class="relative h-screen overflow-hidden text-slate-900" :style="{ backgroundColor: bgColor }">
-    <VersionSwitcher />
 
     <LayoutGroup>
       <AnimatePresence mode="popLayout">
