@@ -304,11 +304,11 @@ function onBoopEnd() {
         <!-- Icon size slider -->
         <div class="hidden relative items-center gap-3 overflow-hidden rounded-full px-4 h-10 md:flex">
           <span ref="sliderGlassRef" class="absolute inset-0 z-0 pointer-events-none" />
-          <span class="relative z-10 min-w-[3ch] text-center text-xs font-medium tabular-nums text-black/60">{{ Math.round(iconScaleModel[0] * 32) }}px</span>
+          <span class="relative z-10 min-w-[3ch] text-center text-xs font-medium tabular-nums text-black/60">            {{ Math.round(iconScaleModel[0] * 112) }}px</span>
           <Slider
             v-model="iconScaleModel"
             :min="0.5"
-            :max="2"
+            :max="2.5"
             :step="0.01"
             class="relative z-10 w-32"
           />

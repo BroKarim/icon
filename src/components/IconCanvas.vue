@@ -64,8 +64,8 @@ let moved = false
 let stopMovingTimer: ReturnType<typeof setTimeout> | null = null
 
 // ─── computed grid size ───────────────────────────────────────────────────────
-const GRID_SIZE = computed(() => Math.round(130 * (props.iconScale ?? 1)))
-const ICON_SIZE = computed(() => Math.round(88 * (props.iconScale ?? 1)))
+const GRID_SIZE = computed(() => Math.round(260 * (props.iconScale ?? 1)))
+const ICON_SIZE = computed(() => Math.round(112 * (props.iconScale ?? 1)))
 
 const bgStyle = computed(() => {
   const hex = props.bgColor.replace('#', '')
