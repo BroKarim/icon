@@ -345,6 +345,44 @@ function handleResize() {
   updateGridItems()
 }
 
+// ─── highlight & tooltip ──────────────────────────────────────────────────
+const highlightIconKey = ref<string | null>(null)
+let highlightTimer: ReturnType<typeof setTimeout> | null = null
+
+const highlightStyle = computed(() => {
+  if (!highlightIconKey.value)
+    return undefined
+  const item = visibleItems.value.find(i =>
+    `${i.position.x}-${i.position.y}` === highlightIconKey.value,
+  )
+  if (!item)
+    return undefined
+  const gs = GRID_SIZE.value
+  const color = props.iconColor || '#000000'
+  return {
+    top: `${item.y - gs / 2}px`,
+    left: `${item.x - gs / 2}px`,
+    width: `${gs}px`,
+    height: `${gs}px`,
+    background: `${color}1A`,
+    boxShadow: `0 0 0 1px ${color}33`,
+  }
+})
+
+function onIconMouseEnter(iconKey: string) {
+  if (highlightTimer) {
+    clearTimeout(highlightTimer)
+    highlightTimer = null
+  }
+  highlightIconKey.value = iconKey
+}
+
+function onIconMouseLeave() {
+  highlightTimer = setTimeout(() => {
+    highlightIconKey.value = null
+  }, 150)
+}
+
 // ─── lifecycle ────────────────────────────────────────────────────────────────
 onMounted(() => {
   cacheSize()
@@ -359,6 +397,8 @@ onUnmounted(() => {
     cancelAnimationFrame(animationFrame)
   if (stopMovingTimer)
     clearTimeout(stopMovingTimer)
+  if (highlightTimer)
+    clearTimeout(highlightTimer)
   containerRef.value?.removeEventListener('wheel', onWheel)
   containerRef.value?.removeEventListener('touchmove', onTouchMove)
   window.removeEventListener('resize', handleResize)
@@ -423,6 +463,15 @@ watch(() => props.iconScale, () => {
       >
         <slot name="center" />
       </div>
+      <!-- Highlight overlay -->
+      <Transition name="hl-fade">
+        <div
+          v-if="highlightIconKey && highlightStyle"
+          class="hl-overlay absolute z-0 rounded-xl pointer-events-none"
+          :style="highlightStyle"
+        />
+      </Transition>
+
       <div
         v-for="icon in visibleItems"
         :key="`${icon.position.x}-${icon.position.y}`"
@@ -436,6 +485,8 @@ watch(() => props.iconScale, () => {
           color: iconColor,
         }"
         @click.stop="onIconClick(icon.iconFull)"
+        @mouseenter="onIconMouseEnter(`${icon.position.x}-${icon.position.y}`)"
+        @mouseleave="onIconMouseLeave()"
       >
         <Icon
           :icon="icon.iconFull"
@@ -452,6 +503,25 @@ watch(() => props.iconScale, () => {
 </template>
 
 <style scoped>
+.hl-overlay {
+  transition:
+    top 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    left 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hl-fade-enter-active {
+  transition: opacity 0.2s ease-out;
+}
+.hl-fade-leave-active {
+  transition: opacity 0.15s ease-in;
+}
+.hl-fade-enter-from,
+.hl-fade-leave-to {
+  opacity: 0;
+}
+
 .animate-spin {
   animation: spin 1s linear infinite;
 }

@@ -89,6 +89,10 @@ declare module 'vue' {
     TabsContent: typeof import('./components/ui/tabs/TabsContent.vue')['default']
     TabsList: typeof import('./components/ui/tabs/TabsList.vue')['default']
     TabsTrigger: typeof import('./components/ui/tabs/TabsTrigger.vue')['default']
+    Tooltip: typeof import('./components/ui/tooltip/Tooltip.vue')['default']
+    TooltipContent: typeof import('./components/ui/tooltip/TooltipContent.vue')['default']
+    TooltipProvider: typeof import('./components/ui/tooltip/TooltipProvider.vue')['default']
+    TooltipTrigger: typeof import('./components/ui/tooltip/TooltipTrigger.vue')['default']
     VersionSwitcher: typeof import('./components/VersionSwitcher.vue')['default']
     WithNavbar: typeof import('./components/WithNavbar.vue')['default']
   }

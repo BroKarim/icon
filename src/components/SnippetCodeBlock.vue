@@ -111,6 +111,8 @@ onBeforeUnmount(() => {
   if (copyTimer)
     clearTimeout(copyTimer)
 })
+
+defineExpose({ onCopy })
 </script>
 
 <template>

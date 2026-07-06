@@ -1,5 +1,4 @@
 <script setup lang='ts'>
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { collections } from '../data'
 import {
@@ -122,6 +121,38 @@ async function copyHref(href: string) {
   pushRecentIcon(props.icon)
   emit('copy', await copyText(href))
 }
+
+const tabIconMap: Record<string, string> = {
+  'vue': 'logos:vue',
+  'vue-ts': 'logos:vue',
+  'jsx': 'logos:react',
+  'tsx': 'logos:react',
+  'svelte': 'logos:svelte-icon',
+  'qwik': 'logos:qwik',
+  'solid': 'logos:react',
+  'astro': 'logos:react',
+  'react-native': 'logos:react',
+  'unplugin': 'logos:react',
+  'unocss': 'logos:react',
+  'unocss-attributify': 'logos:react',
+}
+
+const codeBlockRefs: Record<string, any> = {}
+const copiedComponent = ref(false)
+
+function setCodeBlockRef(type: string, el: any) {
+  if (el)
+    codeBlockRefs[type] = el
+}
+
+async function copyActiveComponentCode() {
+  const block = codeBlockRefs[activeComponent.value]
+  if (block?.onCopy) {
+    block.onCopy()
+    copiedComponent.value = true
+    setTimeout(() => { copiedComponent.value = false }, 1500)
+  }
+}
 </script>
 
 <template>
@@ -227,7 +258,7 @@ async function copyHref(href: string) {
       </div> -->
 
       <!-- Section: Snippet -->
-      <section class="flex flex-col gap-2">
+      <!-- <section class="flex flex-col gap-2">
         <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Snippet
         </h3>
@@ -250,32 +281,64 @@ async function copyHref(href: string) {
             />
           </TabsContent>
         </Tabs>
-      </section>
+      </section> -->
 
       <!-- Section: Components -->
       <section class="flex flex-col gap-2">
         <h3 class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Components
         </h3>
-        <Tabs v-model="activeComponent" default-value="vue" class="w-full">
-          <ScrollArea class="w-full whitespace-nowrap rounded-lg">
-            <TabsList>
-              <TabsTrigger v-for="(snippet, type) in SnippetMap.Components" :key="type" :value="type">
-                {{ snippet.name }}<sup v-if="snippet.tag" class="opacity-50 -mr-1 ml-0.5 text-[10px]">{{ snippet.tag }}</sup>
-              </TabsTrigger>
-            </TabsList>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-          <TabsContent v-for="(snippet, type) in SnippetMap.Components" :key="type" :value="type" class="mt-2">
+        <div class="flex flex-col overflow-hidden">
+          <div class="flex items-center justify-between w-full h-11 pl-3 pr-1.5 border-b border-foreground/8">
+            <div class="flex-1 min-w-0 overflow-x-auto whitespace-nowrap self-stretch">
+              <div class="flex items-center gap-1 pr-2 w-max h-full">
+                <button
+                  v-for="(snippet, type) in SnippetMap.Components"
+                  :key="type"
+                  class="relative flex items-center gap-1.5 h-full px-2.5 text-[13px] font-medium transition-colors cursor-pointer shrink-0"
+                  :class="activeComponent === type ? 'text-foreground' : 'text-foreground/40 hover:text-foreground/70'"
+                  @click="activeComponent = type"
+                >
+                  <Icon
+                    :key="tabIconMap[type]"
+                    :icon="tabIconMap[type]"
+                    class="w-3.5 h-3.5 shrink-0"
+                    :class="activeComponent === type ? '' : 'opacity-50'"
+                  />
+                  {{ snippet.name }}
+                  <sup v-if="snippet.tag" class="opacity-50 text-[10px]">{{ snippet.tag }}</sup>
+                  <span
+                    v-if="activeComponent === type"
+                    class="absolute bottom-0 left-2 right-2 h-[2px] rounded-t-full"
+                    :style="{ background: iconColor, boxShadow: `0 0 8px ${iconColor}73` }"
+                  />
+                </button>
+              </div>
+            </div>
+            <button
+              class="inline-flex items-center justify-center w-7 h-7 rounded-md transition-colors cursor-pointer shrink-0 ml-1"
+              :class="copiedComponent ? 'text-emerald-500' : 'text-foreground/40 hover:text-foreground hover:bg-foreground/8'"
+              aria-label="Copy code"
+              @click="copyActiveComponentCode"
+            >
+              <svg v-if="copiedComponent" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
+              <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" /></svg>
+            </button>
+          </div>
+          <div>
             <SnippetCodeBlock
+              v-for="(snippet, type) in SnippetMap.Components"
+              :key="type"
+              v-show="activeComponent === type"
+              :ref="(el: any) => setCodeBlockRef(type, el)"
               :collection="collection"
               :icon="icon"
               :snippet="snippet"
               :type="type"
               :color="color"
             />
-          </TabsContent>
-        </Tabs>
+          </div>
+        </div>
       </section>
 
       <!-- Section: Link -->
