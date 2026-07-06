@@ -21,3 +21,6 @@
 - typecheck: passes (only pre-existing errors)
 - lint: Icon.vue has zero errors; remaining 22 are pre-existing in IconCanvas.vue and SearchHeader.vue
 - Fixed `antfu/if-newline` lint errors (early return newlines)
+
+
+

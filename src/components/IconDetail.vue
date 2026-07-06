@@ -126,41 +126,74 @@ async function copyHref(href: string) {
 
 <template>
   <div class="p-2 flex flex-col text-black">
-    <div class="flex items-end gap-1 w-full pr-10" :style="{ color: iconColor }">
-      <Icon :key="icon" outer-class="text-8xl" :icon="icon" />
+    <!-- icon -->
+    <div class="flex flex-col items-center gap-2 w-full pr-10">
+      <div class="relative w-full aspect-square bg-foreground/[0.02] border border-foreground/[0.06] rounded-xl flex items-center justify-center overflow-hidden">
+        <div
+          class="absolute inset-0 pointer-events-none"
+          :style="{
+            backgroundImage: 'linear-gradient(to right, rgb(128 128 128 / 0.15) 1px, transparent 1px), linear-gradient(to bottom, rgb(128 128 128 / 0.15) 1px, transparent 1px)',
+            backgroundSize: 'calc(100%/12) calc(100%/12)',
+            maskImage: 'radial-gradient(circle at center, #000 62%, transparent 92%)',
+            WebkitMaskImage: 'radial-gradient(circle at center, #000 62%, transparent 92%)',
+          }"
+        />
+        <div
+          class="absolute inset-0 pointer-events-none"
+          :style="{ background: `radial-gradient(circle at center, ${iconColor}1F, transparent 58%)` }"
+        />
+        <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" fill="none">
+          <rect x="9" y="9" width="82" height="82" rx="7" stroke="rgb(128 128 128 / 0.3)" stroke-width="0.5" stroke-dasharray="2.5 2.5" />
+          <rect x="32" y="14" width="36" height="72" rx="7" :stroke="iconColor" stroke-opacity="0.16" stroke-width="0.5" />
+          <rect x="14" y="32" width="72" height="36" rx="7" :stroke="iconColor" stroke-opacity="0.16" stroke-width="0.5" />
+          <line x1="50" y1="5" x2="50" y2="95" :stroke="iconColor" stroke-opacity="0.28" stroke-width="0.4" />
+          <line x1="5" y1="50" x2="95" y2="50" :stroke="iconColor" stroke-opacity="0.28" stroke-width="0.4" />
+        </svg>
+        <div class="absolute top-2 left-2 w-2.5 h-2.5 border-t border-l" :style="{ borderColor: `${iconColor}59` }" />
+        <div class="absolute top-2 right-2 w-2.5 h-2.5 border-t border-r" :style="{ borderColor: `${iconColor}59` }" />
+        <div class="absolute bottom-2 left-2 w-2.5 h-2.5 border-b border-l" :style="{ borderColor: `${iconColor}59` }" />
+        <div class="absolute bottom-2 right-2 w-2.5 h-2.5 border-b border-r" :style="{ borderColor: `${iconColor}59` }" />
+        <span class="absolute top-2 left-1/2 -translate-x-1/2 text-[7.5px] font-mono select-none tracking-wider" :style="{ color: `${iconColor}73` }">24<span class="opacity-20"> × </span>24</span>
+        <span class="absolute bottom-2 right-3 text-[8px] font-mono select-none tabular-nums" style="color: rgb(128 128 128 / 0.3)">24px</span>
+        <span class="absolute bottom-2 left-3 text-[8px] font-mono select-none lowercase" style="color: rgb(128 128 128 / 0.25)">default</span>
+        <Icon :key="icon" outer-class="text-8xl" :icon="icon" />
+      </div>
       <span class="text-sm font-mono text-black/60">{{ icon.split(':')[1] }}</span>
     </div>
 
     <div class="px-6 py-2 md:px-2 md:py-4 flex flex-col gap-4">
-      <div v-if="collection" class="flex flex-wrap items-center gap-4 text-sm">
-        <div>
-          <span class="opacity-50">Collection: </span>
+      <div v-if="collection" class="flex flex-col gap-2 text-sm">
+        <div class="flex items-center justify-between">
+          <span class="opacity-50">Collection</span>
           <RouterLink
-            class="text-primary hover:underline"
+            class="px-3 py-0.5 rounded-full text-xs font-medium hover:underline"
+            style="background: #e0f2fe; color: #0369a1"
             :to="`/collection/${collection.id}`"
           >
             {{ collection.name }}
           </RouterLink>
         </div>
-        <div v-if="collection.author">
-          <span class="opacity-50">Author: </span>
+        <div v-if="collection.author" class="flex items-center justify-between">
+          <span class="opacity-50">Author</span>
           <a
-            class="text-primary hover:underline"
+            class="px-3 py-0.5 rounded-full text-xs font-medium hover:underline"
+            style="background: #fce7f3; color: #be185d"
             :href="collection.author.url"
             target="_blank"
           >{{ collection.author.name }}</a>
         </div>
-        <div v-if="collection.license">
-          <span class="opacity-50">License: </span>
+        <div v-if="collection.license" class="flex items-center justify-between">
+          <span class="opacity-50">License</span>
           <a
-            class="text-primary hover:underline"
+            class="px-3 py-0.5 rounded-full text-xs font-medium hover:underline"
+            style="background: #dcfce7; color: #15803d"
             :href="collection.license.url"
             target="_blank"
           >{{ collection.license.title }}</a>
         </div>
       </div>
 
-      <div class="flex flex-wrap items-center">
+      <!-- <div class="flex flex-wrap items-center">
         <button
           class="
             inline-flex items-center gap-1 text-black leading-none border-2 border-black my-1 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
@@ -191,7 +224,7 @@ async function copyHref(href: string) {
           <Icon v-else class="inline-block text-lg align-middle" icon="carbon:checkbox-checked" />
           <span class="inline-block align-middle">copy with color</span>
         </button>
-      </div>
+      </div> -->
 
       <!-- Section: Snippet -->
       <section class="flex flex-col gap-2">
