@@ -2,12 +2,9 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { collections } from '../data'
 import {
-  activeMode,
   copyPreviewColor,
-  inBag,
   previewColor,
   pushRecentIcon,
-  toggleBag,
 } from '../store'
 import { dataUrlToBlob } from '../utils/dataUrlToBlob'
 import { Download, getIconSnippet, SnippetMap, toComponentName } from '../utils/icons'
@@ -80,18 +77,6 @@ async function download(type: string) {
     ? dataUrlToBlob(text)
     : new Blob([text], { type: 'text/plain;charset=utf-8' })
   Download(blob, name)
-}
-
-function toggleSelectingMode() {
-  switch (activeMode.value) {
-    case 'select':
-      activeMode.value = 'normal'
-      break
-    default:
-      activeMode.value = 'select'
-      emit('close')
-      break
-  }
 }
 
 const collection = computed(() => {
@@ -328,8 +313,8 @@ async function copyActiveComponentCode() {
           <div>
             <SnippetCodeBlock
               v-for="(snippet, type) in SnippetMap.Components"
-              :key="type"
               v-show="activeComponent === type"
+              :key="type"
               :ref="(el: any) => setCodeBlockRef(type, el)"
               :collection="collection"
               :icon="icon"

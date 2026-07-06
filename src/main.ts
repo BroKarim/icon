@@ -1,3 +1,4 @@
+import { createHead } from '@unhead/vue/client'
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory, createWebHistory } from 'vue-router'
 import routes from '~pages'
@@ -11,11 +12,15 @@ import './main.css'
 import 'uno.css'
 
 const app = createApp(App)
+const head = createHead()
 
 const router = createRouter({
   history: isElectron ? createWebHashHistory(basePath) : createWebHistory(basePath),
   routes,
 })
+
+app.use(head)
+app.use(router)
 
 if (!isElectron && PWA) {
   router.isReady().then(async () => {
@@ -24,5 +29,4 @@ if (!isElectron && PWA) {
   })
 }
 
-app.use(router)
 app.mount('#app')

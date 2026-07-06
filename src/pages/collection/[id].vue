@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+import { useHead } from '@unhead/vue'
 import type { SearchResult } from '../../composables/useGlobalSearch'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../../components/IconCanvas.vue'
@@ -18,6 +19,40 @@ watch(
 onUnmounted(() => setCurrentCollection(''))
 
 const collection = useCurrentCollection()
+
+useHead(() => {
+  if (!collection.value) {
+    return {
+      title: 'Collection — Icons',
+      link: [
+        { rel: 'canonical', href: `https://icons.brokarim.com/collection/${props.id}` },
+      ],
+      meta: [
+        { property: 'og:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+        { name: 'twitter:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+      ],
+    }
+  }
+  const name = `${collection.value.name} — Icons`
+  const description = `Browse ${collection.value.icons.length} icons from the ${collection.value.name} collection. Powered by Iconify.`
+  const url = `https://icons.brokarim.com/collection/${props.id}`
+  return {
+    title: name,
+    meta: [
+      { name: 'description', content: description },
+      { property: 'og:title', content: name },
+      { property: 'og:description', content: description },
+      { property: 'og:url', content: url },
+      { property: 'og:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+      { name: 'twitter:title', content: name },
+      { name: 'twitter:description', content: description },
+      { name: 'twitter:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+    ],
+    link: [
+      { rel: 'canonical', href: url },
+    ],
+  }
+})
 
 onMounted(() => {
   pushRecentCollection(props.id)

@@ -1,10 +1,28 @@
 <script setup lang='ts'>
+import { useHead } from '@unhead/vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../components/IconCanvas.vue'
 import IconDetail from '../components/IconDetail.vue'
 import VersionSwitcher from '../components/VersionSwitcher.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
+
+useHead({
+  title: 'Icons — Browse & Search Icon Sets',
+  meta: [
+    { name: 'description', content: 'Browse icons by collection, search across 200,000+ icons from Iconify with infinite canvas. Explore, customize, and download SVG icons.' },
+    { property: 'og:title', content: 'Icons — Browse & Search Icon Sets' },
+    { property: 'og:description', content: 'Browse icons by collection, search across 200,000+ icons from Iconify with infinite canvas. Explore, customize, and download SVG icons.' },
+    { property: 'og:url', content: 'https://icons.brokarim.com/v1' },
+    { property: 'og:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+    { name: 'twitter:title', content: 'Icons — Browse & Search Icon Sets' },
+    { name: 'twitter:description', content: 'Browse icons by collection, search across 200,000+ icons from Iconify with infinite canvas. Explore, customize, and download SVG icons.' },
+    { name: 'twitter:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+  ],
+  link: [
+    { rel: 'canonical', href: 'https://icons.brokarim.com/v1' },
+  ],
+})
 
 const { query, results, browseResults, loading, ensureLoaded } = useGlobalSearch()
 
