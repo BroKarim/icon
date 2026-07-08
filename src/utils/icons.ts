@@ -24,6 +24,7 @@ import { svgToPngDataUrl } from './svgToPng'
 export interface Snippet {
   name: string
   tag?: string
+  icon?: string
   lang: string // for shiki
   prettierParser: PrettierParser // for prettier
 }
@@ -51,11 +52,11 @@ export async function Download(blob: Blob, name: string) {
 
 export const SnippetMap: Record<string, Record<string, Snippet>> = {
   Snippets: {
-    'svg': { name: 'SVG', lang: 'html', prettierParser: 'html' },
-    'svg-symbol': { name: 'SVG Symbol', lang: 'html', prettierParser: 'html' },
-    'png': { name: 'PNG', lang: 'html', prettierParser: 'html' },
-    'html': { name: 'Iconify', lang: 'html', prettierParser: 'html' },
-    'pure-jsx': { name: 'JSX', lang: 'jsx', prettierParser: 'typescript' },
+    'svg': { name: 'SVG', icon: 'snippet-svg', lang: 'html', prettierParser: 'html' },
+    'svg-symbol': { name: 'SVG Symbol', icon: 'snippet-svg-symbol', lang: 'html', prettierParser: 'html' },
+    'png': { name: 'PNG', icon: 'snippet-png', lang: 'html', prettierParser: 'html' },
+    'html': { name: 'Iconify', icon: 'snippet-iconify', lang: 'html', prettierParser: 'html' },
+    'pure-jsx': { name: 'JSX', icon: 'snippet-jsx', lang: 'jsx', prettierParser: 'typescript' },
   },
   Components: {
     'vue': { name: 'Vue', lang: 'vue', prettierParser: 'vue' },
@@ -72,8 +73,8 @@ export const SnippetMap: Record<string, Record<string, Snippet>> = {
     'unocss-attributify': { name: 'UnoCSS', tag: 'attributify', lang: 'html', prettierParser: 'html' },
   },
   Links: {
-    url: { name: 'URL', lang: 'html', prettierParser: 'html' },
-    data_url: { name: 'Data URL', lang: 'html', prettierParser: 'html' },
+    url: { name: 'URL', icon: 'ph:link', lang: 'html', prettierParser: 'html' },
+    data_url: { name: 'Data URL', icon: 'ph:file-code', lang: 'html', prettierParser: 'html' },
   },
 }
 

@@ -309,7 +309,7 @@ function onBoopEnd() {
         <Motion v-if="!hideSearchInput" layout-id="search-input" class="flex-1">
           <div ref="mountRef" class="h-10 w-full" />
         </Motion>
-        <VersionSwitcher />
+        <!-- <VersionSwitcher /> -->
       </div>
 
       <!-- Right section -->

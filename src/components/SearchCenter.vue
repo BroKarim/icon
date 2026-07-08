@@ -16,7 +16,7 @@ const emit = defineEmits<Emits>()
 </script>
 
 <template>
-  <div class="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-4">
+  <div class="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-4 ">
     <Motion
       layout-id="search-input"
       class="h-16 w-full max-w-3xl rounded-full"
