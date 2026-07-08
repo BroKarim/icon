@@ -37,7 +37,7 @@ const VELOCITY_SCALE = 16
 const BUFFER = 1
 
 // ─── center clear zone ───────────────────────────────────────────────────────
-const CENTER_CLEAR_BASE_X = 220
+const CENTER_CLEAR_BASE_X = 400
 const CENTER_CLEAR_BASE_Y = 140
 const centerClearRadiusX = computed(() => CENTER_CLEAR_BASE_X * (props.iconScale ?? 1))
 const centerClearRadiusY = computed(() => CENTER_CLEAR_BASE_Y * (props.iconScale ?? 1))

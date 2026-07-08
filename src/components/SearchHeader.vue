@@ -7,7 +7,7 @@ import { Glass } from '@samasante/liquid-glass'
 import { Motion } from 'motion-v'
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import VersionSwitcher from '@/components/VersionSwitcher.vue'
 
 interface Props {
@@ -16,6 +16,7 @@ interface Props {
   iconScale?: number
   iconColor?: string
   bgColor?: string
+  hideSearchInput?: boolean
 }
 
 interface Emits {
@@ -165,13 +166,25 @@ function renderHeaderGlass() {
   )
 }
 
-onMounted(() => {
-  if (mountRef.value) {
+function initHeaderGlass() {
+  if (mountRef.value && !root) {
     root = createRoot(mountRef.value)
     renderHeaderGlass()
   }
+}
+
+onMounted(() => {
+  initHeaderGlass()
   mountGlassControls()
 })
+
+watch(mountRef, (el) => {
+  if (el && !root) {
+    nextTick(() => {
+      initHeaderGlass()
+    })
+  }
+}, { flush: 'post' })
 
 onBeforeUnmount(() => {
   root?.unmount()
@@ -293,7 +306,7 @@ function onBoopEnd() {
         <a href="/" class="flex-shrink-0" title="Home">
           <img src="/favicon.svg" alt="Icons" class="h-10 w-10 bg-transparent ">
         </a>
-        <Motion layout-id="search-input" class="flex-1">
+        <Motion v-if="!hideSearchInput" layout-id="search-input" class="flex-1">
           <div ref="mountRef" class="h-10 w-full" />
         </Motion>
         <VersionSwitcher />
