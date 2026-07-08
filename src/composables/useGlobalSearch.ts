@@ -1,5 +1,5 @@
 import type { CollectionMeta } from '../data'
-import { asyncExtendedMatch, AsyncFzf } from 'fzf'
+import type { AsyncFzf as AsyncFzfType } from 'fzf'
 import { collections } from '../data'
 import { searchAlias } from '../data/search-alias'
 
@@ -18,7 +18,7 @@ export function useGlobalSearch() {
   const loading = ref(false)
   const metaLoaded = ref(false)
   const flatIndex = ref<{ collectionId: string, collectionName: string, iconName: string }[]>([])
-  const fzfInstance = ref<AsyncFzf<{ collectionId: string, collectionName: string, iconName: string }[]>>()
+  const fzfInstance = ref<AsyncFzfType<{ collectionId: string, collectionName: string, iconName: string }[]>>()
 
   const searchParts = computed(() => query.value.trim().toLowerCase().split(' ').filter(Boolean))
 
@@ -56,6 +56,7 @@ export function useGlobalSearch() {
         }
       }
       flatIndex.value = flat
+      const { AsyncFzf } = await import('fzf')
       fzfInstance.value = new AsyncFzf(flat, {
         casing: 'case-insensitive',
         fuzzy: 'v1',
@@ -94,6 +95,7 @@ export function useGlobalSearch() {
       let matched: { collectionId: string, collectionName: string, iconName: string }[]
 
       if (useExtendedMatch.value || aliasedCandidates.value.length > 1) {
+        const { AsyncFzf, asyncExtendedMatch } = await import('fzf')
         const fzfExtended = new AsyncFzf(flatIndex.value, {
           casing: 'case-insensitive',
           match: asyncExtendedMatch,

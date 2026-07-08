@@ -1,7 +1,6 @@
 import type { Ref } from 'vue'
 import type { CollectionMeta } from '../data'
-import { asyncExtendedMatch, AsyncFzf } from 'fzf'
-import { computed, markRaw, ref, watch } from 'vue'
+import { computed, markRaw, ref, shallowRef, watch } from 'vue'
 import { specialTabs } from '../data'
 import { searchAlias } from '../data/search-alias'
 import { cleanupQuery } from '../utils/query'
@@ -75,32 +74,25 @@ export function useSearch(collection: Ref<CollectionMeta | null>) {
           : collection.value.icons
   })
 
-  const fzf = computed(() => {
-    return markRaw(new AsyncFzf(iconSource.value, {
-      casing: 'case-insensitive',
-      match: asyncExtendedMatch,
-    }))
-  })
-
-  const fzfFast = computed(() => {
-    return markRaw(new AsyncFzf(iconSource.value, {
-      casing: 'case-insensitive',
-      // v1 is faster
-      // https://fzf.netlify.app/docs/latest#async-finder-considering-other-options-first
-      fuzzy: 'v1',
-    }))
-  })
-
   const icons = ref<string[]>([])
 
-  function runSearch() {
+  async function runSearch() {
+    const { AsyncFzf, asyncExtendedMatch } = await import('fzf')
+    const src = iconSource.value
+
     const finder = (useExtendedMatch.value || aliasedSearchCandidates.value.length > 1)
-      ? fzf
-      : fzfFast
+      ? markRaw(new AsyncFzf(src, {
+          casing: 'case-insensitive',
+          match: asyncExtendedMatch,
+        }))
+      : markRaw(new AsyncFzf(src, {
+          casing: 'case-insensitive',
+          fuzzy: 'v1',
+        }))
 
     const searchString = aliasedSearchCandidates.value.join(' | ')
 
-    finder.value.find(searchString)
+    finder.find(searchString)
       .then((result) => {
         icons.value = result.map(i => i.item)
       })

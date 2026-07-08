@@ -1,4 +1,3 @@
-import { rmSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import process from 'node:process'
 import Vue from '@vitejs/plugin-vue'
@@ -12,28 +11,9 @@ import { defineConfig } from 'vite'
 import Pages from 'vite-plugin-pages'
 import { VitePWA } from 'vite-plugin-pwa'
 
-export default defineConfig(async ({ mode }) => {
-  const isElectron = mode === 'electron'
-  const isBuild = process.argv.slice(2).includes('build')
-
-  if (isElectron)
-    rmSync('dist-electron', { recursive: true, force: true })
-
+export default defineConfig(() => {
   return {
     plugins: [
-      isElectron && (await import('vite-plugin-electron')).default([
-        {
-          entry: 'src/main/index.ts',
-          vite: {
-            build: {
-              minify: isBuild,
-              outDir: 'dist-electron/main',
-            },
-          },
-        },
-      ]),
-      isElectron && (await import('vite-plugin-electron-renderer')).default(),
-      isElectron && (await import('vite-plugin-esmodule')).default(['prettier']),
       Vue({
         customElement: [
           'iconify-icon',
@@ -44,9 +24,7 @@ export default defineConfig(async ({ mode }) => {
           },
         },
       }),
-      Pages({
-        importMode: 'sync',
-      }),
+      Pages(),
       Components({
         dts: 'src/components.d.ts',
       }),
@@ -59,7 +37,7 @@ export default defineConfig(async ({ mode }) => {
         dts: 'src/auto-imports.d.ts',
       }),
       SvgPackerVitePlugin(),
-      !isElectron && VitePWA({
+      VitePWA({
         strategies: 'injectManifest',
         srcDir: 'src',
         filename: 'sw.ts',
@@ -81,7 +59,6 @@ export default defineConfig(async ({ mode }) => {
           ],
         },
         injectManifest: {
-          // collections-meta.json ~7.5MB
           maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
         },
         integration: {
@@ -92,7 +69,6 @@ export default defineConfig(async ({ mode }) => {
         },
         devOptions: {
           enabled: process.env.SW_DEV === 'true',
-          /* when using generateSW the PWA plugin will switch to classic */
           type: 'module',
           navigateFallback: 'index.html',
         },
@@ -101,7 +77,7 @@ export default defineConfig(async ({ mode }) => {
     ],
     define: {
       __BUILD_TIME__: JSON.stringify(dayjs().format('YYYY/MM/DD HH:mm')),
-      PWA: !isElectron && (process.env.NODE_ENV === 'production' || process.env.SW_DEV === 'true'),
+      PWA: process.env.NODE_ENV === 'production' || process.env.SW_DEV === 'true',
     },
     resolve: {
       alias: {
@@ -117,6 +93,32 @@ export default defineConfig(async ({ mode }) => {
       plugins: () => [
         SvgPackerVitePlugin(),
       ],
+    },
+    build: {
+      chunkSizeWarningLimit: 2500,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('@vueuse') || id.includes('@unhead')) {
+                return 'vendor-vue-ecosystem'
+              }
+              if (id.includes('vue') || id.includes('vue-router')) {
+                return 'vendor-vue-core'
+              }
+              if (id.includes('reka-ui') || id.includes('floating-vue') || id.includes('vaul-vue')) {
+                return 'vendor-ui'
+              }
+              if (id.includes('iconify') || id.includes('@iconify')) {
+                return 'vendor-icons'
+              }
+            }
+            if (id.includes('collections-info.json')) {
+              return 'collections-data'
+            }
+          },
+        },
+      },
     },
   }
 })

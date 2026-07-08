@@ -1,6 +1,5 @@
 import type { IconifyJSON } from 'iconify-icon'
 import { notNullish } from '@antfu/utils'
-import { AsyncFzf } from 'fzf'
 import { addCollection } from 'iconify-icon'
 import { isLocalMode, staticPath } from '../env'
 import { loadCollection, saveCollection } from '../store/indexedDB'
@@ -53,19 +52,29 @@ export const categories = Array.from(new Set(collections.map(i => i.category).fi
 export const isSearchOpen = ref(false)
 export const categorySearch = ref('')
 
-const fzf = new AsyncFzf(collections, {
-  casing: 'case-insensitive',
-  fuzzy: 'v1',
-  selector: v => `${v.name} ${v.id} ${v.category} ${v.author}`,
-})
+let _fzf: Awaited<ReturnType<typeof createFzf>> | null = null
+async function createFzf() {
+  const { AsyncFzf } = await import('fzf')
+  return new AsyncFzf(collections, {
+    casing: 'case-insensitive',
+    fuzzy: 'v1',
+    selector: v => `${v.name} ${v.id} ${v.category} ${v.author}`,
+  })
+}
+function getFzf() {
+  if (!_fzf)
+    _fzf = createFzf()
+  return _fzf
+}
 
 export const filteredCollections = ref<CollectionInfo[]>(enabledCollections.value)
 
-watch([categorySearch, enabledCollections], ([q]) => {
+watch([categorySearch, enabledCollections], async ([q]) => {
   if (!q) {
     filteredCollections.value = enabledCollections.value
   }
   else {
+    const fzf = await getFzf()
     fzf.find(q).then((result) => {
       filteredCollections.value = result.map(i => i.item)
     }).catch(() => {
