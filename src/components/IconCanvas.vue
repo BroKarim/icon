@@ -458,7 +458,6 @@ watch(() => props.iconScale, () => {
           transform: `translate(-50%, -50%) scale(${props.iconScale ?? 1})`,
           minWidth: `${400 * (props.iconScale ?? 1)}px`,
           minHeight: `${250 * (props.iconScale ?? 1)}px`,
-          background: `radial-gradient(circle, ${bgColor} 40%, ${bgColor}cc 60%, transparent 100%)`,
         }"
       >
         <slot name="center" />
