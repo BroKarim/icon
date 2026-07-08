@@ -32,7 +32,7 @@ const showDetail = ref(false)
 const selectedIcon = ref('')
 const iconScale = ref(1)
 const iconColor = ref('#000000')
-const bgColor = ref('#f7f3ec')
+const bgColor = ref('#ffff')
 
 const hasSearched = ref(false)
 const variant = computed<'center' | 'top'>(() => hasSearched.value ? 'top' : 'center')

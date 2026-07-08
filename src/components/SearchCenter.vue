@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import type { GlassOptics } from '@samasante/liquid-glass'
-import type { KeyboardEvent as ReactKeyboardEvent } from 'react'
-import type { Root } from 'react-dom/client'
-import { Glass } from '@samasante/liquid-glass'
+import { Send } from '@lucide/vue'
 import { Motion } from 'motion-v'
-import { createElement } from 'react'
-import { createRoot } from 'react-dom/client'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { Button } from '@/components/ui/button'
 
 interface Props {
   modelValue: string
@@ -18,100 +13,6 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
-
-const mountRef = ref<HTMLDivElement | null>(null)
-const inputRef = ref<HTMLInputElement | null>(null)
-let root: Root | null = null
-
-const SEARCH_OPTICS: Partial<GlassOptics> = {
-  mapSize: 512,
-  clipToShape: true,
-  softEdge: true,
-  strength: 0.12,
-  depth: 0.55,
-  curvature: 0.4,
-  bend: 0.18,
-  bendWidth: 0.08,
-  dispersion: 0.15,
-  specular: 1,
-  sheenAngle: 50,
-  glow: 0.2,
-  glowSpread: 1,
-  glowFalloff: 1.5,
-  sheen: 0.85,
-  sheenWidth: 2,
-  sheenFalloff: 1.5,
-  frost: 4,
-  brightness: 0.05,
-  saturate: 1.2,
-}
-
-function render() {
-  if (!root)
-    return
-  root.render(
-    createElement(
-      Glass,
-      {
-        optics: SEARCH_OPTICS,
-        style: {
-          width: '100%',
-          height: '100%',
-          borderRadius: '9999px',
-          overflow: 'hidden',
-        },
-      },
-      createElement('input', {
-        ref: (el: HTMLInputElement | null) => {
-          inputRef.value = el
-          if (el && el.value !== props.modelValue)
-            el.value = props.modelValue
-        },
-        defaultValue: props.modelValue,
-        placeholder: 'Search 200,000 icons...',
-        onInput: (e: Event) =>
-          emit('update:modelValue', (e.target as HTMLInputElement).value),
-        onKeyDown: (e: ReactKeyboardEvent<HTMLInputElement>) => {
-          if (e.key === 'Enter')
-            emit('submit')
-        },
-        style: {
-          width: '100%',
-          height: '100%',
-          padding: '0 24px',
-          fontSize: '16px',
-          color: '#000',
-          background: 'transparent',
-          border: 'none',
-          outline: 'none',
-          borderRadius: 9999,
-          fontFamily: '-apple-system, SF Pro Text, system-ui, sans-serif',
-        },
-      }),
-    ),
-  )
-}
-
-onMounted(() => {
-  if (!mountRef.value)
-    return
-  root = createRoot(mountRef.value)
-  render()
-})
-
-onBeforeUnmount(() => {
-  root?.unmount()
-  root = null
-})
-
-watch(
-  () => props.modelValue,
-  (v) => {
-    if (inputRef.value && inputRef.value.value !== v) {
-      inputRef.value.value = v
-    }
-  },
-)
 </script>
 
 <template>
@@ -120,7 +21,27 @@ watch(
       layout-id="search-input"
       class="h-14 w-full max-w-xl rounded-full"
     >
-      <div ref="mountRef" class="pointer-events-auto h-14 w-full" />
+      <!-- <h1 className="text-balance mb-8 mx-auto max-w-2xl text-center text-2xl font-semibold leading-9 text-foreground px-1 text-pretty whitespace-pre-wrap">
+        How can I help you today?
+      </h1> -->
+      <div class="pointer-events-auto flex h-14 w-full items-center justify-between rounded-3xl border border-border bg-[#EBEBEB] bg-clip-padding p-2.5 cursor-text overflow-clip shadow-lg  transition-[border-radius] duration-200 ease-out">
+        <input
+          :value="props.modelValue"
+          placeholder="Search 200,000 icons..."
+          class="h-full flex-1 rounded-full bg-[#EBEBEB] px-6 text-base text-black outline-none"
+          style="font-family: -apple-system, SF Pro Text, system-ui, sans-serif"
+          @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+          @keydown.enter="emit('submit')"
+        >
+        <Button
+          type="button"
+          size="icon"
+          class="mr-1.5 h-9 w-9 bg-black flex items-center  justify-center relative rounded-full"
+          aria-label="Send message"
+        >
+          <Send class="size-5 text-white" />
+        </Button>
+      </div>
     </Motion>
   </div>
 </template>
