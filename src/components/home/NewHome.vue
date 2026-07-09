@@ -23,8 +23,8 @@ function onLogoClick() {
 </script>
 
 <template>
-  <div class="shoogle">
-    <section class="relative w-full h-dvh overflow-hidden bg-secondary">
+  <div>
+    <section class="relative w-full h-dvh overflow-hidden bg-[#ffff]">
       <BackgroundGrid />
 
       <div class="relative h-full">
@@ -42,9 +42,7 @@ function onLogoClick() {
                 class="relative inline-flex items-center gap-2 max-w-[14rem] xs:max-w-[16rem] sm:max-w-md cursor-pointer"
                 @click="onLogoClick"
               >
-                <svg width="180" height="60" viewBox="0 0 180 60" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
-                  <text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="40" font-weight="700" letter-spacing="2" fill="var(--primary)">icloo</text>
-                </svg>
+               <h1>Icloo</h1>
               </button>
             </div>
 
@@ -59,7 +57,7 @@ function onLogoClick() {
                     autocorrect="off"
                     autocapitalize="none"
                     placeholder="Search 200,000 icons..."
-                    class="w-full min-w-0 bg-input text-lg pl-4 focus-visible:ring-0 border-none rounded-full h-14 outline-none placeholder:text-muted-foreground"
+                    class="w-full min-w-0 bg-[#F2F2F2] text-lg pl-4 focus-visible:ring-0 border-none rounded-full h-14 outline-none placeholder:text-muted-foreground"
                   >
                 </div>
               </form>
