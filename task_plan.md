@@ -264,3 +264,8 @@ Phase 6 depends on Phase 5 (ads ready before removing slider).
 | `src/data/ads.ts` | 5 (new) |
 | `src/components/AdCard.vue` | 5 (new) |
 | `src/main.css` | 4 (already exists) |
+
+
+ZLsT_7cAVK9.Y.Y
+- update ui sikit lagi
+- iconbuddy jdi patokan

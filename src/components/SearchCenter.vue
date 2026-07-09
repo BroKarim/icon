@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Send } from '@lucide/vue'
+import { SearchIcon, Send } from '@lucide/vue'
 import { Motion } from 'motion-v'
 import { Button } from '@/components/ui/button'
 
@@ -16,7 +16,16 @@ const emit = defineEmits<Emits>()
 </script>
 
 <template>
-  <div class="pointer-events-none absolute inset-0 z-20 flex items-center justify-center px-4 ">
+  <div class="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center px-4 ">
+    <div class="container flex flex-col items-center gap-2 px-0 py-8 text-center  xl:gap-4">
+      <h1 class="text-2xl font-semibold leading-tight tracking-tighter sm:text-3xl md:text-4xl lg:text-5xl">
+        Search 200,000+ Icons
+      </h1>
+      <p class="max-w-[700px] text-lg text-muted-foreground sm:text-xl">
+        Explore a vast collection of icons from various libraries and styles. Find the perfect icon for your project with ease.
+      </p>
+    </div>
+
     <Motion
       layout-id="search-input"
       class="h-16 w-full max-w-3xl rounded-full"

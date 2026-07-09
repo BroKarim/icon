@@ -8,7 +8,6 @@ import { Motion } from 'motion-v'
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import VersionSwitcher from '@/components/VersionSwitcher.vue'
 
 interface Props {
   modelValue: string
@@ -172,6 +171,8 @@ function initHeaderGlass() {
     renderHeaderGlass()
   }
 }
+
+
 
 onMounted(() => {
   initHeaderGlass()
