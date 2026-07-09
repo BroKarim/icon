@@ -1,6 +1,6 @@
 <script setup lang='ts'>
-import { useHead } from '@unhead/vue'
 import type { SearchResult } from '../../composables/useGlobalSearch'
+import { useHead } from '@unhead/vue'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../../components/IconCanvas.vue'
 import IconDetail from '../../components/IconDetail.vue'
@@ -62,7 +62,7 @@ const showDetail = ref(false)
 const selectedIcon = ref('')
 const iconScale = ref(1)
 const iconColor = ref('#000000')
-const bgColor = ref('#f7f3ec')
+const bgColor = ref('#ffff')
 const query = ref('')
 
 const allIcons = computed<SearchResult[]>(() => {
@@ -117,6 +117,7 @@ watch(showDetail, (val) => {
         v-model:icon-color="iconColor"
         v-model:bg-color="bgColor"
         :results-count="canvasResults.length"
+        @submit="() => {}"
       />
 
       <IconCanvas

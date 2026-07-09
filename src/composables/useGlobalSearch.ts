@@ -19,6 +19,8 @@ export function useGlobalSearch() {
   const metaLoaded = ref(false)
   const flatIndex = ref<{ collectionId: string, collectionName: string, iconName: string }[]>([])
   const fzfInstance = ref<AsyncFzfType<{ collectionId: string, collectionName: string, iconName: string }[]>>()
+  const hasSearched = ref(false)
+  let searchToken = 0
 
   const searchParts = computed(() => query.value.trim().toLowerCase().split(' ').filter(Boolean))
 
@@ -78,6 +80,8 @@ export function useGlobalSearch() {
   }
 
   async function runSearch() {
+    const token = ++searchToken
+
     if (!query.value) {
       results.value = []
       return
@@ -89,6 +93,8 @@ export function useGlobalSearch() {
     if (!fzfInstance.value)
       return
 
+    if (token !== searchToken) return
+
     loading.value = true
     try {
       const searchString = aliasedCandidates.value.join(' | ')
@@ -96,6 +102,7 @@ export function useGlobalSearch() {
 
       if (useExtendedMatch.value || aliasedCandidates.value.length > 1) {
         const { AsyncFzf, asyncExtendedMatch } = await import('fzf')
+        if (token !== searchToken) return
         const fzfExtended = new AsyncFzf(flatIndex.value, {
           casing: 'case-insensitive',
           match: asyncExtendedMatch,
@@ -106,6 +113,8 @@ export function useGlobalSearch() {
       else {
         matched = (await fzfInstance.value.find(searchString)).map(r => r.item)
       }
+
+      if (token !== searchToken) return
 
       const q = query.value.toLowerCase().trim()
       results.value = matched
@@ -118,13 +127,15 @@ export function useGlobalSearch() {
         .slice(0, 200)
     }
     finally {
-      loading.value = false
+      if (token === searchToken)
+        loading.value = false
     }
   }
 
   const debouncedSearch = useDebounceFn(runSearch, 200)
 
   watch(query, (val) => {
+    if (hasSearched.value) return
     if (!val) {
       results.value = []
       return
@@ -132,7 +143,7 @@ export function useGlobalSearch() {
     debouncedSearch()
   })
 
-  return { query, results, browseResults, loading, ensureLoaded, runSearch }
+  return { query, results, browseResults, loading, ensureLoaded, runSearch, hasSearched }
 }
 
 function classifyMatch(iconName: string, query: string, aliased: string[]): string {

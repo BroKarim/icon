@@ -68,7 +68,11 @@ const GRID_SIZE = computed(() => Math.round(260 * (props.iconScale ?? 1)))
 const ICON_SIZE = computed(() => Math.round(112 * (props.iconScale ?? 1)))
 
 const bgStyle = computed(() => {
-  const hex = props.bgColor.replace('#', '')
+  let hex = props.bgColor.replace('#', '')
+  if (hex.length === 3)
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2]
+  else if (hex.length === 4)
+    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3]
   const r = Number.parseInt(hex.slice(0, 2), 16)
   const g = Number.parseInt(hex.slice(2, 4), 16)
   const b = Number.parseInt(hex.slice(4, 6), 16)

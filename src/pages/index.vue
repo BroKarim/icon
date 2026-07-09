@@ -26,7 +26,7 @@ useHead({
   ],
 })
 
-const { query, results, loading, ensureLoaded, runSearch } = useGlobalSearch()
+const { query, results, loading, ensureLoaded, runSearch, hasSearched } = useGlobalSearch()
 
 const showDetail = ref(false)
 const selectedIcon = ref('')
@@ -34,7 +34,6 @@ const iconScale = ref(1)
 const iconColor = ref('#000000')
 const bgColor = ref('#ffff')
 
-const hasSearched = ref(false)
 const variant = computed<'center' | 'top'>(() => hasSearched.value ? 'top' : 'center')
 const showCanvas = computed(() => variant.value === 'top' && query.value.trim().length > 0)
 
@@ -84,6 +83,7 @@ watch(showDetail, (val) => {
           v-model:icon-color="iconColor"
           v-model:bg-color="bgColor"
           :results-count="results.length"
+          @submit="onSearchSubmit"
         />
       </AnimatePresence>
     </LayoutGroup>

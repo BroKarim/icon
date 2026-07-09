@@ -266,6 +266,56 @@ Phase 6 depends on Phase 5 (ads ready before removing slider).
 | `src/main.css` | 4 (already exists) |
 
 
-ZLsT_7cAVK9.Y.Y
-- update ui sikit lagi
-- iconbuddy jdi patokan
+---
+
+## Phase 0: Search Fix — Explicit Submit + Race Condition Guard
+
+**Goal**: Fix SearchHeader yang gak punya submit mechanism, auto-search yang bentrok sama explicit search, dan race condition di `runSearch()`.
+
+### Diagnosis
+
+| # | Problem | Root Cause |
+|---|---------|------------|
+| 1 | SearchHeader gak trigger search on Enter | Input React cuma `onInput`, gak ada `onKeyDown` Enter |
+| 2 | `index.vue` gak listen `@submit` di SearchHeader | Hanya SearchCenter yg punya `@submit="onSearchSubmit"` |
+| 3 | Auto-search jalan sendiri setelah layout switch ke top | `watch(query)` di composable trigger debouncedSearch tiap keystroke |
+| 4 | Hasil lama overwrite hasil baru | `runSearch()` tanpa AbortController/search token |
+
+### Changes
+
+#### A. `src/components/SearchHeader.vue`
+- Tambah `submit` ke `Emits` interface
+- Tambah `onKeyDown` di React input: `e.key === 'Enter' → emit('submit')`
+
+#### B. `src/composables/useGlobalSearch.ts`
+- Pindahkan `hasSearched` ref ke dalam composable (dari local ref di tiap page)
+- Export `hasSearched` dari return value
+- Tambah `let searchToken = 0` + guard di `runSearch()` — discard stale responses
+- Modifikasi `watch(query)`: skip auto-search kalau `hasSearched.value === true`
+
+#### C. `src/pages/index.vue`
+- Destructure `hasSearched` dari composable (hapus local `const hasSearched = ref(false)`)
+- Tambah `@submit="onSearchSubmit"` di `<SearchHeader>`
+
+#### D. `src/pages/v1.vue`
+- Sama seperti index.vue
+
+#### E. `src/pages/collection/[id].vue`
+- Tambah `@submit` handler di `<SearchHeader>` (no-op — search di sini computed-based)
+
+### Behavior After
+
+| State | SearchCenter | SearchHeader |
+|-------|-------------|--------------|
+| Before first search | Live search via watch (as before) | N/A (hidden) |
+| After first search | N/A (hidden) | Search only on Enter/klik — watch skip auto-search, token guard cegah race |
+
+### Files Touched
+
+| File | Change |
+|------|--------|
+| `src/components/SearchHeader.vue` | Emits + onKeyDown |
+| `src/composables/useGlobalSearch.ts` | hasSearched + token guard + conditional watch |
+| `src/pages/index.vue` | @submit binding |
+| `src/pages/v1.vue` | @submit binding |
+| `src/pages/collection/[id].vue` | @submit binding |

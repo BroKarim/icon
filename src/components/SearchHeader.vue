@@ -20,6 +20,7 @@ interface Props {
 
 interface Emits {
   (e: 'update:modelValue', value: string): void
+  (e: 'submit'): void
   (e: 'update:iconScale', value: number): void
   (e: 'update:iconColor', value: string): void
   (e: 'update:bgColor', value: string): void
@@ -148,6 +149,9 @@ function renderHeaderGlass() {
         placeholder: 'Search 10,000 Things',
         onInput: (e: Event) =>
           emit('update:modelValue', (e.target as HTMLInputElement).value),
+        onKeyDown: (e: KeyboardEvent) => {
+          if (e.key === 'Enter') emit('submit')
+        },
         style: {
           width: '100%',
           height: '100%',
