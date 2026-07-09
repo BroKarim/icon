@@ -100,11 +100,8 @@ export default defineConfig(() => {
         output: {
           manualChunks(id) {
             if (id.includes('node_modules')) {
-              if (id.includes('@vueuse') || id.includes('@unhead')) {
-                return 'vendor-vue-ecosystem'
-              }
-              if (id.includes('vue') || id.includes('vue-router')) {
-                return 'vendor-vue-core'
+              if (id.includes('vue') || id.includes('vue-router') || id.includes('@vueuse') || id.includes('@unhead')) {
+                return 'vendor-vue'
               }
               if (id.includes('reka-ui') || id.includes('floating-vue') || id.includes('vaul-vue')) {
                 return 'vendor-ui'
