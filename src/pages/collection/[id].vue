@@ -5,6 +5,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../../components/IconCanvas.vue'
 import IconDetail from '../../components/IconDetail.vue'
 import { pushRecentCollection, setCurrentCollection, useCurrentCollection } from '../../store'
+import { useGlobalSearch } from '../../composables/useGlobalSearch'
 
 const props = defineProps<{
   id: string
@@ -58,12 +59,15 @@ onMounted(() => {
   pushRecentCollection(props.id)
 })
 
+const { query, results, loading, runSearch, hasSearched } = useGlobalSearch()
+hasSearched.value = true // disable auto-search watch; user submits manually
+
 const showDetail = ref(false)
 const selectedIcon = ref('')
 const iconScale = ref(1)
 const iconColor = ref('#000000')
 const bgColor = ref('#ffff')
-const query = ref('')
+const hasSubmitted = ref(false)
 
 const allIcons = computed<SearchResult[]>(() => {
   const c = collection.value
@@ -79,12 +83,21 @@ const allIcons = computed<SearchResult[]>(() => {
 })
 
 const canvasResults = computed<SearchResult[]>(() => {
-  if (!query.value.trim())
-    return allIcons.value
+  if (hasSubmitted.value && query.value.trim())
+    return results.value
+  return allIcons.value
+})
 
-  return allIcons.value.filter(item =>
-    item.iconName.toLowerCase().includes(query.value.toLowerCase()),
-  )
+function onSearchSubmit() {
+  if (!query.value.trim())
+    return
+  hasSubmitted.value = true
+  runSearch()
+}
+
+watch(query, () => {
+  if (hasSubmitted.value && !query.value.trim())
+    hasSubmitted.value = false
 })
 
 function onSelect(iconFull: string) {
@@ -117,12 +130,12 @@ watch(showDetail, (val) => {
         v-model:icon-color="iconColor"
         v-model:bg-color="bgColor"
         :results-count="canvasResults.length"
-        @submit="() => {}"
+        @submit="onSearchSubmit"
       />
 
       <IconCanvas
         :results="canvasResults"
-        :loading="false"
+        :loading="loading && hasSearched"
         :icon-scale="iconScale"
         :icon-color="iconColor"
         :bg-color="bgColor"
