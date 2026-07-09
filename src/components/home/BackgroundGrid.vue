@@ -5,10 +5,10 @@
 <template>
   <div class="pointer-events-none absolute inset-0 md:px-10 md:py-10">
     <div
-      class="h-full w-full bg-background"
+      class="h-full w-full"
       :style="{
         backgroundImage:
-          'repeating-linear-gradient(45deg, transparent, transparent 2px, var(--secondary) 2px, var(--secondary) 4px)',
+          'repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px)',
       }"
     />
   </div>
