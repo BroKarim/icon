@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SearchIcon, Send } from '@lucide/vue'
+import { Send } from '@lucide/vue'
 import { Motion } from 'motion-v'
 import { Button } from '@/components/ui/button'
 

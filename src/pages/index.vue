@@ -5,8 +5,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../components/IconCanvas.vue'
 import IconDetail from '../components/IconDetail.vue'
-import SearchCenter from '../components/SearchCenter.vue'
-import VersionSwitcher from '../components/VersionSwitcher.vue'
+import NewHome from '../components/home/NewHome.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
 useHead({
@@ -44,6 +43,12 @@ function onSearchSubmit() {
   runSearch()
 }
 
+function onHomeReset() {
+  hasSearched.value = false
+  query.value = ''
+  results.value = []
+}
+
 onMounted(() => {
   ensureLoaded()
 })
@@ -69,11 +74,12 @@ watch(showDetail, (val) => {
 
     <LayoutGroup>
       <AnimatePresence mode="popLayout">
-        <SearchCenter
-          v-if="variant === 'center'"
+        <NewHome
+          v-if="!hasSearched"
           key="center"
-          v-model="query"
+          v-model:query="query"
           @submit="onSearchSubmit"
+          @reset="onHomeReset"
         />
         <SearchHeader
           v-else

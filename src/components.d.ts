@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ActionsMenu: typeof import('./components/ActionsMenu.vue')['default']
+    BackgroundGrid: typeof import('./components/home/BackgroundGrid.vue')['default']
     Badge: typeof import('./components/ui/badge/Badge.vue')['default']
     Bag: typeof import('./components/Bag.vue')['default']
     Button: typeof import('./components/ui/button/Button.vue')['default']
@@ -46,6 +47,7 @@ declare module 'vue' {
     FAB: typeof import('./components/FAB.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     HelpPage: typeof import('./components/HelpPage.vue')['default']
+    HomeFooter: typeof import('./components/home/HomeFooter.vue')['default']
     Icon: typeof import('./components/Icon.vue')['default']
     IconBackground: typeof import('./components/IconBackground.vue')['default']
     IconButton: typeof import('./components/IconButton.vue')['default']
@@ -63,6 +65,7 @@ declare module 'vue' {
     Navbar: typeof import('./components/Navbar.vue')['default']
     NavElectron: typeof import('./components/electron/NavElectron.vue')['default']
     NavPlaceholder: typeof import('./components/electron/NavPlaceholder.vue')['default']
+    NewHome: typeof import('./components/home/NewHome.vue')['default']
     Notification: typeof import('./components/Notification.vue')['default']
     Progress: typeof import('./components/Progress.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

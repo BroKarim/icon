@@ -1,15 +1,20 @@
-# Task Plan: Rebrand → Affiliate System
+# Task Plan: Rebrand → New Home → Affiliate System
 
 ## Overview
 
-Next features after v2:
+Fokus saat ini (setelah v2):
 
-1. **Branding** — rename website ke "icloo" (name, title, manifest, PWA)
-2. **Affiliate konten** — sisipkan konten afiliasi/referral di antara icon di canvas grid
+| Phase | Fitur | Status |
+|-------|-------|--------|
+| 7 | **Branding** — rename ke "icloo" | Belum mulai |
+| 8 | **New Home Page** — hero section clone shoogle.dev | Belum mulai |
+| 9 | **IconDetail SVG Render** — tampilkan SVG icon di detail | Belum mulai |
+| 10 | **Global Search di Collection** — search gak terbatas collection | Belum mulai |
+| 5 | **Affiliate Content** — konten afiliasi di antara icon | Belum mulai |
+
+> **Catatan**: Phase 1–6 adalah fitur dari task plan sebelumnya (visual & theme overhaul). Sudah selesai/ditunda — tidak lagi relevan untuk dilanjutkan. Fokus saat ini adalah **branding, new home page, IconDetail, global search, affiliate**.
 
 ---
-
-> **Catatan**: Phase 1–6 adalah fitur dari task plan sebelumnya (visual & theme overhaul). Sudah selesai/ditunda. Fokus saat ini adalah **Branding** dan **Affiliate System**.
 
 ## Phase 7: Branding — Rebrand ke "icloo"
 
@@ -49,125 +54,166 @@ Next features after v2:
 
 ---
 
-## Phase 1: Staggered Icon Entry Animation
+## Phase 8: New Home Page (Hero Section)
 
-**Goal**: Icons fade + scale in on first mount with staggered delay, using `motion-v`.
+**Goal**: Ganti `SearchCenter.vue` dengan halaman hero baru yang di-clone dari [shoogle.dev](https://shoogle.dev/). Background hero hilang setelah user melakukan pencarian & masuk ke mode search.
+
+### Desain
+
+- **Before search**: Hero section full-screen (logo + search input + action buttons + background grid)
+- **After search**: Background hero hilang, tampil `SearchHeader` + `IconCanvas` seperti sekarang
+- **Transisi**: motion-v layout animation
+- **Kembali ke home**: Click logo → reset ke hero section
+
+### Keputusan
+
+| Aspek | Pilihan |
+|-------|---------|
+| Search behavior | Search on Enter (bukan live search) |
+| Desain | Clone dari shoogle.dev (Tailwind classes) |
+| URL | Clean URL (tidak pakai query params dulu) |
+| Transisi | motion-v layout animation (existing) |
+| Kembali ke home | Click logo |
+| File format | Semua file di `src/components/new-home/` dikonversi ke `.vue` (Vue SFC) |
 
 ### Implementation
 
-| File | Change |
-|------|--------|
-| `src/components/IconCanvas.vue` | Add `staggerDelay = 15` constant. In template, wrap each icon div with `<Motion>` component from `motion-v`. `v-for` item gets: `:initial="{ opacity: 0, scale: 0.5 }"` `:animate="{ opacity: 1, scale: 1 }"` `:transition="{ delay: gridIndex % 30 * staggerDelay, duration: 0.3, ease: 'easeOut' }"`. |
-| Sama file | Add `ref hasAnimated = false`. On first `updateGridItems()` after `onMounted`, set `hasAnimated.value = true`. Animation only on initial mount, not on scroll/drag. Use `v-if="hasAnimated"` or guard logic. |
-| Sama file | Import `Motion` from `motion-v` |
+#### 1. Convert new-home/ dari TSX ke Vue SFC
 
-### Details
+Buat folder `src/components/home/` dan konversi semua file:
 
-- Delay = `gridIndex % 30 * 15ms` → max stagger = 29 × 15 = 435ms. First 30 icons animate in ~0.5s.
-- Ikon baru yang muncul saat scroll/drag **tidak** perlu di-animasi ulang (penuh memory). Gunakan flag agar efek only on first population.
-- Scale 0.5 → 1.0 with opacity 0 → 1.
+| File TSX | File Vue |
+|----------|----------|
+| `new-home/page.tsx` | `home/NewHome.vue` |
+| `new-home/background-grid.tsx` | `home/BackgroundGrid.vue` |
+| `new-home/footer.tsx` | `home/HomeFooter.vue` |
+| `new-home/icons.tsx` | `home/HomeIcons.vue` (atau inline SVG di komponen masing-masing) |
+
+`NewHome.vue`:
+- Search input dengan `@submit` emit on Enter
+- Logo click → emit `@reset` ke parent (reset `hasSearched`)
+- BackgroundGrid sebagai background
+- Action buttons (Explore, Fresh, Bookmarks) → bisa diisi link nanti
+- Footer dengan link Terms/Privacy + social
+
+#### 2. Update `src/pages/index.vue`
+
+- Import `NewHome` dari `./components/home/NewHome.vue`
+- Ganti kondisi render:
+  - `v-if="!hasSearched"` → `<NewHome @submit="onSearchSubmit" @reset="onHomeReset" />`
+  - `v-else` → `SearchHeader` + `IconCanvas` (existing code)
+- `onSearchSubmit`: set `hasSearched = true`, `runSearch()`
+- `onHomeReset`: set `hasSearched = false`, clear `query`, `results`
+
+#### 3. Background hilang pas search
+
+- `NewHome` hanya di-render saat `!hasSearched`
+- Begitu `hasSearched` jadi `true`, `NewHome` di-unmount (bareng animasi motion-v)
+- Background (BackgroundGrid) ikut hilang karena satu komponen
 
 ### Verification
 
-- Load page → icons sweep in with ripple effect
-- No animation on scroll/new icons entering viewport (performa)
+- First load: hero section dengan background grid, logo besar, search input
+- Type + Enter: transisi ke search mode, background hilang
+- Click logo: kembali ke hero section
+- Action buttons visible di hero
+- Footer visible di hero
+- Clean URL sepanjang waktu
 
 ---
 
-## Phase 2: Sheet Slide Animation via motion-v
+## Phase 9: IconDetail SVG Render
 
-**Goal** `SheetContent.vue`: sliding animation using `motion-v` instead of `tw-animate-css`.
+**Goal**: Di `IconDetail.vue`, bagian preview icon menampilkan SVG asli dari icon (bukan cuma `<iconify-icon>` element) agar bisa di-copy/di-download SVG mentahnya.
+
+### Masalah Saat Ini
+
+`IconDetail.vue:162-164`:
+```vue
+<IconBackground :icon-color="iconColor">
+  <template #icon>
+    <Icon :key="icon" outer-class="text-8xl" :icon="icon" />
+  </template>
+</IconBackground>
+```
+
+Hanya menampilkan icon via `<Icon>` component (render iconify-icon web component). User tidak bisa melihat/mengcopy SVG source.
+
+### Solusi
+
+- Tambahkan tab/view toggle di area preview: **"Preview"** (existing) dan **"SVG"** (raw SVG code)
+- Fetch SVG source dari Iconify API atau dari cached icon data
+- Tampilkan SVG dalam `<pre><code>` block atau viewer
+- Tombol copy SVG source
 
 ### Implementation
 
 | File | Change |
 |------|--------|
-| `src/components/ui/sheet/SheetContent.vue` | Replace `animate-in`/`animate-out` CSS classes. Import `Motion` from `motion-v`. Wrap `<DialogContent>` content in `<Motion>` with `:initial` / `:animate` / `:exit` based on `side` prop. Or use reka-ui's built-in `data-state` → watch to drive motion-v. |
+| `src/components/IconDetail.vue` | Tambah state `activeView: 'preview' \| 'svg'` |
+| Sama file | Tambah fungsi `async fetchSvgSource(icon: string): Promise<string>` |
+| Sama file | Tambah tab/view toggle di area preview |
+| Sama file | Tampilkan raw SVG di `<pre><code>` dengan syntax highlight |
+| Sama file | Tombol "Copy SVG" |
 
-### Approach
+### Data Flow
 
-Since reka-ui's `DialogContent` controls its own mount/unmount, best approach:
-
-1. Inside `<DialogContent>`, wrap slot content in `<Motion>` that reads `$attrs` or `data-state`
-2. Animation:
-   - `right` side: initial `{ x: '100%' }`, animate `{ x: 0 }`, exit `{ x: '100%' }`
-   - `left` side: initial `{ x: '-100%' }`, animate `{ x: 0 }`, exit `{ x: '-100%' }`
-   - `top`: initial `{ y: '-100%' }`, animate `{ y: 0 }`, exit `{ y: '-100%' }`
-   - `bottom`: initial `{ y: '100%' }`, animate `{ y: 0 }`, exit `{ y: '100%' }`
-3. Duration ~0.3s, ease `easeInOut`
-
-Alternatively: use `<Presence>` from `motion-v` if reka-ui exposes `open` state.
+```
+iconFull ("mdi:home")
+  → fetch SVG dari Iconify API: https://api.iconify.design/mdi/home.svg
+  → atau ambil dari cached collection data (collection.icons[iconName])
+  → render sebagai raw SVG string
+```
 
 ### Verification
 
-- Open sheet → slides in from right
-- Close → slides out to right
-- Other sides (left/top/bottom) work too
+- Buka IconDetail → tab Preview tetap default
+- Switch ke tab SVG → lihat source code SVG
+- Copy SVG → paste di editor, valid
+- Download SVG → file valid
 
 ---
 
-## Phase 3: Hover Background Square✅✅✅✅✅
+## Phase 10: Global Search di Collection Page
 
-**Goal**: On icon hover, show rounded background square behind icon (not lift/translate).
+**Goal**: Sistem pencarian di `src/pages/collection/[id].vue` saat ini hanya filter icon dalam collection itu saja (`includes`). Ubah jadi global search yang bisa mencari seluruh icon dari semua collection (pakai `useGlobalSearch`).
+
+### Masalah
+
+```ts
+// collection/[id].vue:81-88 — search terbatas dalam collection
+const canvasResults = computed<SearchResult[]>(() => {
+  if (!query.value.trim())
+    return allIcons.value
+  return allIcons.value.filter(item =>
+    item.iconName.toLowerCase().includes(query.value.toLowerCase()),
+  )
+})
+```
+
+### Solusi
+
+- Ganti `canvasResults` computed → pakai `useGlobalSearch()` seperti di `index.vue`
+- Collection page tetap menampilkan semua icon collection saat `query` kosong (via `allIcons`)
+- Saat user mengetik & submit, search dilakukan secara global (`runSearch`)
+- Hasil search global ditampilkan di canvas (bukan terbatas collection)
+- Tambahkan label/indicator "Searching all icons..." atau "Showing results from all collections"
 
 ### Implementation
 
 | File | Change |
 |------|--------|
-| `src/components/IconCanvas.vue` | In icon div template (line 429), replace `hover:-translate-y-1 hover:scale-[1.03]` with `hover:bg-white/15 dark:hover:bg-white/[0.06] hover:backdrop-blur-sm`. Add `transition-colors` duration. Keep `rounded-2xl` on parent. Add inner `<div>` as background layer or use `::before` pseudo-element. |
-
-### Design
-
-Simplest: apply background directly on the grid cell div:
-
-```
-class="group absolute flex flex-col items-center justify-center rounded-2xl transition-all duration-200 ease-out hover:bg-white/15 dark:hover:bg-white/[0.06]"
-```
-
-Remove `hover:-translate-y-1 hover:scale-[1.03]`. No lift, just background fill.
-
-The icon label (`.opacity-0 group-hover:opacity-100`) stays.
+| `src/pages/collection/[id].vue` | Import & gunakan `useGlobalSearch()` |
+| Sama file | Ganti `canvasResults` logic: jika `query` kosong → `allIcons`, jika ada query → `results` dari global search |
+| Sama file | Tambah `@submit` handler yang panggil `runSearch()` |
+| Sama file | Update `@submit` di SearchHeader |
 
 ### Verification
 
-- Hover icon → subtle white/translucent square background appears
-- No icon lift
-- Works in both light & dark
-
----
-
-## Phase 4: Light & Dark Theme
-
-**Goal**: Wire existing dark mode CSS to the new canvas-based pages (index.vue, v1.vue). DarkSwitcher.vue already exists — just place in header.
-
-### Implementation
-
-| File | Change |
-|------|--------|
-| `src/pages/index.vue` | Change `iconColor` ref to computed: `isDark.value ? '#ffffff' : '#000000'`. Same for `bgColor`: `isDark.value ? '#141414' : '#f7f3ec'`. Import `isDark` from `@/store/dark`. |
-| `src/pages/v1.vue` | Same as above. |
-| `src/components/SearchHeader.vue` | Add DarkSwitcher button in right section (before color picker). Update hardcoded `text-black/60` → `dark:text-white/60`. Glass backgrounds may need dark variant. |
-| `src/components/IconCanvas.vue` | `bgStyle` computed: when dark, adjust gradient (keep dark background, more subtle radial). |
-| `src/components/IconCanvas.vue` | Icon label `bg-white/84` → `dark:bg-black/50 dark:text-white/70`. |
-
-### DarkSwitcher Placement
-
-In `SearchHeader.vue` right section (before color picker):
-```html
-<DarkSwitcher />
-```
-
-### isDark reactivity
-
-- User toggles dark → `isDark` changes → computed bgColor/iconColor react
-- `IconCanvas` re-renders with new colors
-- `SearchHeader` glass backgrounds re-render
-
-### Verification
-
-- Toggle dark mode → page bg, icon color, controls all switch
-- Refresh → dark mode persists (localStorage `icones-schema`)
-- Randomize still works independently
+- Buka collection page → lihat semua icon collection
+- Search "home" → lihat hasil global dari semua collection
+- Clear search → kembali ke icon collection
+- Hasil search relevan (tidak terbatas satu collection)
 
 ---
 
@@ -201,7 +247,7 @@ export const adPool: AdItem[] = [
 
 #### 5c. Ad Placement Logic
 
-New composable or function `computeAdInsertions(gridCells: Position[]): Map<string, AdItem>`:
+New composable atau fungsi `computeAdInsertions(gridCells: Position[]): Map<string, AdItem>`:
 
 - Configurable frequency: every N cells (e.g., every 15 cells → insert 1 ad)
 - Algorithm: when iterating over grid positions in `visibleItems`, at index % interval === 0, swap cell for ad
@@ -244,40 +290,27 @@ Can later be dynamic (A/B test, or from backend).
 
 ---
 
-## Phase 6: Remove Icon Size Slider (When Ads Ready)
+## Future: Search Query in URL
 
-**Goal**: Once ad system is live, remove icon size slider from SearchHeader. Set fixed icon size.
+**Goal**: Setelah fitur-fitur di atas stabil, tambahkan dukungan query params di URL (`/?q=icon`) agar:
 
-### Implementation
+- User bisa bookmark/share link hasil pencarian
+- Ketika load page dengan `?q=icon`, auto-search
+- Browser back/forward navigation works dengan search state
+
+### Implementation (nanti)
 
 | File | Change |
 |------|--------|
-| `src/components/SearchHeader.vue` | Delete slider div block (lines 304-315). Remove `Slider` import (if no longer used). Remove `iconScaleModel` computed. Remove `iconScale` from props interface & emits. |
-| `src/pages/index.vue` | Remove `icon-scale` v-model from `<SearchHeader>`. Remove `iconScale` ref. Set `iconScale` to `1` constant in `<IconCanvas>` call. |
-| `src/pages/v1.vue` | Same as above. |
-| `src/pages/index.vue` | If `iconScale` removed, `watch(showDetail...` still works. Just hardcode `:icon-scale="1"` on IconCanvas. |
+| `src/composables/useGlobalSearch.ts` | Sync `query` dengan `useRoute().query.q` via `watch` |
+| `src/pages/index.vue` | On mount, baca `route.query.q` → set `query` → auto `hasSearched = true` + `runSearch()` |
+| `src/pages/v1.vue` | Sama |
 
-### Result
+### Verification (nanti)
 
-- Icon size fixed at 112px (current default at scale=1)
-- No resize control for user
-- Consistent grid layout
-
----
-
-## Dependency Graph
-
-```
-Phase 7 (branding)       Phase 5 (affiliate)
-        \                       /
-         \                     /
-          v                   v
-              Phase 6 (remove slider — opsional, setelah affiliate jalan)
-```
-
-Phase 7 (branding) dan Phase 5 (affiliate) independen → bisa dikerjakan paralel.
-
-Phase 6 opsional — hapus slider ikon setelah affiliate system stabil dan ikon size udah fixed.
+- Buka `/?q=home` → langsung search "home"
+- URL berubah jadi `/?q=...` saat user mengetik
+- Share link → orang lain buka → hasil sama
 
 ---
 
@@ -286,10 +319,15 @@ Phase 6 opsional — hapus slider ikon setelah affiliate system stabil dan ikon 
 | File | Phases |
 |------|--------|
 | `vite.config.ts` | 7 (manifest name) |
-| `src/pages/index.vue` | 7 (title, meta) |
+| `src/pages/index.vue` | 7, 8 (title + hero section) |
 | `src/pages/v1.vue` | 7 (title, meta) |
-| `src/pages/collection/[id].vue` | 7 (title, meta) |
+| `src/pages/collection/[id].vue` | 7, 10 (title + global search) |
 | `src/components/SearchHeader.vue` | 7 (placeholder) |
+| `src/components/IconDetail.vue` | 9 (SVG render) |
+| `src/components/home/NewHome.vue` | 8 (new — hero page) |
+| `src/components/home/BackgroundGrid.vue` | 8 (new — background grid) |
+| `src/components/home/HomeFooter.vue` | 8 (new — footer) |
+| `src/components/home/HomeIcons.vue` | 8 (new — inline SVG icons) |
 | `index.html` | 7 (title, favicon) |
 | `public/` | 7 (favicon/logo assets) |
 | `src/types/ad.ts` | 5 (new — tipe data affiliate) |
@@ -298,64 +336,28 @@ Phase 6 opsional — hapus slider ikon setelah affiliate system stabil dan ikon 
 | `src/components/IconCanvas.vue` | 5 (integrasi affiliate di grid) |
 | `src/composables/useAffiliate.ts` | 5 (new — logika placement) |
 
-
 ---
 
-## Phase 0: Search Fix — Explicit Submit + Race Condition Guard
+## Dependency Graph
 
-**Goal**: Fix SearchHeader yang gak punya submit mechanism, auto-search yang bentrok sama explicit search, dan race condition di `runSearch()`.
+```
+Phase 7 (branding)          Phase 8 (new home)
+        |                          |
+        v                          v
+Phase 10 (global search)    Phase 9 (IconDetail SVG)
+        |                          |
+        +-----------+--------------+
+                    |
+                    v
+           Phase 5 (affiliate)
+```
 
-### Diagnosis
+Phase 7 (branding) dan Phase 8 (new home) independen → bisa paralel.
 
-| # | Problem | Root Cause |
-|---|---------|------------|
-| 1 | SearchHeader gak trigger search on Enter | Input React cuma `onInput`, gak ada `onKeyDown` Enter |
-| 2 | `index.vue` gak listen `@submit` di SearchHeader | Hanya SearchCenter yg punya `@submit="onSearchSubmit"` |
-| 3 | Auto-search jalan sendiri setelah layout switch ke top | `watch(query)` di composable trigger debouncedSearch tiap keystroke |
-| 4 | Hasil lama overwrite hasil baru | `runSearch()` tanpa AbortController/search token |
+Phase 10 (global search) perlu branding selesai dulu (nama page).
+Phase 9 (IconDetail SVG) bisa dikerjakan kapan saja.
 
-### Changes
-
-#### A. `src/components/SearchHeader.vue`
-- Tambah `submit` ke `Emits` interface
-- Tambah `onKeyDown` di React input: `e.key === 'Enter' → emit('submit')`
-
-#### B. `src/composables/useGlobalSearch.ts`
-- Pindahkan `hasSearched` ref ke dalam composable (dari local ref di tiap page)
-- Export `hasSearched` dari return value
-- Tambah `let searchToken = 0` + guard di `runSearch()` — discard stale responses
-- Modifikasi `watch(query)`: skip auto-search kalau `hasSearched.value === true`
-
-#### C. `src/pages/index.vue`
-- Destructure `hasSearched` dari composable (hapus local `const hasSearched = ref(false)`)
-- Tambah `@submit="onSearchSubmit"` di `<SearchHeader>`
-
-#### D. `src/pages/v1.vue`
-- Sama seperti index.vue
-
-#### E. `src/pages/collection/[id].vue`
-- Tambah `@submit` handler di `<SearchHeader>` (no-op — search di sini computed-based)
-
-### Behavior After
-
-| State | SearchCenter | SearchHeader |
-|-------|-------------|--------------|
-| Before first search | Live search via watch (as before) | N/A (hidden) |
-| After first search | N/A (hidden) | Search only on Enter/klik — watch skip auto-search, token guard cegah race |
-
-### Files Touched
-
-| File | Change |
-|------|--------|
-| `src/components/SearchHeader.vue` | Emits + onKeyDown |
-| `src/composables/useGlobalSearch.ts` | hasSearched + token guard + conditional watch |
-| `src/pages/index.vue` | @submit binding |
-| `src/pages/v1.vue` | @submit binding |
-| `src/pages/collection/[id].vue` | @submit binding |
-
-
-
-
+Phase 5 (affiliate) paling akhir — perlu canvas grid yang stabil.
 
 ---
 
@@ -373,32 +375,32 @@ git checkout main
 git pull origin main
 
 # 2. Tag versi lama sebelum merge (simpan kode sebelum perubahan)
-git tag -a v1 -m "Stable version before search branch merge"
-git push origin v1
+git tag -a v2 -m "Current before new features"
+git push origin v2
 
 # 3. Merge branch fitur ke main
-git merge v2-build       # ganti v2-build dengan nama branch fitur
+git merge v2-build       # ganti dengan nama branch fitur
 # selesaikan conflict kalau ada
 git push origin main
 
 # 4. Tag versi baru setelah merge
-git tag -a v2 -m "Merged search branch: fix search trigger + race condition"
-git push origin v2
+git tag -a v3 -m "New home page + branding"
+git push origin v3
 
 # 5. Lihat kode lama (detached HEAD)
-git checkout v1
+git checkout v2
 
 # Atau bikin branch dari tag kalau mau develop dari versi lama
-git checkout -b hotfix-v1 v1
+git checkout -b hotfix-v2 v2
 ```
 
 ### Cara Akses Kode Lama/Liat Isi Tag
 
 ```bash
 git tag                           # list semua tag
-git show v1                       # lihat detail tag + message
-git checkout v1                   # detached HEAD — lihat kode versi v1
-git diff v1..v2                    # lihat perubahan antar versi
+git show v2                       # lihat detail tag + message
+git checkout v2                   # detached HEAD — lihat kode versi v2
+git diff v2..v3                    # lihat perubahan antar versi
 ```
 
 ### Skema Versi ke Depan
@@ -406,24 +408,15 @@ git diff v1..v2                    # lihat perubahan antar versi
 | Tag | Isi |
 |-----|-----|
 | `v1` | Kode main sebelum merge branch v2-build |
-| `v2` | Main setelah merge v2-build (fix search + race condition) |
-| `v2.1` | Fitur/bug kecil berikutnya |
-| `v2.2` | Fitur/bug berikutnya |
-| `v3` | Rilis besar berikutnya (breaking changes) |
+| `v2` | Main setelah merge v2-build (fix search + race condition + chunk fix) |
+| `v3` | Branding + new home page + fitur besar berikutnya |
+| `v3.1` | Fitur/bug kecil berikutnya |
+| `v4` | Rilis besar berikutnya (breaking changes) |
 
 ### Aturan
 
 - **Jangan hapus tag yang sudah di-push** — tag adalah sejarah
 - Setiap sebelum merge branch besar, tag dulu main yang existing
 - Setelah merge, tag versi baru
-- Untuk bug kecil: `git tag -a v2.1 -m "..."` langsung di main (tanpa branching)
+- Untuk bug kecil: `git tag -a v3.1 -m "..."` langsung di main (tanpa branching)
 - Untuk fitur besar: buat branch → merge → tag seperti workflow di atas
-
-
-
-
-
-- branding jdi icloo
-- di Icondetai bagain icon da svg yg bs di render
-- sistem pencarian di src/pages/collection/[id].vue itu buat public aja jgn terbatas d collection
-- hero section clone dari dia aja : https://shoogle.dev/ tpi background hilang pas udh mask ke pencarian
