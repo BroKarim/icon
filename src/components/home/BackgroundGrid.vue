@@ -1,9 +1,14 @@
+<script setup lang="ts">
+// BackgroundGrid - no props/state needed
+</script>
+
 <template>
   <div class="pointer-events-none absolute inset-0 md:px-10 md:py-10">
     <div
       class="h-full w-full bg-background"
       :style="{
-        backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 2px, var(--secondary) 2px, var(--secondary) 4px)',
+        backgroundImage:
+          'repeating-linear-gradient(45deg, transparent, transparent 2px, var(--secondary) 2px, var(--secondary) 4px)',
       }"
     />
   </div>

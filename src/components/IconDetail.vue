@@ -45,12 +45,27 @@ const activeSnippet = ref('svg')
 const activeComponent = ref('vue')
 const activeLink = ref('url')
 const activeViewOn = ref('iconify')
+const viewMode = ref<'preview' | 'svg'>('preview')
+const svgSource = ref('')
+const svgLoading = ref(false)
+
+watch(viewMode, async (mode) => {
+  if (mode === 'svg' && !svgSource.value) {
+    svgLoading.value = true
+    const svg = await getIconSnippet(collections, props.icon, 'svg', false, color.value)
+    if (svg)
+      svgSource.value = svg
+    svgLoading.value = false
+  }
+})
 
 watch(() => props.icon, () => {
   activeSnippet.value = 'svg'
   activeComponent.value = 'vue'
   activeLink.value = 'url'
   activeViewOn.value = 'iconify'
+  viewMode.value = 'preview'
+  svgSource.value = ''
 })
 
 onKeyStroke('ArrowLeft', (e) => {
@@ -159,11 +174,49 @@ async function copyActiveComponentCode() {
   <div class="p-2 flex flex-col text-black">
     <!-- icon -->
     <div class="flex flex-col items-center gap-2 w-full pr-10">
-      <IconBackground :icon-color="iconColor">
+      <div class="flex items-center gap-1.5 mb-1">
+        <button
+          class="text-xs font-medium rounded-md px-2 py-0.5 transition-colors"
+          :class="viewMode === 'preview' ? 'bg-zinc-200 text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'"
+          @click="viewMode = 'preview'"
+        >
+          Icon
+        </button>
+        <button
+          class="text-xs font-medium rounded-md px-2 py-0.5 transition-colors"
+          :class="viewMode === 'svg' ? 'bg-zinc-200 text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'"
+          @click="viewMode = 'svg'"
+        >
+          SVG
+        </button>
+      </div>
+      <IconBackground v-if="viewMode === 'preview'" :icon-color="iconColor">
         <template #icon>
           <Icon :key="icon" outer-class="text-8xl" :icon="icon" />
         </template>
       </IconBackground>
+      <div
+        v-else
+        class="flex items-center justify-center w-32 h-32"
+      >
+        <div
+          v-if="svgLoading"
+          class="text-xs text-zinc-400"
+        >
+          Loading...
+        </div>
+        <div
+          v-else-if="svgSource"
+          v-html="svgSource"
+          class="w-20 h-20 flex items-center justify-center"
+        />
+        <div
+          v-else
+          class="text-xs text-zinc-400"
+        >
+          No SVG
+        </div>
+      </div>
       <span class="text-sm font-mono text-black/60">{{ icon.split(':')[1] }}</span>
     </div>
 
