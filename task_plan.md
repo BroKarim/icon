@@ -1,8 +1,51 @@
-# Task Plan: Visual & Theme Overhaul + Ad System
+# Task Plan: Rebrand → Affiliate System
 
 ## Overview
 
-Six features building on each other. Order matters — later tasks depend on earlier infrastructure.
+Next features after v2:
+
+1. **Branding** — rename website ke "icloo" (name, title, manifest, PWA)
+2. **Affiliate konten** — sisipkan konten afiliasi/referral di antara icon di canvas grid
+
+---
+
+> **Catatan**: Phase 1–6 adalah fitur dari task plan sebelumnya (visual & theme overhaul). Sudah selesai/ditunda. Fokus saat ini adalah **Branding** dan **Affiliate System**.
+
+## Phase 7: Branding — Rebrand ke "icloo"
+
+**Goal**: Ganti semua referensi brand dari "Icons"/"Icones" → "icloo". Website, PWA, meta tags, semuanya.
+
+### Scope
+
+| Area | File | Perubahan |
+|------|------|-----------|
+| PWA Manifest | `vite.config.ts` | `name: 'icloo'`, `short_name: 'icloo'` |
+| PWA Manifest icons | `public/` | Update icon files kalau perlu |
+| Page title | `src/pages/index.vue` | `useHead` → title "icloo" |
+| Page title | `src/pages/v1.vue` | Sama |
+| Page title | `src/pages/collection/[id].vue` | Title template `... — icloo` |
+| OG meta | Semua file `useHead` | `og:title`, `og:description`, `og:url`, `twitter:*` |
+| Canonical URL | Semua file `useHead` | `canonical` href |
+| Favicon | `index.html` + `public/` | Update favicon link kalau ganti logo |
+| Domain | Di mana aja | Update `icons.brokarim.com` → domain baru kalau ada |
+| Search placeholder | `src/components/SearchHeader.vue` | Placeholder text (optional) |
+| Hardcoded "Icons" | Seluruh codebase | Grep `Icons` / `icones` → ganti dengan `icloo` |
+
+### Implementation Steps
+
+1. **Grep dulu** — cari semua kemunculan `Icons`, `icones`, `ICONS` di `src/` dan `public/`
+2. **Update vite.config.ts** — nama PWA manifest
+3. **Update tiap page** — `useHead` title, meta, link
+4. **Update favicon/logo** kalau ada aset baru
+5. **Verify** — build, cek title bar, PWA install name, OG preview
+
+### Verification
+
+- Tab browser: title "icloo"
+- PWA install prompt: name "icloo"
+- Share link OG preview: title "icloo"
+- Collection page: "Browse ... icons from the ... collection — icloo"
+- Build: `npm run build` sukses, typecheck OK
 
 ---
 
@@ -63,7 +106,7 @@ Alternatively: use `<Presence>` from `motion-v` if reka-ui exposes `open` state.
 
 ---
 
-## Phase 3: Hover Background Square
+## Phase 3: Hover Background Square✅✅✅✅✅
 
 **Goal**: On icon hover, show rounded background square behind icon (not lift/translate).
 
@@ -128,9 +171,9 @@ In `SearchHeader.vue` right section (before color picker):
 
 ---
 
-## Phase 5: Ad/Referral System Between Icons
+## Phase 5: Affiliate Content Between Icons
 
-**Goal**: Insert ads between icons on the canvas grid. Ad count unlimited, configurable system. Each ad has: link URL, image URL, short description.
+**Goal**: Insert affiliate/referral content between icons on the canvas grid. Setiap konten afiliasi memiliki: link URL, image URL, judul, deskripsi singkat. Frekuensi bisa diatur (misal tiap 15 icon).
 
 ### Implementation
 
@@ -225,26 +268,16 @@ Can later be dynamic (A/B test, or from backend).
 ## Dependency Graph
 
 ```
-Phase 1 (stagger)   Phase 2 (sheet anim)   Phase 3 (hover bg)
-        \                    |                    /
-         \                   |                   /
-          v                  v                  v
-               Phase 4 (dark theme)
-                      |
-                      v
-               Phase 5 (ad system)
-                      |
-                      v
-               Phase 6 (remove slider)
+Phase 7 (branding)       Phase 5 (affiliate)
+        \                       /
+         \                     /
+          v                   v
+              Phase 6 (remove slider — opsional, setelah affiliate jalan)
 ```
 
-Phases 1, 2, 3 are independent → can be done in parallel.
+Phase 7 (branding) dan Phase 5 (affiliate) independen → bisa dikerjakan paralel.
 
-Phase 4 needs Phase 3 (hover uses dark: variant).
-
-Phase 5 depends on Phases 1/3 for stable grid infrastructure.
-
-Phase 6 depends on Phase 5 (ads ready before removing slider).
+Phase 6 opsional — hapus slider ikon setelah affiliate system stabil dan ikon size udah fixed.
 
 ---
 
@@ -252,18 +285,18 @@ Phase 6 depends on Phase 5 (ads ready before removing slider).
 
 | File | Phases |
 |------|--------|
-| `src/components/IconCanvas.vue` | 1, 3, 4, 5 |
-| `src/components/Icon.vue` | 1 (if forwarding props needed) |
-| `src/components/ui/sheet/SheetContent.vue` | 2 |
-| `src/pages/index.vue` | 4, 6 |
-| `src/pages/v1.vue` | 4, 6 |
-| `src/components/SearchHeader.vue` | 4, 6 |
-| `src/components/DarkSwitcher.vue` | 4 (already exists) |
-| `src/store/dark.ts` | 4 (already exists) |
-| `src/types/ad.ts` | 5 (new) |
-| `src/data/ads.ts` | 5 (new) |
-| `src/components/AdCard.vue` | 5 (new) |
-| `src/main.css` | 4 (already exists) |
+| `vite.config.ts` | 7 (manifest name) |
+| `src/pages/index.vue` | 7 (title, meta) |
+| `src/pages/v1.vue` | 7 (title, meta) |
+| `src/pages/collection/[id].vue` | 7 (title, meta) |
+| `src/components/SearchHeader.vue` | 7 (placeholder) |
+| `index.html` | 7 (title, favicon) |
+| `public/` | 7 (favicon/logo assets) |
+| `src/types/ad.ts` | 5 (new — tipe data affiliate) |
+| `src/data/ads.ts` | 5 (new — daftar konten affiliate) |
+| `src/components/AdCard.vue` | 5 (new — komponen card affiliate) |
+| `src/components/IconCanvas.vue` | 5 (integrasi affiliate di grid) |
+| `src/composables/useAffiliate.ts` | 5 (new — logika placement) |
 
 
 ---
@@ -319,3 +352,78 @@ Phase 6 depends on Phase 5 (ads ready before removing slider).
 | `src/pages/index.vue` | @submit binding |
 | `src/pages/v1.vue` | @submit binding |
 | `src/pages/collection/[id].vue` | @submit binding |
+
+
+
+
+
+---
+
+## Version Tagging Workflow
+
+### Why Tags
+
+Setiap rilis besar disimpan sebagai **tag Git** — kode lama tetap bisa diakses kapan saja via `git checkout v1`, tanpa perlu branch abadi.
+
+### Cara Bikin Tag untuk Rilis Baru
+
+```bash
+# 1. Sync main lokal
+git checkout main
+git pull origin main
+
+# 2. Tag versi lama sebelum merge (simpan kode sebelum perubahan)
+git tag -a v1 -m "Stable version before search branch merge"
+git push origin v1
+
+# 3. Merge branch fitur ke main
+git merge v2-build       # ganti v2-build dengan nama branch fitur
+# selesaikan conflict kalau ada
+git push origin main
+
+# 4. Tag versi baru setelah merge
+git tag -a v2 -m "Merged search branch: fix search trigger + race condition"
+git push origin v2
+
+# 5. Lihat kode lama (detached HEAD)
+git checkout v1
+
+# Atau bikin branch dari tag kalau mau develop dari versi lama
+git checkout -b hotfix-v1 v1
+```
+
+### Cara Akses Kode Lama/Liat Isi Tag
+
+```bash
+git tag                           # list semua tag
+git show v1                       # lihat detail tag + message
+git checkout v1                   # detached HEAD — lihat kode versi v1
+git diff v1..v2                    # lihat perubahan antar versi
+```
+
+### Skema Versi ke Depan
+
+| Tag | Isi |
+|-----|-----|
+| `v1` | Kode main sebelum merge branch v2-build |
+| `v2` | Main setelah merge v2-build (fix search + race condition) |
+| `v2.1` | Fitur/bug kecil berikutnya |
+| `v2.2` | Fitur/bug berikutnya |
+| `v3` | Rilis besar berikutnya (breaking changes) |
+
+### Aturan
+
+- **Jangan hapus tag yang sudah di-push** — tag adalah sejarah
+- Setiap sebelum merge branch besar, tag dulu main yang existing
+- Setelah merge, tag versi baru
+- Untuk bug kecil: `git tag -a v2.1 -m "..."` langsung di main (tanpa branching)
+- Untuk fitur besar: buat branch → merge → tag seperti workflow di atas
+
+
+
+
+
+- branding jdi icloo
+- di Icondetai bagain icon da svg yg bs di render
+- sistem pencarian di src/pages/collection/[id].vue itu buat public aja jgn terbatas d collection
+- hero section clone dari dia aja : https://shoogle.dev/ tpi background hilang pas udh mask ke pencarian

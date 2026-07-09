@@ -47,6 +47,7 @@ declare module 'vue' {
     Footer: typeof import('./components/Footer.vue')['default']
     HelpPage: typeof import('./components/HelpPage.vue')['default']
     Icon: typeof import('./components/Icon.vue')['default']
+    IconBackground: typeof import('./components/IconBackground.vue')['default']
     IconButton: typeof import('./components/IconButton.vue')['default']
     IconCanvas: typeof import('./components/IconCanvas.vue')['default']
     IconCard: typeof import('./components/IconCard.vue')['default']
