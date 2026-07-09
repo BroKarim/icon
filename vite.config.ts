@@ -43,8 +43,8 @@ export default defineConfig(() => {
         filename: 'sw.ts',
         registerType: 'autoUpdate',
         manifest: {
-          name: 'Icons',
-          short_name: 'Icons',
+          name: 'icloo',
+          short_name: 'icloo',
           icons: [
             {
               src: '/web-app-manifest-192x192.png',

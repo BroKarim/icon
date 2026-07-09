@@ -10,14 +10,14 @@ import SearchHeader from '../components/SearchHeader.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
 useHead({
-  title: 'Icons — Browse & Search Icon Sets',
+  title: 'icloo — Browse & Search Icon Sets',
   meta: [
     { name: 'description', content: 'Browse icons by collection, search across 200,000+ icons from Iconify with infinite canvas. Explore, customize, and download SVG icons.' },
-    { property: 'og:title', content: 'Icons — Browse & Search Icon Sets' },
+    { property: 'og:title', content: 'icloo — Browse & Search Icon Sets' },
     { property: 'og:description', content: 'Browse icons by collection, search across 200,000+ icons from Iconify with infinite canvas. Explore, customize, and download SVG icons.' },
     { property: 'og:url', content: 'https://icons.brokarim.com/v1' },
     { property: 'og:image', content: 'https://icons.brokarim.com/og-image.jpg' },
-    { name: 'twitter:title', content: 'Icons — Browse & Search Icon Sets' },
+    { name: 'twitter:title', content: 'icloo — Browse & Search Icon Sets' },
     { name: 'twitter:description', content: 'Browse icons by collection, search across 200,000+ icons from Iconify with infinite canvas. Explore, customize, and download SVG icons.' },
     { name: 'twitter:image', content: 'https://icons.brokarim.com/og-image.jpg' },
   ],
