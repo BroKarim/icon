@@ -37,13 +37,15 @@ function onLogoClick() {
               Search 200,000+ icons across collections
             </h2>
 
-            <div class="flex flex-col gap-4 items-center md:mb-4 transition-[opacity,height,margin-bottom] duration-300 ease-out">
+<div class="flex flex-col gap-4 items-center md:mb-4 transition-[opacity,height,margin-bottom] duration-300 ease-out">
               <button
-                class="relative inline-flex items-center gap-2 max-w-[14rem] xs:max-w-[16rem] sm:max-w-md cursor-pointer"
+                class="cursor-pointer"
                 @click="onLogoClick"
-              >
-               <h1>Icloo</h1>
-              </button>
+               >
+                <h1 class="font-bold text-3xl sm:text-4xl md:text-8xl tracking-tight text-black">
+                  Igloo
+                </h1>
+               </button>
             </div>
 
             <div class="transition-[order] duration-300 ease-out">
@@ -62,7 +64,7 @@ function onLogoClick() {
                 </div>
               </form>
 
-              <div class="mt-4 flex flex-wrap justify-center items-center gap-2.5 lg:gap-3.5">
+              <!-- <div class="mt-4 flex flex-wrap justify-center items-center gap-2.5 lg:gap-3.5">
                 <a href="/search?tab=explore">
                   <button
                     type="button"
@@ -105,7 +107,7 @@ function onLogoClick() {
                     <span>Bookmarks</span>
                   </button>
                 </a>
-              </div>
+              </div> -->
             </div>
           </div>
         </div>
@@ -115,3 +117,5 @@ function onLogoClick() {
     </section>
   </div>
 </template>
+
+
