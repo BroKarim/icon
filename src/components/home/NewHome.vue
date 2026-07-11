@@ -36,18 +36,19 @@ function onLogoClick() {
             <h2 class="sr-only">
               Search 200,000+ icons across collections
             </h2>
-
-<div class="flex flex-col gap-4 items-center md:mb-4 transition-[opacity,height,margin-bottom] duration-300 ease-out">
+            <div class="flex flex-col items-center  transition-[opacity,height,margin-bottom] duration-300 ease-out">
               <button
-                class="cursor-pointer"
+                class="cursor-pointer flex flex-col items-center gap-2"
                 @click="onLogoClick"
-               >
-                <h1 class="font-bold text-3xl sm:text-4xl md:text-8xl tracking-tight text-black">
-                  Igloo
-                </h1>
-               </button>
+              >
+                <img
+                  src="/iglo.png"
+                  alt="Igloo"
+                  class="w-24 sm:w-28 md:w-48 h-auto"
+                >
+              </button>
             </div>
-
+<!-- input -->
             <div class="transition-[order] duration-300 ease-out">
               <form class="w-full space-y-2" @submit="onSubmit">
                 <div class="relative w-full min-w-0">
@@ -117,5 +118,3 @@ function onLogoClick() {
     </section>
   </div>
 </template>
-
-
