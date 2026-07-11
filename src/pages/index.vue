@@ -81,18 +81,18 @@ watch(showDetail, (val) => {
           @submit="onSearchSubmit"
           @reset="onHomeReset"
         />
-        <SearchHeader
-          v-else
-          key="top"
-          v-model="query"
-          v-model:icon-scale="iconScale"
-          v-model:icon-color="iconColor"
-          v-model:bg-color="bgColor"
-          :results-count="results.length"
-          @submit="onSearchSubmit"
-        />
       </AnimatePresence>
     </LayoutGroup>
+
+    <SearchHeader
+      v-model="query"
+      v-model:icon-scale="iconScale"
+      v-model:icon-color="iconColor"
+      v-model:bg-color="bgColor"
+      :results-count="results.length"
+      :hide-search-input="!hasSearched"
+      @submit="onSearchSubmit"
+    />
 
     <IconCanvas
       v-if="showCanvas"
