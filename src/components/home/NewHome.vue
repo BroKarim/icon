@@ -36,9 +36,9 @@ function onLogoClick() {
             <h2 class="sr-only">
               Search 200,000+ icons across collections
             </h2>
-            <div class="flex flex-col items-center  transition-[opacity,height,margin-bottom] duration-300 ease-out">
+            <div class="flex flex-col items-center justify-center h-full transition-[opacity,height,margin-bottom] duration-300 ease-out">
               <button
-                class="cursor-pointer flex flex-col items-center gap-2"
+                class="cursor-pointer"
                 @click="onLogoClick"
               >
                 <img
@@ -47,10 +47,7 @@ function onLogoClick() {
                   class="w-24 sm:w-28 md:w-48 h-auto"
                 >
               </button>
-            </div>
-<!-- input -->
-            <div class="transition-[order] duration-300 ease-out">
-              <form class="w-full space-y-2" @submit="onSubmit">
+              <form class="w-full -mt-2 sm:-mt-3 md:-mt-6" @submit="onSubmit">
                 <div class="relative w-full min-w-0">
                   <input
                     ref="inputRef"
