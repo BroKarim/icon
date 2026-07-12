@@ -320,7 +320,7 @@ function onBoopEnd() {
       <!-- Right section -->
       <div class="pointer-events-auto px-4 py-3 flex items-center gap-2 shrink-0">
         <!-- Icon size slider -->
-        <div class="hidden relative items-center gap-3 overflow-hidden rounded-full px-4 h-10 md:flex">
+        <!-- <div class="hidden relative items-center gap-3 overflow-hidden rounded-full px-4 h-10 md:flex">
           <span ref="sliderGlassRef" class="absolute inset-0 z-0 pointer-events-none" />
           <span class="relative z-10 min-w-[3ch] text-center text-xs font-medium tabular-nums text-black/60">            {{ Math.round(iconScaleModel[0] * 112) }}px</span>
           <Slider
@@ -330,8 +330,29 @@ function onBoopEnd() {
             :step="0.01"
             class="relative z-10 w-32"
           />
-        </div>
+        </div> -->
+        <Button
+          as="div"
+          variant="outline"
+          class="relative z-10 gap-1.5 bg-red-400 px-3 py-1 rounded-full flex ga transition hover:brightness-[1.03]"
 
+        >
+            <img src="https://www.google.com/s2/favicons?sz=96&domain_url=github.com" alt="" class="w-4 h-4 rounded-full">
+            <span class="font-mono text-xs font-semibold tracking-[0.18em]">
+                Github
+            </span>
+        </Button>
+        <Button
+          as="div"
+
+          class="relative z-10 bg-yellow-400 gap-1.5 px-3 py-1 rounded-full flex ga transition hover:brightness-[1.03]"
+
+        >
+            <img src="https://www.google.com/s2/favicons?sz=96&domain_url=threads.net" alt="" class="w-4 h-4 rounded-full">
+            <span class="font-mono text-xs font-semibold tracking-[0.18em]">
+                Thread
+            </span>
+        </Button>
         <!-- Randomize button -->
         <div class="relative overflow-hidden rounded-full h-10 w-10">
           <span ref="randomGlassRef" class="absolute inset-0 z-0 rounded-full pointer-events-none" />
@@ -363,7 +384,7 @@ function onBoopEnd() {
             <Button
               as="div"
               variant="outline"
-              class="relative z-10 h-10 rounded-full px-3 transition hover:brightness-[1.03]"
+              class="relative z-10 gap-1.5 py-1 rounded-full px-3 transition hover:brightness-[1.03]"
               :style="{
                 backgroundColor: currentIconColor,
                 color: colorButtonText,
