@@ -1,12 +1,12 @@
 <div align="center">
 
-# Icons
+# Igloo
 
-**Icon Explorer with Infinite Canvas**
+**Icon Search Engine with Infinite Canvas**
 
 </div>
 
-A modern icon explorer built with Vue 3 and Vite. Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface.
+A modern icon search engine built with Vue 3 and Vite. Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project.
 
 > **Fork of** [antfu-collective/icones](https://github.com/antfu-collective/icones)
 > **Maintained by** [Brokarim](https://github.com/BroKarim)

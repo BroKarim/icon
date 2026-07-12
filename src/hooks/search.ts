@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import type { CollectionMeta } from '../data'
-import { computed, markRaw, ref, shallowRef, watch } from 'vue'
+import { computed, markRaw, ref, watch } from 'vue'
 import { specialTabs } from '../data'
 import { searchAlias } from '../data/search-alias'
 import { cleanupQuery } from '../utils/query'
