@@ -14,14 +14,14 @@ useHead({
     { name: 'description', content: 'Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project.' },
     { property: 'og:title', content: 'Igloo — Icon Search Engine with Infinite Canvas' },
     { property: 'og:description', content: 'Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project.' },
-    { property: 'og:url', content: 'https://icons.brokarim.com/' },
-    { property: 'og:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+    { property: 'og:url', content: 'https://igloo.brokarim.com/' },
+    { property: 'og:image', content: 'https://igloo.brokarim.com/og-image.jpg' },
     { name: 'twitter:title', content: 'Igloo — Icon Search Engine with Infinite Canvas' },
     { name: 'twitter:description', content: 'Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project.' },
-    { name: 'twitter:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+    { name: 'twitter:image', content: 'https://igloo.brokarim.com/og-image.jpg' },
   ],
   link: [
-    { rel: 'canonical', href: 'https://icons.brokarim.com/' },
+    { rel: 'canonical', href: 'https://igloo.brokarim.com/' },
   ],
 })
 

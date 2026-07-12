@@ -15,14 +15,14 @@ useHead({
     { name: 'description', content: 'Browse icons by collection, search across 200,000+ icons from Iconify with infinite canvas. Explore, customize, and download SVG icons.' },
     { property: 'og:title', content: 'Igloo — Browse & Search Icon Sets' },
     { property: 'og:description', content: 'Browse icons by collection, search across 200,000+ icons from Iconify with infinite canvas. Explore, customize, and download SVG icons.' },
-    { property: 'og:url', content: 'https://icons.brokarim.com/v1' },
-    { property: 'og:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+    { property: 'og:url', content: 'https://igloo.brokarim.com/v1' },
+    { property: 'og:image', content: 'https://igloo.brokarim.com/og-image.jpg' },
     { name: 'twitter:title', content: 'Igloo — Browse & Search Icon Sets' },
     { name: 'twitter:description', content: 'Browse icons by collection, search across 200,000+ icons from Iconify with infinite canvas. Explore, customize, and download SVG icons.' },
-    { name: 'twitter:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+    { name: 'twitter:image', content: 'https://igloo.brokarim.com/og-image.jpg' },
   ],
   link: [
-    { rel: 'canonical', href: 'https://icons.brokarim.com/v1' },
+    { rel: 'canonical', href: 'https://igloo.brokarim.com/v1' },
   ],
 })
 

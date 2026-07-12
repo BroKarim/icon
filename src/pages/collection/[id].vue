@@ -26,17 +26,17 @@ useHead(() => {
     return {
       title: 'Collection — Igloo',
       link: [
-        { rel: 'canonical', href: `https://icons.brokarim.com/collection/${props.id}` },
+        { rel: 'canonical', href: `https://igloo.brokarim.com/collection/${props.id}` },
       ],
       meta: [
-        { property: 'og:image', content: 'https://icons.brokarim.com/og-image.jpg' },
-        { name: 'twitter:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+        { property: 'og:image', content: 'https://igloo.brokarim.com/og-image.jpg' },
+        { name: 'twitter:image', content: 'https://igloo.brokarim.com/og-image.jpg' },
       ],
     }
   }
   const name = `${collection.value.name} — Igloo`
   const description = `Browse ${collection.value.icons.length} icons from the ${collection.value.name} collection. Powered by Iconify.`
-  const url = `https://icons.brokarim.com/collection/${props.id}`
+  const url = `https://igloo.brokarim.com/collection/${props.id}`
   return {
     title: name,
     meta: [
@@ -44,10 +44,10 @@ useHead(() => {
       { property: 'og:title', content: name },
       { property: 'og:description', content: description },
       { property: 'og:url', content: url },
-      { property: 'og:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+      { property: 'og:image', content: 'https://igloo.brokarim.com/og-image.jpg' },
       { name: 'twitter:title', content: name },
       { name: 'twitter:description', content: description },
-      { name: 'twitter:image', content: 'https://icons.brokarim.com/og-image.jpg' },
+      { name: 'twitter:image', content: 'https://igloo.brokarim.com/og-image.jpg' },
     ],
     link: [
       { rel: 'canonical', href: url },
