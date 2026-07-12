@@ -24,7 +24,7 @@ const collection = useCurrentCollection()
 useHead(() => {
   if (!collection.value) {
     return {
-      title: 'Collection — icloo',
+      title: 'Collection — Igloo',
       link: [
         { rel: 'canonical', href: `https://icons.brokarim.com/collection/${props.id}` },
       ],
@@ -34,7 +34,7 @@ useHead(() => {
       ],
     }
   }
-  const name = `${collection.value.name} — icloo`
+  const name = `${collection.value.name} — Igloo`
   const description = `Browse ${collection.value.icons.length} icons from the ${collection.value.name} collection. Powered by Iconify.`
   const url = `https://icons.brokarim.com/collection/${props.id}`
   return {

@@ -309,7 +309,7 @@ function onBoopEnd() {
     <div class="mx-auto flex justify-between w-full items-center gap-3 rounded-[30px]">
       <div class="flex items-center gap-2 pointer-events-auto">
         <a href="/" class="flex-shrink-0" title="Home">
-          <img src="/favicon.svg" alt="icloo" class="h-10 w-10 bg-transparent ">
+          <img src="/iglo.png" alt="Igloo" class="h-16 w-16 bg-transparent ">
         </a>
         <Motion v-if="!hideSearchInput" layout-id="search-input" class="flex-1">
           <div ref="mountRef" class="h-10 w-full" />

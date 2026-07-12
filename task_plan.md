@@ -6,7 +6,7 @@ Fokus saat ini (setelah v2):
 
 | Phase | Fitur | Status |
 |-------|-------|--------|
-| 7 | **Branding** — rename ke "icloo" | Belum mulai |
+| 7 | **Branding** — rename ke "Igloo" | Belum mulai |
 | 8 | **New Home Page** — hero section clone shoogle.dev | Belum mulai |
 | 9 | **IconDetail SVG Render** — tampilkan SVG icon di detail | Belum mulai |
 | 10 | **Global Search di Collection** — search gak terbatas collection | Belum mulai |
@@ -16,25 +16,25 @@ Fokus saat ini (setelah v2):
 
 ---
 
-## Phase 7: Branding — Rebrand ke "icloo"
+## Phase 7: Branding — Rebrand ke "Igloo"
 
-**Goal**: Ganti semua referensi brand dari "Icons"/"Icones" → "icloo". Website, PWA, meta tags, semuanya.
+**Goal**: Ganti semua referensi brand dari "Icons"/"Icones" → "Igloo". Website, PWA, meta tags, semuanya.
 
 ### Scope
 
 | Area | File | Perubahan |
 |------|------|-----------|
-| PWA Manifest | `vite.config.ts` | `name: 'icloo'`, `short_name: 'icloo'` |
+| PWA Manifest | `vite.config.ts` | `name: 'Igloo'`, `short_name: 'Igloo'` |
 | PWA Manifest icons | `public/` | Update icon files kalau perlu |
-| Page title | `src/pages/index.vue` | `useHead` → title "icloo" |
+| Page title | `src/pages/index.vue` | `useHead` → title "Igloo" |
 | Page title | `src/pages/v1.vue` | Sama |
-| Page title | `src/pages/collection/[id].vue` | Title template `... — icloo` |
+| Page title | `src/pages/collection/[id].vue` | Title template `... — Igloo` |
 | OG meta | Semua file `useHead` | `og:title`, `og:description`, `og:url`, `twitter:*` |
 | Canonical URL | Semua file `useHead` | `canonical` href |
 | Favicon | `index.html` + `public/` | Update favicon link kalau ganti logo |
 | Domain | Di mana aja | Update `icons.brokarim.com` → domain baru kalau ada |
 | Search placeholder | `src/components/SearchHeader.vue` | Placeholder text (optional) |
-| Hardcoded "Icons" | Seluruh codebase | Grep `Icons` / `icones` → ganti dengan `icloo` |
+| Hardcoded "Icons" | Seluruh codebase | Grep `Icons` / `icones` → ganti dengan `Igloo` |
 
 ### Implementation Steps
 
@@ -46,10 +46,10 @@ Fokus saat ini (setelah v2):
 
 ### Verification
 
-- Tab browser: title "icloo"
-- PWA install prompt: name "icloo"
-- Share link OG preview: title "icloo"
-- Collection page: "Browse ... icons from the ... collection — icloo"
+- Tab browser: title "Igloo"
+- PWA install prompt: name "Igloo"
+- Share link OG preview: title "Igloo"
+- Collection page: "Browse ... icons from the ... collection — Igloo"
 - Build: `npm run build` sukses, typecheck OK
 
 ---

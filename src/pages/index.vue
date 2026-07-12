@@ -9,14 +9,14 @@ import NewHome from '../components/home/NewHome.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
 useHead({
-  title: 'icloo — Icon Explorer with Infinite Canvas',
+  title: 'Igloo — Icon Search Engine with Infinite Canvas',
   meta: [
     { name: 'description', content: 'Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project.' },
-    { property: 'og:title', content: 'icloo — Icon Explorer with Infinite Canvas' },
+    { property: 'og:title', content: 'Igloo — Icon Search Engine with Infinite Canvas' },
     { property: 'og:description', content: 'Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project.' },
     { property: 'og:url', content: 'https://icons.brokarim.com/' },
     { property: 'og:image', content: 'https://icons.brokarim.com/og-image.jpg' },
-    { name: 'twitter:title', content: 'icloo — Icon Explorer with Infinite Canvas' },
+    { name: 'twitter:title', content: 'Igloo — Icon Search Engine with Infinite Canvas' },
     { name: 'twitter:description', content: 'Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project.' },
     { name: 'twitter:image', content: 'https://icons.brokarim.com/og-image.jpg' },
   ],
@@ -81,18 +81,18 @@ watch(showDetail, (val) => {
           @submit="onSearchSubmit"
           @reset="onHomeReset"
         />
+        <SearchHeader
+          v-else
+          key="top"
+          v-model="query"
+          v-model:icon-scale="iconScale"
+          v-model:icon-color="iconColor"
+          v-model:bg-color="bgColor"
+          :results-count="results.length"
+          @submit="onSearchSubmit"
+        />
       </AnimatePresence>
     </LayoutGroup>
-
-    <SearchHeader
-      v-model="query"
-      v-model:icon-scale="iconScale"
-      v-model:icon-color="iconColor"
-      v-model:bg-color="bgColor"
-      :results-count="results.length"
-      :hide-search-input="!hasSearched"
-      @submit="onSearchSubmit"
-    />
 
     <IconCanvas
       v-if="showCanvas"

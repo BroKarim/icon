@@ -27,7 +27,7 @@
         </svg>
       </a>
       <a
-        href="https://discord.gg/icloo"
+        href="https://discord.gg/Igloo"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Join our Discord"
