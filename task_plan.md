@@ -217,76 +217,104 @@ const canvasResults = computed<SearchResult[]>(() => {
 
 ---
 
-## Phase 5: Affiliate Content Between Icons
+## Phase 5: Affiliate Content Between Icons (Revised)
 
-**Goal**: Insert affiliate/referral content between icons on the canvas grid. Setiap konten afiliasi memiliki: link URL, image URL, judul, deskripsi singkat. Frekuensi bisa diatur (misal tiap 15 icon).
+**Goal**: Insert affiliate/referral content between icons on the canvas grid. Setiap konten afiliasi memiliki: logo (URL), name, description, optional CTA. Frekuensi moderat (~1:40 ikon), tidak berdekatan, acak.
+
+### Keputusan (Hasil Grilling)
+
+| Aspek | Keputusan |
+|-------|-----------|
+| **Penempatan** | Inject ke grid cell `IconCanvas.vue`, ikut spiral layout |
+| **Pendekatan** | Satu algoritma uniform: probability-based (3%) + cool-down ~25 cells |
+| **Data storage** | `public/ads.json`, di-gitignore, di-fetch saat runtime |
+| **Schema** | `{ id, name, description, logo (URL), link (URL), cta? }` |
+| **Seleksi ad** | Random pick dari pool setiap kali cell menjadi ad |
+| **Visual** | Logo centered + name di bawah, seperti tampilan ikon |
+| **Hover** | Description + CTA di tooltip |
+| **Klik** | Redirect langsung ke affiliate link, `target="_blank"` |
+| **Tracking** | Tidak ada, link langsung |
+| **Toggle** | Selalu tampil, tanpa opsi hide |
+| **Density** | ~3% chance per cell, cool-down ~25 cells |
+| **Fallback** | Silent — fetch gagal → tidak ada ads |
 
 ### Implementation
 
-#### 5a. Data Model
+#### 5a. Data & Loading
 
-Create `src/types/ad.ts`:
-```ts
-interface AdItem {
-  id: string
-  link: string
-  image: string
-  title: string
-  description: string
+- File: `public/ads.json` (ditambahkan ke `.gitignore`)
+- Load: `fetch('/ads.json')` saat app mount, silent fallback (empty array) kalau gagal
+- Tidak ada retry, tidak ada cache strategy khusus
+
+```json
+{
+  "ads": [
+    {
+      "id": "coolvps",
+      "name": "CoolVPS",
+      "description": "Hosting murah mulai $5/bulan",
+      "logo": "https://cdn.example.com/logo.svg",
+      "link": "https://coolvps.com?ref=icones",
+      "cta": "Coba Sekarang"
+    }
+  ]
 }
 ```
 
-#### 5b. Ad Pool
-
-Create `src/data/ads.ts`:
-```ts
-export const adPool: AdItem[] = [
-  // ...provided links,
-]
-```
-
-#### 5c. Ad Placement Logic
-
-New composable atau fungsi `computeAdInsertions(gridCells: Position[]): Map<string, AdItem>`:
-
-- Configurable frequency: every N cells (e.g., every 15 cells → insert 1 ad)
-- Algorithm: when iterating over grid positions in `visibleItems`, at index % interval === 0, swap cell for ad
-- Deduplicate: same ad shouldn't appear twice in same viewport
-- Ad gets same grid cell dimensions as icon but renders `<AdCard>` instead of `<Icon>`
-
-#### 5d. AdCard.vue Component
+#### 5b. AdCard.vue Component
 
 Create `src/components/AdCard.vue`:
 
-```
-Template: div (same size as icon cell) → img + title + desc + link
-- Image rounded-top, desc below
-- External link, target=_blank
-- Subtle border/background to distinguish from icon cells
-```
+- Props: `ad` (AdItem object)
+- Visual: Mirip ikon di grid — logo besar (centered), name di bawah
+- Hover: Tooltip menampilkan description + CTA button
+- Click: Event `@click` → `window.open(ad.link, '_blank')`
+- Tidak ada tracking atau impression logging
 
-#### 5e. Integration
+#### 5c. Ad Placement (composable)
 
-In `IconCanvas.vue` `visibleItems` computed:
-- After computing icon items, merge ads at appropriate positions
-- Grid items array becomes heterogeneous: `{ type: 'icon', ... } | { type: 'ad', data: AdItem }`
-- Template: `v-for` renders either `<Icon>` or `<AdCard>` based on `item.type`
+Create `src/composables/useAdPlacement.ts`:
 
-#### 5f. Frequency Config
+- Fetch ads dari `/ads.json` saat composable di-mount
+- Expose function `shouldPlaceAd(gridIndex: number, coolDownRemaining: Ref<number>): boolean`
+  - Jika `coolDownRemaining > 0` → decrement, return false
+  - Random chance (~3%) → jika true, set `coolDownRemaining = 25`, return true
+  - Jika false, return false
+- Expose function `pickRandomAd(ads: AdItem[]): AdItem | null`
+  - Random pick dari pool
+  - Jika pool kosong → return null
 
-Store ad interval in a reactive config:
-```ts
-const AD_INTERVAL = 15 // every 15th cell = ad
-```
+#### 5d. Integration di IconCanvas.vue
 
-Can later be dynamic (A/B test, or from backend).
+- Saat render visible items di spiral grid:
+  - Panggil `shouldPlaceAd(gridIndex)` — jika true, render `<AdCard>` di cell itu
+  - Jika false, render `<Icon>` seperti biasa
+  - Grid item type: `{ type: 'icon', icon: string } | { type: 'ad', ad: AdItem }`
+- Hover behavior: Ads pakai tooltip seperti ikon bedanya tooltip ads menampilkan description + CTA
+- Drag/Pan behavior: Ad ikut scroll seperti ikon biasa (karena dalam grid cell yang sama)
+- Search: Ads tidak masuk dalam search results — murni injected di layer rendering
+
+#### 5e. Files Touched
+
+| File | Perubahan |
+|------|-----------|
+| `public/ads.json` | NEW — data affiliate (gitignored) |
+| `.gitignore` | Add `public/ads.json` |
+| `src/composables/useAdPlacement.ts` | NEW — fetch & logic placement ads |
+| `src/components/AdCard.vue` | NEW — komponen card affiliate |
+| `src/components/IconCanvas.vue` | Inject ad cell di grid rendering |
+| `src/types/ad.ts` | NEW — tipe data AdItem |
 
 ### Verification
 
-- Load canvas → every N cells shows an ad card
-- Ad card has image, title, desc, link → click opens new tab
-- Scroll → new ads appear (different from previous)
-- Performa: ads cached same as icons
+- Load canvas → sesekali melihat ad card di antara ikon
+- Ad card menampilkan logo + nama (sama besar dengan ikon)
+- Hover → tooltip dengan description + CTA
+- Klik → redirect ke affiliate link di tab baru
+- Scroll → ad baru muncul secara acak (cool-down terpenuhi)
+- Tidak ada error jika `ads.json` tidak ada atau gagal fetch
+- Search → hasil pencarian normal tanpa ads
+- Performa tidak terpengaruh (ads statis, fetch sekali)
 
 ---
 
@@ -330,11 +358,12 @@ Can later be dynamic (A/B test, or from backend).
 | `src/components/home/HomeIcons.vue` | 8 (new — inline SVG icons) |
 | `index.html` | 7 (title, favicon) |
 | `public/` | 7 (favicon/logo assets) |
-| `src/types/ad.ts` | 5 (new — tipe data affiliate) |
-| `src/data/ads.ts` | 5 (new — daftar konten affiliate) |
+| `public/ads.json` | 5 (new — data affiliate, gitignored) |
+| `.gitignore` | 5 (tambah public/ads.json) |
+| `src/types/ad.ts` | 5 (new — tipe data AdItem) |
+| `src/composables/useAdPlacement.ts` | 5 (new — fetch & logic placement) |
 | `src/components/AdCard.vue` | 5 (new — komponen card affiliate) |
-| `src/components/IconCanvas.vue` | 5 (integrasi affiliate di grid) |
-| `src/composables/useAffiliate.ts` | 5 (new — logika placement) |
+| `src/components/IconCanvas.vue` | 5 (inject ad di grid rendering) |
 
 ---
 

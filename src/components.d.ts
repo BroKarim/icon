@@ -12,6 +12,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     ActionsMenu: typeof import('./components/ActionsMenu.vue')['default']
+    AdCard: typeof import('./components/AdCard.vue')['default']
     BackgroundGrid: typeof import('./components/home/BackgroundGrid.vue')['default']
     Badge: typeof import('./components/ui/badge/Badge.vue')['default']
     Bag: typeof import('./components/Bag.vue')['default']
