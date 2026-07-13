@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import type { AdItem } from '../types/ad'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useAdPlacement } from '../composables/useAdPlacement'
+import AdCard from './AdCard.vue'
 import Icon from './Icon.vue'
 
 interface SearchResult {
@@ -27,6 +30,12 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<{ (e: 'select', iconFull: string): void }>()
+
+const { getAdForGridIndex } = useAdPlacement()
+
+interface VisibleIcon extends SearchResult { type: 'icon', x: number, y: number, gridIndex: number, position: { x: number, y: number } }
+interface VisibleAd { type: 'ad', ad: AdItem, x: number, y: number, gridIndex: number, position: { x: number, y: number } }
+type VisibleItem = VisibleIcon | VisibleAd
 
 // ─── constants ───────────────────────────────────────────────────────────────
 const MIN_VELOCITY = 0.05
@@ -149,13 +158,19 @@ function jitterForIndex(_gridIndex: number) {
 const visibleItems = computed(() => {
   return gridItems.value
     .map((item) => {
+      const ad = getAdForGridIndex(item.gridIndex)
+      if (ad) {
+        const x = item.position.x * GRID_SIZE.value + cachedWidth / 2
+        const y = item.position.y * GRID_SIZE.value + cachedHeight / 2
+        return { type: 'ad' as const, ad, x, y, gridIndex: item.gridIndex, position: item.position }
+      }
       const icon = iconForIndex(item.gridIndex)
       if (!icon)
         return null
       const { xJitter, yJitter } = jitterForIndex(item.gridIndex)
       const x = item.position.x * GRID_SIZE.value + cachedWidth / 2 + xJitter
       const y = item.position.y * GRID_SIZE.value + cachedHeight / 2 + yJitter
-      return { ...icon, x, y, gridIndex: item.gridIndex, position: item.position }
+      return { ...icon, type: 'icon' as const, x, y, gridIndex: item.gridIndex, position: item.position }
     })
     .filter(Boolean)
     .filter((icon) => {
@@ -164,7 +179,7 @@ const visibleItems = computed(() => {
       const relX = Math.abs(icon!.x - cachedWidth / 2)
       const relY = Math.abs(icon!.y - cachedHeight / 2)
       return relX > centerClearRadiusX.value || relY > centerClearRadiusY.value
-    }) as (SearchResult & { x: number, y: number, gridIndex: number, position: { x: number, y: number } })[]
+    }) as VisibleItem[]
 })
 
 // ─── grid calculation ─────────────────────────────────────────────────────────
@@ -357,7 +372,7 @@ const highlightStyle = computed(() => {
   if (!highlightIconKey.value)
     return undefined
   const item = visibleItems.value.find(i =>
-    `${i.position.x}-${i.position.y}` === highlightIconKey.value,
+    i.type === 'icon' && `${i.position.x}-${i.position.y}` === highlightIconKey.value,
   )
   if (!item)
     return undefined
@@ -475,32 +490,49 @@ watch(() => props.iconScale, () => {
         />
       </Transition>
 
-      <div
-        v-for="icon in visibleItems"
-        :key="`${icon.position.x}-${icon.position.y}`"
-        class="group absolute flex flex-col items-center justify-center rounded-[32px] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.03]"
-        :style="{
-          width: `${GRID_SIZE}px`,
-          height: `${GRID_SIZE}px`,
-          transform: `translate3d(${icon.x}px, ${icon.y}px, 0)`,
-          marginLeft: `-${GRID_SIZE / 2}px`,
-          marginTop: `-${GRID_SIZE / 2}px`,
-          color: iconColor,
-        }"
-        @click.stop="onIconClick(icon.iconFull)"
-        @mouseenter="onIconMouseEnter(`${icon.position.x}-${icon.position.y}`)"
-        @mouseleave="onIconMouseLeave()"
-      >
-        <Icon
-          :icon="icon.iconFull"
-          :pause-animations="true"
-          class="pointer-events-none drop-shadow-[0_16px_20px_rgba(0,0,0,0.10)]"
-          :style="{ fontSize: `${ICON_SIZE}px` }"
-        />
-        <span class="pointer-events-none mt-1.5 rounded-full bg-white/84 px-2.5 py-0.5 text-[10px] font-medium text-black/52 opacity-0 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 whitespace-nowrap">
-          {{ icon.iconName }}
-        </span>
-      </div>
+      <template v-for="item in visibleItems" :key="`${item.position.x}-${item.position.y}`">
+        <!-- AD -->
+        <div
+          v-if="item.type === 'ad'"
+          class="group absolute flex flex-col items-center justify-center rounded-[32px] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.03]"
+          :style="{
+            width: `${GRID_SIZE}px`,
+            height: `${GRID_SIZE}px`,
+            transform: `translate3d(${item.x}px, ${item.y}px, 0)`,
+            marginLeft: `-${GRID_SIZE / 2}px`,
+            marginTop: `-${GRID_SIZE / 2}px`,
+            color: iconColor,
+          }"
+        >
+          <AdCard :ad="item.ad" :grid-size="GRID_SIZE" :icon-size="ICON_SIZE" :icon-color="iconColor" />
+        </div>
+        <!-- ICON -->
+        <div
+          v-else
+          class="group absolute flex flex-col items-center justify-center rounded-[32px] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.03]"
+          :style="{
+            width: `${GRID_SIZE}px`,
+            height: `${GRID_SIZE}px`,
+            transform: `translate3d(${item.x}px, ${item.y}px, 0)`,
+            marginLeft: `-${GRID_SIZE / 2}px`,
+            marginTop: `-${GRID_SIZE / 2}px`,
+            color: iconColor,
+          }"
+          @click.stop="onIconClick(item.iconFull)"
+          @mouseenter="onIconMouseEnter(`${item.position.x}-${item.position.y}`)"
+          @mouseleave="onIconMouseLeave()"
+        >
+          <Icon
+            :icon="item.iconFull"
+            :pause-animations="true"
+            class="pointer-events-none drop-shadow-[0_16px_20px_rgba(0,0,0,0.10)]"
+            :style="{ fontSize: `${ICON_SIZE}px` }"
+          />
+          <span class="pointer-events-none mt-1.5 rounded-full bg-white/84 px-2.5 py-0.5 text-[10px] font-medium text-black/52 opacity-0 shadow-[0_10px_30px_rgba(0,0,0,0.08)] backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 whitespace-nowrap">
+            {{ item.iconName }}
+          </span>
+        </div>
+      </template>
     </div>
   </div>
 </template>
