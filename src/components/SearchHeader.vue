@@ -332,24 +332,29 @@ function onBoopEnd() {
           />
         </div> -->
         <Button
-          as="div"
+          as="a"
+          href="https://github.com/BroKarim/icon"
+          target="_blank"
+          rel="noopener noreferrer"
           variant="outline"
           class="relative z-10 gap-1.5 bg-red-400 px-3 py-1 rounded-full flex ga transition hover:brightness-[1.03]"
 
         >
             <img src="https://www.google.com/s2/favicons?sz=96&domain_url=github.com" alt="" class="w-4 h-4 rounded-full">
-            <span class="font-mono text-xs font-semibold tracking-[0.18em]">
+            <span class="font-mono text-xs font-semibold tracking-[0.18em] text-red-50">
                 Github
             </span>
         </Button>
         <Button
-          as="div"
-
+          as="a"
+          href="https://www.threads.com/@brokariim"
+          target="_blank"
+          rel="noopener noreferrer"
           class="relative z-10 bg-yellow-400 gap-1.5 px-3 py-1 rounded-full flex ga transition hover:brightness-[1.03]"
 
         >
             <img src="https://www.google.com/s2/favicons?sz=96&domain_url=threads.net" alt="" class="w-4 h-4 rounded-full">
-            <span class="font-mono text-xs font-semibold tracking-[0.18em]">
+            <span class="font-mono text-xs font-semibold tracking-[0.18em] text-yellow-950">
                 Thread
             </span>
         </Button>
