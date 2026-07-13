@@ -46,6 +46,7 @@ declare module 'vue' {
     DropdownMenuSubTrigger: typeof import('./components/ui/dropdown-menu/DropdownMenuSubTrigger.vue')['default']
     DropdownMenuTrigger: typeof import('./components/ui/dropdown-menu/DropdownMenuTrigger.vue')['default']
     FAB: typeof import('./components/FAB.vue')['default']
+    FlickeringBg: typeof import('./components/FlickeringBg.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     HelpPage: typeof import('./components/HelpPage.vue')['default']
     HomeFooter: typeof import('./components/home/HomeFooter.vue')['default']
