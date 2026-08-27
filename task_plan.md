@@ -11,6 +11,7 @@ Fokus saat ini (setelah v2):
 | 9 | **IconDetail SVG Render** — tampilkan SVG icon di detail | Belum mulai |
 | 10 | **Global Search di Collection** — search gak terbatas collection | Belum mulai |
 | 5 | **Affiliate Content** — konten afiliasi di antara icon | Belum mulai |
+| 11 | **Icon Bag** — kumpulkan icon, bulk copy/export | Selesai |
 
 > **Catatan**: Phase 1–6 adalah fitur dari task plan sebelumnya (visual & theme overhaul). Sudah selesai/ditunda — tidak lagi relevan untuk dilanjutkan. Fokus saat ini adalah **branding, new home page, IconDetail, global search, affiliate**.
 
@@ -318,6 +319,64 @@ Create `src/composables/useAdPlacement.ts`:
 
 ---
 
+## Phase 11: Icon Bag — Kumpulkan & Bulk Export
+
+**Goal**: User bisa mengumpulkan icon ke dalam "bag" (local storage), lalu bulk copy atau download sekaligus. Termasuk tombol bag di SearchHeader dengan popover list, 2 Select untuk copy/download, dan list icon dengan remove per-item.
+
+### Keputusan (Hasil Grilling)
+
+| Aspek | Keputusan |
+|-------|-----------|
+| **Cara isi bag** | Hanya via `IconDetail` (tombol "add to bag"), tidak dari canvas |
+| **Trigger di header** | 1 tombol bag di `SearchHeader` right section, buka `Popover` |
+| **Badge** | Angka count `bags.length` di pojok tombol, hijau/merah |
+| **Popover layout** | `w-[380px]`, `align="end"`, `z-[1000]` di atas header `z-[999]` |
+| **2 Select di atas** | Kiri: Raw (SVG, Data URL, Download SVG ZIP). Kanan: Framework (Vue, JSX, TSX, Svelte, Astro, Component Names) |
+| **List** | `h-[340px]` scrollable, row: `[index | checkerboard + Icon | name | × remove]` |
+| **Copy logic** | Loop `getIconSnippet` → join `\n\n` → `navigator.clipboard.writeText` → toast |
+| **Download** | Pakai `PackZip` (web worker) untuk SVG ZIP |
+| **Warna** | Ikut `iconColor` dari `SearchHeader` prop |
+| **Komponen** | `BagPopover.vue` terpisah dari `SearchHeader` |
+
+### Files Changed
+
+| File | Action | Detail |
+|------|--------|--------|
+| `src/components/ui/select/*` | **Create** (6 files) | Select, SelectTrigger, SelectContent, SelectItem, SelectValue, index.ts — wrapper reka-ui, pattern sama dengan Popover |
+| `src/components/BagPopover.vue` | **Create** (~160 LOC) | Popover content: 2 Select + scrollable list + clear all + copied toast |
+| `src/components/SearchHeader.vue` | **Modify** (+25 LOC) | Import Popover + BagPopover + bags. Tambah PopoverTrigger button + PopoverContent di right section |
+| `src/components/IconDetail.vue` | **Modify** (+15 LOC) | Un-comment "add to bag" + "copy with color" buttons. Import `inBag, toggleBag, copyPreviewColor` dari store |
+
+### Data Flow
+
+```
+pages/index.vue (iconColor)
+  └─ SearchHeader.vue
+       ├─ PopoverTrigger (bag button + badge)
+       └─ PopoverContent (z-[1000])
+            └─ BagPopover.vue (:icon-color)
+                 ├─ store: bags, removeFromBag, clearBag
+                 ├─ Select 1 → copyAll(type) / downloadZip('svg')
+                 ├─ Select 2 → copyAll(type)
+                 └─ List: v-for bags → checkerboard + <Icon> + remove
+
+IconDetail.vue
+  └─ toggleBag(icon) → bags.push/pop → reactive di BagPopover
+```
+
+### Verification
+
+- Buka detail icon → klik "add to bag" → badge di header bertambah
+- Klik tombol bag → popover muncul, icon terlihat di list
+- Klik × remove → icon hilang dari list, badge update
+- Select Raw → "Copy as SVG" → paste di editor, valid SVG gabungan
+- Select Framework → "Copy Vue" → paste, valid Vue component code
+- Download SVG (ZIP) → file terdownload
+- "Clear all" → bag kosong, empty state tampil
+- Build: `pnpm build` sukses tanpa error baru
+
+---
+
 ## Future: Search Query in URL
 
 **Goal**: Setelah fitur-fitur di atas stabil, tambahkan dukungan query params di URL (`/?q=icon`) agar:
@@ -350,8 +409,10 @@ Create `src/composables/useAdPlacement.ts`:
 | `src/pages/index.vue` | 7, 8 (title + hero section) |
 | `src/pages/v1.vue` | 7 (title, meta) |
 | `src/pages/collection/[id].vue` | 7, 10 (title + global search) |
-| `src/components/SearchHeader.vue` | 7 (placeholder) |
-| `src/components/IconDetail.vue` | 9 (SVG render) |
+| `src/components/SearchHeader.vue` | 7 (placeholder), 11 (bag button + popover) |
+| `src/components/IconDetail.vue` | 9 (SVG render), 11 (add-to-bag button) |
+| `src/components/BagPopover.vue` | 11 (new — popover content) |
+| `src/components/ui/select/*` | 11 (new — Select UI components) |
 | `src/components/home/NewHome.vue` | 8 (new — hero page) |
 | `src/components/home/BackgroundGrid.vue` | 8 (new — background grid) |
 | `src/components/home/HomeFooter.vue` | 8 (new — footer) |

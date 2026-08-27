@@ -4,8 +4,10 @@ import IconBackground from './IconBackground.vue'
 import { collections } from '../data'
 import {
   copyPreviewColor,
+  inBag,
   previewColor,
   pushRecentIcon,
+  toggleBag,
 } from '../store'
 import { dataUrlToBlob } from '../utils/dataUrlToBlob'
 import { Download, getIconSnippet, SnippetMap, toComponentName } from '../utils/icons'
@@ -252,7 +254,7 @@ async function copyActiveComponentCode() {
         </div>
       </div>
 
-      <!-- <div class="flex flex-wrap items-center">
+      <div class="flex flex-wrap items-center">
         <button
           class="
             inline-flex items-center gap-1 text-black leading-none border-2 border-black my-1 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
@@ -261,16 +263,6 @@ async function copyActiveComponentCode() {
         >
           <Icon class="inline-block text-lg align-middle" icon="carbon:shopping-bag" />
           <span class="inline-block align-middle">{{ inBag(icon) ? 'in bag' : 'add to bag' }}</span>
-        </button>
-
-        <button
-          v-if="inBag(icon)" class="
-            inline-flex items-center gap-1 leading-none border-2 border-black my-1 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
-            hover:bg-gray-50 dark:hover:bg-dark-200
-          " :class="activeMode === 'select' ? 'text-black' : 'opacity-50'" @click="toggleSelectingMode"
-        >
-          <Icon class="inline-block text-lg align-middle" icon="carbon:list-checked" />
-          <span class="inline-block align-middle">multiple select</span>
         </button>
 
         <button
@@ -283,7 +275,7 @@ async function copyActiveComponentCode() {
           <Icon v-else class="inline-block text-lg align-middle" icon="carbon:checkbox-checked" />
           <span class="inline-block align-middle">copy with color</span>
         </button>
-      </div> -->
+      </div>
 
       <!-- Section: Snippet -->
       <section class="flex flex-col gap-2">

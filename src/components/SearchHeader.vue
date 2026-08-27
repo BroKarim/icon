@@ -8,6 +8,13 @@ import { Motion } from 'motion-v'
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { bags } from '../store'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import BagPopover from './BagPopover.vue'
 
 interface Props {
   modelValue: string
@@ -319,6 +326,22 @@ function onBoopEnd() {
 
       <!-- Right section -->
       <div class="pointer-events-auto px-4 py-3 flex items-center gap-2 shrink-0">
+        <!-- Bag popover -->
+        <Popover>
+          <PopoverTrigger class="relative inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer border-0 bg-transparent hover:bg-white/20 transition-colors">
+            <Icon icon="carbon:shopping-bag" class="text-lg text-black/60" />
+            <span
+              v-if="bags.length"
+              class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-bold px-1 leading-none"
+            >
+              {{ bags.length > 99 ? '99+' : bags.length }}
+            </span>
+          </PopoverTrigger>
+          <PopoverContent align="end" :side-offset="8" class="w-[380px] p-0 overflow-hidden z-[1000]">
+            <BagPopover :icon-color="iconColor" />
+          </PopoverContent>
+        </Popover>
+
         <!-- Icon size slider -->
         <!-- <div class="hidden relative items-center gap-3 overflow-hidden rounded-full px-4 h-10 md:flex">
           <span ref="sliderGlassRef" class="absolute inset-0 z-0 pointer-events-none" />
