@@ -52,7 +52,7 @@ export const categories = Array.from(new Set(collections.map(i => i.category).fi
 export const isSearchOpen = ref(false)
 export const categorySearch = ref('')
 
-let _fzf: Awaited<ReturnType<typeof createFzf>> | null = null
+let _fzf: ReturnType<typeof createFzf> | null = null
 async function createFzf() {
   const { AsyncFzf } = await import('fzf')
   return new AsyncFzf(collections, {
@@ -64,7 +64,7 @@ async function createFzf() {
 function getFzf() {
   if (!_fzf)
     _fzf = createFzf()
-  return _fzf
+  return _fzf!
 }
 
 export const filteredCollections = ref<CollectionInfo[]>(enabledCollections.value)

@@ -4,6 +4,7 @@ import { useHead } from '@unhead/vue'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../../components/IconCanvas.vue'
 import IconDetail from '../../components/IconDetail.vue'
+import SocialPill from '../../components/SocialPill.vue'
 import { pushRecentCollection, setCurrentCollection, useCurrentCollection } from '../../store'
 import { useGlobalSearch } from '../../composables/useGlobalSearch'
 
@@ -67,6 +68,7 @@ const selectedIcon = ref('')
 const iconScale = ref(1)
 const iconColor = ref('#000000')
 const bgColor = ref('#ffff')
+const iconStyle = ref('line')
 const hasSubmitted = ref(false)
 
 const allIcons = computed<SearchResult[]>(() => {
@@ -83,17 +85,34 @@ const allIcons = computed<SearchResult[]>(() => {
 })
 
 const canvasResults = computed<SearchResult[]>(() => {
+  let base: SearchResult[]
   if (hasSubmitted.value && query.value.trim()) {
     // Filter global results to only icons in this collection
     const collectionIconIds = new Set(allIcons.value.map(i => i.iconFull))
     const filtered = results.value.filter(r => collectionIconIds.has(r.iconFull))
     if (filtered.length > 0)
-      return filtered
-    // Fallback: show random icons from collection
-    const shuffled = [...allIcons.value].sort(() => Math.random() - 0.5)
-    return shuffled.slice(0, Math.max(filtered.length, 6))
+      base = filtered
+    else {
+      // Fallback: show random icons from collection
+      const shuffled = [...allIcons.value].sort(() => Math.random() - 0.5)
+      base = shuffled.slice(0, Math.max(filtered.length, 6))
+    }
   }
-  return allIcons.value
+  else {
+    base = allIcons.value
+  }
+  // Filter by icon style
+  if (iconStyle.value && iconStyle.value !== 'line') {
+    const style = iconStyle.value.toLowerCase()
+    const styled = base.filter(r =>
+      r.iconName.toLowerCase().includes(style)
+      || r.collectionId.toLowerCase().includes(style)
+      || r.iconFull.toLowerCase().includes(style),
+    )
+    if (styled.length > 0)
+      return styled
+  }
+  return base
 })
 
 function onSearchSubmit() {
@@ -137,6 +156,7 @@ watch(showDetail, (val) => {
         v-model:icon-scale="iconScale"
         v-model:icon-color="iconColor"
         v-model:bg-color="bgColor"
+        v-model:icon-style="iconStyle"
         :results-count="canvasResults.length"
         @submit="onSearchSubmit"
       />
@@ -177,6 +197,7 @@ watch(showDetail, (val) => {
           />
         </SheetContent>
       </Sheet>
+      <SocialPill />
     </div>
   </WithNavbar>
 </template>

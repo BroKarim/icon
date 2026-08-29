@@ -102,6 +102,7 @@ declare module 'vue' {
     SheetTrigger: typeof import('./components/ui/sheet/SheetTrigger.vue')['default']
     Slider: typeof import('./components/ui/slider/Slider.vue')['default']
     SnippetCodeBlock: typeof import('./components/SnippetCodeBlock.vue')['default']
+    SocialPill: typeof import('./components/SocialPill.vue')['default']
     Tabs: typeof import('./components/ui/tabs/Tabs.vue')['default']
     TabsContent: typeof import('./components/ui/tabs/TabsContent.vue')['default']
     TabsList: typeof import('./components/ui/tabs/TabsList.vue')['default']

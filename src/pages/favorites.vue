@@ -4,6 +4,8 @@ import { useHead } from '@unhead/vue'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../components/IconCanvas.vue'
 import IconDetail from '../components/IconDetail.vue'
+import SearchHeader from '../components/SearchHeader.vue'
+import SocialPill from '../components/SocialPill.vue'
 import { favoriteIcons } from '../store'
 
 useHead({
@@ -28,6 +30,8 @@ const selectedIcon = ref('')
 const iconScale = ref(1)
 const iconColor = ref('#000000')
 const bgColor = ref('#ffff')
+const iconStyle = ref('line')
+const query = ref('')
 
 // Pattern repeat favorites to fill canvas
 const canvasResults = computed<SearchResult[]>(() => {
@@ -56,6 +60,23 @@ const canvasResults = computed<SearchResult[]>(() => {
   }))
 })
 
+const filteredCanvasResults = computed<SearchResult[]>(() => {
+  let list = canvasResults.value
+  if (query.value.trim()) {
+    const q = query.value.toLowerCase()
+    list = list.filter(r => r.iconName.toLowerCase().includes(q) || r.iconFull.toLowerCase().includes(q))
+  }
+  if (iconStyle.value && iconStyle.value !== 'line') {
+    const style = iconStyle.value.toLowerCase()
+    list = list.filter(r =>
+      r.iconName.toLowerCase().includes(style)
+      || r.collectionId.toLowerCase().includes(style)
+      || r.iconFull.toLowerCase().includes(style),
+    )
+  }
+  return list
+})
+
 function onSelect(iconFull: string) {
   selectedIcon.value = iconFull
   showDetail.value = true
@@ -73,10 +94,17 @@ watch(showDetail, (val) => {
 </script>
 
 <template>
-  <WithNavbar class="h-full">
-    <div class="relative flex-1 of-hidden">
-      <IconCanvas
-        :results="canvasResults"
+  <div class="relative h-screen overflow-hidden" :style="{ backgroundColor: bgColor }">
+    <SearchHeader
+      v-model="query"
+      v-model:icon-scale="iconScale"
+      v-model:icon-color="iconColor"
+      v-model:bg-color="bgColor"
+      v-model:icon-style="iconStyle"
+      :results-count="filteredCanvasResults.length"
+    />
+    <IconCanvas
+      :results="filteredCanvasResults"
         :loading="false"
         :icon-scale="iconScale"
         :icon-color="iconColor"
@@ -120,6 +148,6 @@ watch(showDetail, (val) => {
           />
         </SheetContent>
       </Sheet>
-    </div>
-  </WithNavbar>
+    <SocialPill />
+  </div>
 </template>

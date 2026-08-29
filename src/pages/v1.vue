@@ -7,6 +7,7 @@ import IconCanvas from '../components/IconCanvas.vue'
 import IconDetail from '../components/IconDetail.vue'
 import SearchCenter from '../components/SearchCenter.vue'
 import SearchHeader from '../components/SearchHeader.vue'
+import SocialPill from '../components/SocialPill.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
 useHead({
@@ -33,12 +34,24 @@ const selectedIcon = ref('')
 const iconScale = ref(1)
 const iconColor = ref('#000000')
 const bgColor = ref('#ffff')
+const iconStyle = ref('line')
 
 const variant = computed<'center' | 'top'>(() => hasSearched.value ? 'top' : 'center')
 const canvasResults = computed(() => {
   if (!hasSearched.value)
     return browseResults.value
   return results.value
+})
+
+const filteredResults = computed(() => {
+  if (!iconStyle.value || iconStyle.value === 'line')
+    return canvasResults.value
+  const style = iconStyle.value.toLowerCase()
+  return canvasResults.value.filter((r: any) =>
+    r.iconName.toLowerCase().includes(style)
+    || r.collectionId.toLowerCase().includes(style)
+    || r.iconFull.toLowerCase().includes(style),
+  )
 })
 
 function onSearchSubmit() {
@@ -77,12 +90,13 @@ watch(showDetail, (val) => {
         v-model:icon-scale="iconScale"
         v-model:icon-color="iconColor"
         v-model:bg-color="bgColor"
-        :results-count="canvasResults.length"
+        v-model:icon-style="iconStyle"
+        :results-count="filteredResults.length"
         :hide-search-input="!hasSearched"
         @submit="onSearchSubmit"
       />
       <IconCanvas
-        :results="canvasResults"
+        :results="filteredResults"
         :loading="loading"
         :icon-scale="iconScale"
         :icon-color="iconColor"
@@ -99,6 +113,8 @@ watch(showDetail, (val) => {
         </template>
       </IconCanvas>
     </LayoutGroup>
+
+    <SocialPill />
 
     <Sheet v-model:open="showDetail">
       <SheetContent

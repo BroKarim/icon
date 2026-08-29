@@ -170,7 +170,7 @@ useEventListener(categoriesContainer, 'wheel', (e: WheelEvent) => {
         <div
           i-carbon-chevron-left
           icon-button ml--1
-          transition duration-300 ease-in-out
+          transition-all duration-300 ease-in-out
           :class="drawerCollapsed ? 'transform rotate-180' : ''"
         />
       </button>

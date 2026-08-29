@@ -1,6 +1,6 @@
 <!-- FlickeringGrid.vue -->
 <script setup lang="ts">
-import { ref, useMemo, watch, onMounted, onUnmounted } from 'vue'
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 
 interface Props {
   squareSize?: number
@@ -26,7 +26,7 @@ const isInView = ref(false)
 const canvasSize = ref({ width: 0, height: 0 })
 
 // Memoized Color to RGBA prefix
-const memoizedColor = useMemo(() => {
+const memoizedColor = computed(() => {
   if (typeof window === 'undefined') return 'rgba(0, 0, 0,'
   const canvas = document.createElement('canvas')
   canvas.width = canvas.height = 1
@@ -36,7 +36,7 @@ const memoizedColor = useMemo(() => {
   ctx.fillRect(0, 0, 1, 1)
   const [r, g, b] = Array.from(ctx.getImageData(0, 0, 1, 1).data)
   return `rgba(${r}, ${g}, ${b},`
-}, [() => props.color])
+})
 
 let gridParams: { cols: number; rows: number; squares: Float32Array; dpr: number } | null = null
 

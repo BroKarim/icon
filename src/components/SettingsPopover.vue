@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { favoriteIcons } from '../store'
 
@@ -25,6 +25,7 @@ const ICON_STYLES = [
 
 const props = defineProps<{
   iconColor?: string
+  iconStyle?: string
 }>()
 
 const emit = defineEmits<{
@@ -33,8 +34,16 @@ const emit = defineEmits<{
 }>()
 
 const selectedColor = computed(() => props.iconColor || '#000000')
-const selectedStyle = ref('line')
+const selectedStyle = ref(props.iconStyle || 'line')
 const customColor = ref(props.iconColor || '#000000')
+
+watch(() => props.iconStyle, (v) => {
+  if (v) selectedStyle.value = v
+})
+
+watch(() => props.iconColor, (v) => {
+  if (v) customColor.value = v
+})
 
 function selectPreset(color: string) {
   emit('update:iconColor', color)
@@ -58,7 +67,7 @@ function goToFavorites() {
 </script>
 
 <template>
-  <div class="relative flex flex-col w-full bg-[#E0F7FA] p-4 rounded-[28px] text-black select-none">
+  <div class="relative flex flex-col w-full bg-[#B2EBF2] p-4 rounded-[28px] text-black select-none">
     <!-- Header -->
     <div class="flex items-center justify-between mb-3 px-1">
       <div class="flex items-center gap-2">

@@ -5,6 +5,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../components/IconCanvas.vue'
 import IconDetail from '../components/IconDetail.vue'
+import SocialPill from '../components/SocialPill.vue'
 import NewHome from '../components/home/NewHome.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
@@ -32,9 +33,21 @@ const selectedIcon = ref('')
 const iconScale = ref(1)
 const iconColor = ref('#000000')
 const bgColor = ref('#ffff')
+const iconStyle = ref('line')
 
 const variant = computed<'center' | 'top'>(() => hasSearched.value ? 'top' : 'center')
 const showCanvas = computed(() => variant.value === 'top' && query.value.trim().length > 0)
+
+const filteredResults = computed(() => {
+  if (!iconStyle.value || iconStyle.value === 'line')
+    return results.value
+  const style = iconStyle.value.toLowerCase()
+  return results.value.filter(r =>
+    r.iconName.toLowerCase().includes(style)
+    || r.collectionId.toLowerCase().includes(style)
+    || r.iconFull.toLowerCase().includes(style),
+  )
+})
 
 function onSearchSubmit() {
   if (!query.value.trim())
@@ -88,7 +101,8 @@ watch(showDetail, (val) => {
           v-model:icon-scale="iconScale"
           v-model:icon-color="iconColor"
           v-model:bg-color="bgColor"
-          :results-count="results.length"
+          v-model:icon-style="iconStyle"
+          :results-count="filteredResults.length"
           @submit="onSearchSubmit"
         />
       </AnimatePresence>
@@ -96,7 +110,7 @@ watch(showDetail, (val) => {
 
     <IconCanvas
       v-if="showCanvas"
-      :results="results"
+      :results="filteredResults"
       :loading="loading"
       :icon-scale="iconScale"
       :icon-color="iconColor"
@@ -104,6 +118,8 @@ watch(showDetail, (val) => {
       :disable-center-clear-zone="true"
       @select="onSelect"
     />
+
+    <SocialPill v-if="hasSearched" />
 
     <Sheet v-model:open="showDetail">
       <SheetContent

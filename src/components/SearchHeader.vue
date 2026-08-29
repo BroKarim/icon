@@ -14,7 +14,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import BagPopover from './BagPopover.vue'
-import BorderBeam from './BorderBeam.vue'
 import SettingsPopover from './SettingsPopover.vue'
 
 interface Props {
@@ -23,6 +22,7 @@ interface Props {
   iconScale?: number
   iconColor?: string
   bgColor?: string
+  iconStyle?: string
   hideSearchInput?: boolean
 }
 
@@ -32,6 +32,7 @@ interface Emits {
   (e: 'update:iconScale', value: number): void
   (e: 'update:iconColor', value: string): void
   (e: 'update:bgColor', value: string): void
+  (e: 'update:iconStyle', value: string): void
 }
 
 const props = defineProps<Props>()
@@ -219,10 +220,9 @@ watch(
         <a href="/" class="flex-shrink-0" title="Home">
           <img src="/iglo.png" alt="Igloo" class="h-16 w-16 bg-transparent ">
         </a>
-        <Motion v-if="!hideSearchInput" layout-id="search-input" class="flex-1">
-          <div ref="mountRef" class="h-10 w-full relative">
-            <BorderBeam :size="50" :duration="6" :border-width="1" />
-          </div>
+        <Motion v-if="!hideSearchInput" layout-id="search-input" class="flex-1 relative rounded-full  bg-background/80 border border-[#222]/20  shadow-sm backdrop-blur">
+          <div ref="mountRef" class="h-10 w-full" />
+
         </Motion>
         <!-- <VersionSwitcher /> -->
       </div>
@@ -231,7 +231,7 @@ watch(
       <div class="pointer-events-auto px-4 py-3 flex items-center gap-2 shrink-0">
         <!-- Bag popover -->
         <Popover>
-          <PopoverTrigger class="relative inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer border-0 bg-transparent hover:bg-white/20 transition-colors">
+          <PopoverTrigger class="relative inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer rounded-full  bg-background/80 border border-[#222]/20 p-1 shadow-sm backdrop-blur hover:bg-white/20 transition-colors">
             <Icon icon="carbon:shopping-bag" class="text-lg text-black/60" />
             <span
               v-if="bags.length"
@@ -259,13 +259,15 @@ watch(
         </div> -->
         <!-- Settings popover -->
         <Popover>
-          <PopoverTrigger class="relative inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer border-0 bg-transparent hover:bg-white/20 transition-colors">
-            <Icon icon="carbon:settings" class="text-lg text-black/60" />
+          <PopoverTrigger class="relative inline-flex items-center justify-center h-10 w-10 rounded-full  bg-background/80 border border-[#222]/20 p-1 shadow-sm backdrop-blur ">
+            <Icon icon="carbon:settings" class="text-lg text-black" />
           </PopoverTrigger>
           <PopoverContent align="end" :side-offset="8" class="w-[300px] border-none shadow-none p-0 overflow-hidden z-[1000]">
             <SettingsPopover
               :icon-color="iconColor"
+              :icon-style="iconStyle"
               @update:icon-color="emit('update:iconColor', $event)"
+              @update:icon-style="emit('update:iconStyle', $event)"
             />
           </PopoverContent>
         </Popover>
