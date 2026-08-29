@@ -1,6 +1,7 @@
 export * from './collection'
 export * from './dark'
 export * from './dialog'
+export * from './favorites'
 export * from './localstorage'
 export * from './packing'
 export * from './progress'

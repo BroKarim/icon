@@ -2,7 +2,6 @@
 import type { GlassOptics } from '@samasante/liquid-glass'
 import type { Root } from 'react-dom/client'
 
-import { Dice5 } from '@lucide/vue'
 import { Glass } from '@samasante/liquid-glass'
 import { Motion } from 'motion-v'
 import { createElement } from 'react'
@@ -15,6 +14,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover'
 import BagPopover from './BagPopover.vue'
+import BorderBeam from './BorderBeam.vue'
+import SettingsPopover from './SettingsPopover.vue'
 
 interface Props {
   modelValue: string
@@ -41,8 +42,6 @@ const inputRef = ref<HTMLInputElement | null>(null)
 let root: Root | null = null
 
 const sliderGlassRef = ref<HTMLDivElement | null>(null)
-const randomGlassRef = ref<HTMLDivElement | null>(null)
-const colorPickerGlassRef = ref<HTMLDivElement | null>(null)
 const roots: Root[] = []
 
 const CONTROL_OPTICS: Partial<GlassOptics> = {
@@ -71,8 +70,6 @@ const CONTROL_OPTICS: Partial<GlassOptics> = {
 function mountGlassControls() {
   const mounts = [
     { ref: sliderGlassRef, radius: '32px' },
-    { ref: randomGlassRef, radius: '9999px' },
-    { ref: colorPickerGlassRef, radius: '32px' },
   ]
   for (const { ref: mref, radius } of mounts) {
     if (!mref.value)
@@ -212,103 +209,7 @@ watch(
   },
 )
 
-const booped = ref(false)
 
-const iconScaleModel = computed({
-  get: () => [props.iconScale ?? 1],
-  set: v => emit('update:iconScale', v[0]),
-})
-
-function normalizeHexColor(color?: string) {
-  const value = color?.trim() ?? ''
-
-  if (/^#[\da-f]{6}$/i.test(value))
-    return value.toUpperCase()
-
-  if (/^#[\da-f]{3}$/i.test(value)) {
-    const [r, g, b] = value.slice(1).split('')
-    return `#${r}${r}${g}${g}${b}${b}`.toUpperCase()
-  }
-
-  return '#000000'
-}
-
-function shortenHexColor(color: string) {
-  const normalized = normalizeHexColor(color)
-
-  if (
-    normalized[1] === normalized[2]
-    && normalized[3] === normalized[4]
-    && normalized[5] === normalized[6]
-  ) {
-    return `#${normalized[1]}${normalized[3]}${normalized[5]}`
-  }
-
-  return normalized
-}
-
-function getRgbChannels(color: string) {
-  const normalized = normalizeHexColor(color)
-  return {
-    r: Number.parseInt(normalized.slice(1, 3), 16),
-    g: Number.parseInt(normalized.slice(3, 5), 16),
-    b: Number.parseInt(normalized.slice(5, 7), 16),
-  }
-}
-
-function randomHexColor() {
-  return `#${Math.floor(Math.random() * 0xFFFFFF + 1).toString(16).padStart(6, '0')}`
-}
-
-function randomLightColor() {
-  const h = Math.floor(Math.random() * 360)
-  const s = 20 + Math.floor(Math.random() * 30)
-  const l = 85 + Math.floor(Math.random() * 10)
-  return hslToHex(h, s, l)
-}
-
-function hslToHex(h: number, s: number, l: number) {
-  s /= 100
-  l /= 100
-  const c = (1 - Math.abs(2 * l - 1)) * s
-  const x = c * (1 - Math.abs((h / 60) % 2 - 1))
-  const m = l - c / 2
-  let r = 0; let g = 0; let b = 0
-
-  if (h < 60) { r = c; g = x; b = 0 }
-  else if (h < 120) { r = x; g = c; b = 0 }
-  else if (h < 180) { r = 0; g = c; b = x }
-  else if (h < 240) { r = 0; g = x; b = c }
-  else if (h < 300) { r = x; g = 0; b = c }
-  else { r = c; g = 0; b = x }
-
-  const toHex = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, '0')
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase()
-}
-
-const currentIconColor = computed(() => normalizeHexColor(props.iconColor))
-
-const displayIconColor = computed(() => shortenHexColor(currentIconColor.value))
-
-const colorIsLight = computed(() => {
-  const { r, g, b } = getRgbChannels(currentIconColor.value)
-  return (r * 299 + g * 587 + b * 114) / 1000 >= 160
-})
-
-const colorButtonText = computed(() => colorIsLight.value ? '#111827' : '#FFFFFF')
-const colorButtonBorder = computed(() => colorIsLight.value ? 'rgba(17, 24, 39, 0.14)' : 'rgba(255, 255, 255, 0.26)')
-
-function randomizeTheme() {
-  booped.value = true
-  const newIconColor = randomHexColor()
-  const newBgColor = randomLightColor()
-  emit('update:iconColor', newIconColor)
-  emit('update:bgColor', newBgColor)
-}
-
-function onBoopEnd() {
-  booped.value = false
-}
 </script>
 
 <template>
@@ -319,7 +220,9 @@ function onBoopEnd() {
           <img src="/iglo.png" alt="Igloo" class="h-16 w-16 bg-transparent ">
         </a>
         <Motion v-if="!hideSearchInput" layout-id="search-input" class="flex-1">
-          <div ref="mountRef" class="h-10 w-full" />
+          <div ref="mountRef" class="h-10 w-full relative">
+            <BorderBeam :size="50" :duration="6" :border-width="1" />
+          </div>
         </Motion>
         <!-- <VersionSwitcher /> -->
       </div>
@@ -337,7 +240,7 @@ function onBoopEnd() {
               {{ bags.length > 99 ? '99+' : bags.length }}
             </span>
           </PopoverTrigger>
-          <PopoverContent align="end" :side-offset="8" class="w-[380px] p-0 overflow-hidden z-[1000]">
+          <PopoverContent align="end" :side-offset="8" class="w-[380px] border-none shadow-none p-0 overflow-hidden z-[1000]">
             <BagPopover :icon-color="iconColor" />
           </PopoverContent>
         </Popover>
@@ -354,77 +257,18 @@ function onBoopEnd() {
             class="relative z-10 w-32"
           />
         </div> -->
-        <Button
-          as="a"
-          href="https://github.com/BroKarim/icon"
-          target="_blank"
-          rel="noopener noreferrer"
-          variant="outline"
-          class="relative z-10 gap-1.5 bg-red-400 px-3 py-1 rounded-full flex ga transition hover:brightness-[1.03]"
-
-        >
-            <img src="https://www.google.com/s2/favicons?sz=96&domain_url=github.com" alt="" class="w-4 h-4 rounded-full">
-            <span class="font-mono text-xs font-semibold tracking-[0.18em] text-red-50">
-                Github
-            </span>
-        </Button>
-        <Button
-          as="a"
-          href="https://www.threads.com/@brokariim"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="relative z-10 bg-yellow-400 gap-1.5 px-3 py-1 rounded-full flex ga transition hover:brightness-[1.03]"
-
-        >
-            <img src="https://www.google.com/s2/favicons?sz=96&domain_url=threads.net" alt="" class="w-4 h-4 rounded-full">
-            <span class="font-mono text-xs font-semibold tracking-[0.18em] text-yellow-950">
-                Thread
-            </span>
-        </Button>
-        <!-- Randomize button -->
-        <div class="relative overflow-hidden rounded-full h-10 w-10">
-          <span ref="randomGlassRef" class="absolute inset-0 z-0 rounded-full pointer-events-none" />
-          <button
-            class="relative z-10 inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer border-0 bg-transparent"
-            title="Randomize theme"
-            @click="randomizeTheme"
-          >
-            <Motion
-              :animate="booped
-                ? { y: [0, -6, 0], rotate: [0, -10, 10, -10, 0] }
-                : {}"
-              :transition="{ duration: 0.5 }"
-              @animation-end="onBoopEnd"
-            >
-              <Dice5 :size="20" class="text-black/60" />
-            </Motion>
-          </button>
-        </div>
-
-        <!-- Color picker -->
-        <div class="relative overflow-hidden rounded-full">
-          <span ref="colorPickerGlassRef" class="absolute inset-0 z-0 pointer-events-none" />
-          <ColorPicker
-            :value="currentIconColor"
-            class="relative z-10 inline-flex"
-            @update:value="emit('update:iconColor', $event)"
-          >
-            <Button
-              as="div"
-              variant="outline"
-              class="relative z-10 gap-1.5 py-1 rounded-full px-3 transition hover:brightness-[1.03]"
-              :style="{
-                backgroundColor: currentIconColor,
-                color: colorButtonText,
-                borderColor: colorButtonBorder,
-              }"
-            >
-              <span class="font-mono text-xs font-semibold tracking-[0.18em]">
-                {{ displayIconColor }}
-              </span>
-            </Button>
-          </ColorPicker>
-        </div>
+        <!-- Settings popover -->
+        <Popover>
+          <PopoverTrigger class="relative inline-flex items-center justify-center h-10 w-10 rounded-full cursor-pointer border-0 bg-transparent hover:bg-white/20 transition-colors">
+            <Icon icon="carbon:settings" class="text-lg text-black/60" />
+          </PopoverTrigger>
+          <PopoverContent align="end" :side-offset="8" class="w-[300px] border-none shadow-none p-0 overflow-hidden z-[1000]">
+            <SettingsPopover
+              :icon-color="iconColor"
+              @update:icon-color="emit('update:iconColor', $event)"
+            />
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   </div>

@@ -12,6 +12,13 @@ Fokus saat ini (setelah v2):
 | 10 | **Global Search di Collection** — search gak terbatas collection | Belum mulai |
 | 5 | **Affiliate Content** — konten afiliasi di antara icon | Belum mulai |
 | 11 | **Icon Bag** — kumpulkan icon, bulk copy/export | Selesai |
+| 12a | **Remove Ads UI** — sembunyikan ad rendering dari canvas | Belum mulai |
+| 12b | **Social Pill** — follow Threads/GitHub di Footer | Belum mulai |
+| 12c | **Favorites Store** — local favorites list + IconDetail toggle | Belum mulai |
+| 12d | **BorderBeam** — animated border beam di search input | Belum mulai |
+| 12e | **Settings Popover** — color presets, picker, styles di header | Belum mulai |
+| 12f | **Favorites Page** — halaman /favorites dengan IconCanvas | Belum mulai |
+| 12g | **Collection Search Filter** — search hanya icon di collection | Belum mulai |
 
 > **Catatan**: Phase 1–6 adalah fitur dari task plan sebelumnya (visual & theme overhaul). Sudah selesai/ditunda — tidak lagi relevan untuk dilanjutkan. Fokus saat ini adalah **branding, new home page, IconDetail, global search, affiliate**.
 
@@ -377,6 +384,59 @@ IconDetail.vue
 
 ---
 
+## Phase 12: UI Enhancements — Favorites, Settings, BorderBeam, Ads Removal
+
+**Goal**: Multiple UI improvements — remove ads from canvas, add social links to footer, create favorites system, add animated border beam to search input, settings popover with color presets/styles, and collection-scoped search.
+
+### Keputusan (Hasil Grilling)
+
+| Aspek | Keputusan |
+|-------|-----------|
+| **Social pill** | Setiap halaman via `Footer.vue` (Threads + GitHub) |
+| **Favorites** | Local list baru (pisah dari bag), halaman `/favorites` dedicated |
+| **Copy with color** | Dihapus dari `IconDetail`, diganti tombol favorite |
+| **BorderBeam** | CSS `offset-path` animation, wrap full glass search bar |
+| **Settings popover** | 2 tombol di header: Bag + Settings. Color presets + picker + favorites link + icon styles |
+| **Icon styles** | Real Iconify API styles only: line, solid, filled, outlined |
+| **Favorites page** | `IconCanvas` layout, pattern repeat untuk few icons |
+| **Collection search** | Filter global results ke collection scope. Random/repeat fallback |
+| **Ads removal** | Sembunyikan rendering + hapus imports di `IconCanvas.vue`. File ads tetap ada |
+| **Settings colors** | Cyan/teal background (matching BagPopover layout) |
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `src/store/favorites.ts` | Favorites reactive store dengan localStorage persistence |
+| `src/components/BorderBeam.vue` | Animated CSS border beam component |
+| `src/components/SettingsPopover.vue` | Settings popover (color presets, picker, styles) |
+| `src/pages/favorites.vue` | Favorites page dengan IconCanvas |
+
+### Files Modified
+
+| File | Changes |
+|------|---------|
+| `src/components/IconCanvas.vue` | Comment out ad rendering + imports |
+| `src/components/Footer.vue` | Add social pill (Threads + GitHub) |
+| `src/components/IconDetail.vue` | Replace "copy with color" → favorite toggle |
+| `src/components/SearchHeader.vue` | Add BorderBeam, Settings button + popover |
+| `src/components.d.ts` | Auto-generated (BorderBeam, SettingsPopover) |
+| `src/pages/collection/[id].vue` | Filter search ke collection scope |
+| `src/store/index.ts` | Re-export favorites store |
+
+### Verification
+
+- `pnpm build` — no errors
+- `pnpm typecheck` — no new errors
+- Favorites: add/remove via IconDetail, page shows icons with pattern repeat
+- Settings: color presets update icon color, icon styles filter, favorites link navigates
+- BorderBeam: animated gradient follows search bar border
+- Footer: social pill visible on every page
+- Collection search: only icons in collection appear, random fallback works
+- Ads: no ad cards visible in canvas
+
+---
+
 ## Future: Search Query in URL
 
 **Goal**: Setelah fitur-fitur di atas stabil, tambahkan dukungan query params di URL (`/?q=icon`) agar:
@@ -424,7 +484,13 @@ IconDetail.vue
 | `src/types/ad.ts` | 5 (new — tipe data AdItem) |
 | `src/composables/useAdPlacement.ts` | 5 (new — fetch & logic placement) |
 | `src/components/AdCard.vue` | 5 (new — komponen card affiliate) |
-| `src/components/IconCanvas.vue` | 5 (inject ad di grid rendering) |
+| `src/components/IconCanvas.vue` | 5 (inject ad di grid rendering), 12a (remove ad rendering) |
+| `src/store/favorites.ts` | 12c (new — favorites store) |
+| `src/components/BorderBeam.vue` | 12d (new — animated border beam) |
+| `src/components/SettingsPopover.vue` | 12e (new — settings popover) |
+| `src/pages/favorites.vue` | 12f (new — favorites page) |
+| `src/components/Footer.vue` | 12b (social pill) |
+| `src/components.d.ts` | 12d, 12e (auto-generated) |
 
 ---
 
@@ -440,6 +506,16 @@ Phase 10 (global search)    Phase 9 (IconDetail SVG)
                     |
                     v
            Phase 5 (affiliate)
+
+Phase 12 (UI enhancements):
+  12a (ads) ─────────┐
+  12b (footer) ──────┤
+  12d (borderbeam) ──┼── all independent
+  12g (collection) ──┤
+  12c (favorites) ───┼── depends on nothing
+                    ↓
+  12e (settings) ──── depends on 12c
+  12f (favorites page) depends on 12c
 ```
 
 Phase 7 (branding) dan Phase 8 (new home) independen → bisa paralel.

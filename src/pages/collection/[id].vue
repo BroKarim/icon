@@ -83,8 +83,16 @@ const allIcons = computed<SearchResult[]>(() => {
 })
 
 const canvasResults = computed<SearchResult[]>(() => {
-  if (hasSubmitted.value && query.value.trim())
-    return results.value
+  if (hasSubmitted.value && query.value.trim()) {
+    // Filter global results to only icons in this collection
+    const collectionIconIds = new Set(allIcons.value.map(i => i.iconFull))
+    const filtered = results.value.filter(r => collectionIconIds.has(r.iconFull))
+    if (filtered.length > 0)
+      return filtered
+    // Fallback: show random icons from collection
+    const shuffled = [...allIcons.value].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, Math.max(filtered.length, 6))
+  }
   return allIcons.value
 })
 

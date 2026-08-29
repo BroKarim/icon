@@ -3,11 +3,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import IconBackground from './IconBackground.vue'
 import { collections } from '../data'
 import {
-  copyPreviewColor,
   inBag,
-  previewColor,
+  inFavorites,
   pushRecentIcon,
   toggleBag,
+  toggleFavorite,
 } from '../store'
 import { dataUrlToBlob } from '../utils/dataUrlToBlob'
 import { Download, getIconSnippet, SnippetMap, toComponentName } from '../utils/icons'
@@ -41,7 +41,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'copy', 'next', 'prev'])
 
-const color = computed(() => copyPreviewColor.value ? previewColor.value : 'currentColor')
+const color = computed(() => 'currentColor')
 
 const activeSnippet = ref('svg')
 const activeComponent = ref('vue')
@@ -269,11 +269,11 @@ async function copyActiveComponentCode() {
           class="
             inline-flex items-center gap-1 leading-none border-2 border-black my-1 mr-2 font-sans pl-2 pr-3 py-1 rounded-full text-sm cursor-pointer
             hover:bg-gray-50 dark:hover:bg-dark-200
-          " :class="copyPreviewColor ? 'text-primary' : 'opacity-50'" @click="copyPreviewColor = !copyPreviewColor"
+          " :class="inFavorites(icon) ? 'text-red-500 border-red-500' : 'opacity-50'" @click="toggleFavorite(icon)"
         >
-          <Icon v-if="!copyPreviewColor" class="inline-block text-lg align-middle" icon="carbon:checkbox" />
-          <Icon v-else class="inline-block text-lg align-middle" icon="carbon:checkbox-checked" />
-          <span class="inline-block align-middle">copy with color</span>
+          <Icon v-if="!inFavorites(icon)" class="inline-block text-lg align-middle" icon="carbon:favorite" />
+          <Icon v-else class="inline-block text-lg align-middle" icon="carbon:favorite-filled" />
+          <span class="inline-block align-middle">{{ inFavorites(icon) ? 'favorited' : 'add to favorite' }}</span>
         </button>
       </div>
 

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import type { AdItem } from '../types/ad'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useAdPlacement } from '../composables/useAdPlacement'
-import AdCard from './AdCard.vue'
 import Icon from './Icon.vue'
 
 interface SearchResult {
@@ -31,11 +28,8 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{ (e: 'select', iconFull: string): void }>()
 
-const { getAdForGridIndex } = useAdPlacement()
-
 interface VisibleIcon extends SearchResult { type: 'icon', x: number, y: number, gridIndex: number, position: { x: number, y: number } }
-interface VisibleAd { type: 'ad', ad: AdItem, x: number, y: number, gridIndex: number, position: { x: number, y: number } }
-type VisibleItem = VisibleIcon | VisibleAd
+type VisibleItem = VisibleIcon
 
 // ─── constants ───────────────────────────────────────────────────────────────
 const MIN_VELOCITY = 0.05
@@ -158,12 +152,6 @@ function jitterForIndex(_gridIndex: number) {
 const visibleItems = computed(() => {
   return gridItems.value
     .map((item) => {
-      const ad = getAdForGridIndex(item.gridIndex)
-      if (ad) {
-        const x = item.position.x * GRID_SIZE.value + cachedWidth / 2
-        const y = item.position.y * GRID_SIZE.value + cachedHeight / 2
-        return { type: 'ad' as const, ad, x, y, gridIndex: item.gridIndex, position: item.position }
-      }
       const icon = iconForIndex(item.gridIndex)
       if (!icon)
         return null
@@ -491,24 +479,8 @@ watch(() => props.iconScale, () => {
       </Transition>
 
       <template v-for="item in visibleItems" :key="`${item.position.x}-${item.position.y}`">
-        <!-- AD -->
-        <div
-          v-if="item.type === 'ad'"
-          class="group absolute flex flex-col items-center justify-center rounded-[32px] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.03]"
-          :style="{
-            width: `${GRID_SIZE}px`,
-            height: `${GRID_SIZE}px`,
-            transform: `translate3d(${item.x}px, ${item.y}px, 0)`,
-            marginLeft: `-${GRID_SIZE / 2}px`,
-            marginTop: `-${GRID_SIZE / 2}px`,
-            color: iconColor,
-          }"
-        >
-          <AdCard :ad="item.ad" :grid-size="GRID_SIZE" :icon-size="ICON_SIZE" :icon-color="iconColor" />
-        </div>
         <!-- ICON -->
         <div
-          v-else
           class="group absolute flex flex-col items-center justify-center rounded-[32px] transition-transform duration-200 ease-out hover:-translate-y-1 hover:scale-[1.03]"
           :style="{
             width: `${GRID_SIZE}px`,
