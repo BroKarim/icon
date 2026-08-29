@@ -1,126 +1,130 @@
 <!doctype html>
 <html lang="en" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- ── Primary Meta ─────────────────────────────────────────────────────── -->
+    <title>Igloo — Icon Search Engine with Infinite Canvas</title>
+    <meta
+      name="description"
+      content="Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. A modern icon explorer built with Vue 3. Search, customize, and download SVG icons for any project."
+    />
+    <meta
+      name="keywords"
+      content="icons, iconify, svg icons, icon explorer, icon browser, vue icons, infinite canvas, free icons, open source icons, icon search, icon library, icon collection, download svg, png icons, developer tools, design resources"
+    />
+    <meta name="author" content="Brokarim" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <link rel="canonical" href="https://igloo.brokarim.com/" />
+    <meta name="rating" content="general" />
+    <meta name="referrer" content="origin-when-cross-origin" />
 
-  <!-- ── Primary Meta ─────────────────────────────────────────────────────── -->
-  <title>Igloo — Icon Search Engine with Infinite Canvas</title>
-  <meta name="description"
-    content="Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. A modern icon explorer built with Vue 3. Search, customize, and download SVG icons for any project." />
-  <meta name="keywords"
-    content="icons, iconify, svg icons, icon explorer, icon browser, vue icons, infinite canvas, free icons, open source icons, icon search, icon library, icon collection, download svg, png icons, developer tools, design resources" />
-  <meta name="author" content="Brokarim" />
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-  <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1" />
-  <link rel="canonical" href="https://igloo.brokarim.com/" />
-  <meta name="rating" content="general" />
-  <meta name="referrer" content="origin-when-cross-origin" />
+    <!-- ── Open Graph ───────────────────────────────────────────────────────── -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://igloo.brokarim.com/" />
+    <meta property="og:site_name" content="Igloo" />
+    <meta property="og:title" content="Igloo — Icon Search Engine with Infinite Canvas" />
+    <meta
+      property="og:description"
+      content="Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project."
+    />
+    <meta property="og:image" content="https://igloo.brokarim.com/og-image.jpg" />
+    <meta property="og:image:secure_url" content="https://igloo.brokarim.com/og-image.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Igloo — Icon Search Engine with Infinite Canvas" />
+    <meta property="og:locale" content="en_US" />
 
-  <!-- ── Open Graph ───────────────────────────────────────────────────────── -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://igloo.brokarim.com/" />
-  <meta property="og:site_name" content="Igloo" />
-  <meta property="og:title" content="Igloo — Icon Search Engine with Infinite Canvas" />
-  <meta property="og:description"
-    content="Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project." />
-  <meta property="og:image" content="https://igloo.brokarim.com/og-image.jpg" />
-  <meta property="og:image:secure_url" content="https://igloo.brokarim.com/og-image.jpg" />
-  <meta property="og:image:type" content="image/jpeg" />
-  <meta property="og:image:width" content="1200" />
-  <meta property="og:image:height" content="630" />
-  <meta property="og:image:alt" content="Igloo — Icon Search Engine with Infinite Canvas" />
-  <meta property="og:locale" content="en_US" />
+    <!-- ── Twitter / X Card ─────────────────────────────────────────────────── -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@brokariim" />
+    <meta name="twitter:creator" content="@brokariim" />
+    <meta name="twitter:title" content="Igloo — Icon Search Engine with Infinite Canvas" />
+    <meta
+      name="twitter:description"
+      content="Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project."
+    />
+    <meta name="twitter:image" content="https://igloo.brokarim.com/og-image.jpg" />
+    <meta name="twitter:image:alt" content="Igloo — Icon Search Engine with Infinite Canvas" />
 
-  <!-- ── Twitter / X Card ─────────────────────────────────────────────────── -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@brokariim" />
-  <meta name="twitter:creator" content="@brokariim" />
-  <meta name="twitter:title" content="Igloo — Icon Search Engine with Infinite Canvas" />
-  <meta name="twitter:description"
-    content="Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. Search, customize, and download SVG icons for any project." />
-  <meta name="twitter:image" content="https://igloo.brokarim.com/og-image.jpg" />
-  <meta name="twitter:image:alt" content="Igloo — Icon Search Engine with Infinite Canvas" />
+    <!-- ── Theme Color ──────────────────────────────────────────────────────── -->
+    <meta name="theme-color" content="#f7f3ec" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
+    <meta name="msapplication-TileColor" content="#329672" />
 
-  <!-- ── Theme Color ──────────────────────────────────────────────────────── -->
-  <meta name="theme-color" content="#f7f3ec" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#111827" media="(prefers-color-scheme: dark)" />
-  <meta name="msapplication-TileColor" content="#329672" />
+    <!-- ── Favicon ──────────────────────────────────────────────────────────── -->
+    <link rel="icon" href="/favicon.ico" type="image/svg+xml" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/web-app-manifest-192x192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="application-name" content="Icons" />
+    <meta name="apple-mobile-web-app-title" content="Icons" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
 
-  <!-- ── Favicon ──────────────────────────────────────────────────────────── -->
-  <link rel="icon" href="/favicon.ico" type="image/svg+xml" />
-  <link rel="alternate icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" href="/web-app-manifest-192x192.png" />
-  <link rel="manifest" href="/manifest.webmanifest" />
-  <meta name="application-name" content="Icons" />
-  <meta name="apple-mobile-web-app-title" content="Icons" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="mobile-web-app-capable" content="yes" />
+    <!-- ── OpenSearch ───────────────────────────────────────────────────────── -->
+    <link rel="search" type="application/opensearchdescription+xml" href="/search.xml" title="Icons" />
 
-  <!-- ── OpenSearch ───────────────────────────────────────────────────────── -->
-  <link rel="search" type="application/opensearchdescription+xml" href="/search.xml" title="Icons" />
-
-  <!-- ── Structured Data: WebSite ─────────────────────────────────────────── -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Icons",
-      "alternateName": ["Icons Explorer", "Icon Explorer"],
-      "url": "https://igloo.brokarim.com",
-      "description": "Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. A modern icon explorer built with Vue 3.",
-      "inLanguage": "en-US",
-      "publisher": {
-        "@type": "Organization",
-        "name": "Brokarim",
-        "url": "https://brokarim.com"
-      },
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://igloo.brokarim.com/?q={search_term_string}"
+    <!-- ── Structured Data: WebSite ─────────────────────────────────────────── -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Icons",
+        "alternateName": ["Icons Explorer", "Icon Explorer"],
+        "url": "https://igloo.brokarim.com",
+        "description": "Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface. A modern icon explorer built with Vue 3.",
+        "inLanguage": "en-US",
+        "publisher": {
+          "@type": "Organization",
+          "name": "Brokarim",
+          "url": "https://brokarim.com"
         },
-        "query-input": "required name=search_term_string"
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://igloo.brokarim.com/?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
       }
-    }
     </script>
 
-  <!-- ── Structured Data: SoftwareApplication ─────────────────────────────── -->
-  <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Icons",
-      "alternateName": ["Icons Explorer", "Icon Explorer"],
-      "url": "https://igloo.brokarim.com",
-      "description": "A modern icon explorer built with Vue 3. Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface.",
-      "applicationCategory": "DesignApplication",
-      "applicationSubCategory": "Icon Library",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "keywords": "icons, iconify, svg icons, icon explorer, icon browser, vue icons, infinite canvas, free icons, open source icons",
-      "license": "https://opensource.org/licenses/MIT",
-      "creator": {
-        "@type": "Person",
-        "name": "Brokarim",
-        "url": "https://brokarim.com"
-      },
-      "sameAs": [
-        "https://github.com/BroKarim/icon",
-        "https://brokarim.com"
-      ]
-    }
+    <!-- ── Structured Data: SoftwareApplication ─────────────────────────────── -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Icons",
+        "alternateName": ["Icons Explorer", "Icon Explorer"],
+        "url": "https://igloo.brokarim.com",
+        "description": "A modern icon explorer built with Vue 3. Browse and search 200,000+ icons from Iconify with an intuitive infinite canvas interface.",
+        "applicationCategory": "DesignApplication",
+        "applicationSubCategory": "Icon Library",
+        "operatingSystem": "Web",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "keywords": "icons, iconify, svg icons, icon explorer, icon browser, vue icons, infinite canvas, free icons, open source icons",
+        "license": "https://opensource.org/licenses/MIT",
+        "creator": {
+          "@type": "Person",
+          "name": "Brokarim",
+          "url": "https://brokarim.com"
+        },
+        "sameAs": ["https://github.com/BroKarim/icon", "https://brokarim.com"]
+      }
     </script>
-</head>
-<body class="dragging bg-base color-base">
-  <div id="app"></div>
-  <script type="module" src="/src/main.ts"></script>
-</body>
+  </head>
+  <body class="dragging bg-base color-base">
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
 </html>

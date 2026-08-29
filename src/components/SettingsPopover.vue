@@ -1,7 +1,17 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { favoriteIcons } from '../store'
+
+const props = defineProps<{
+  iconColor?: string
+  iconStyle?: string
+}>()
+
+const emit = defineEmits<{
+  (e: 'update:iconColor', value: string): void
+  (e: 'update:iconStyle', value: string): void
+}>()
 
 const router = useRouter()
 
@@ -23,26 +33,18 @@ const ICON_STYLES = [
   { id: 'outlined', label: 'Outlined', icon: 'carbon:ellipse' },
 ]
 
-const props = defineProps<{
-  iconColor?: string
-  iconStyle?: string
-}>()
-
-const emit = defineEmits<{
-  (e: 'update:iconColor', value: string): void
-  (e: 'update:iconStyle', value: string): void
-}>()
-
 const selectedColor = computed(() => props.iconColor || '#000000')
 const selectedStyle = ref(props.iconStyle || 'line')
 const customColor = ref(props.iconColor || '#000000')
 
 watch(() => props.iconStyle, (v) => {
-  if (v) selectedStyle.value = v
+  if (v)
+    selectedStyle.value = v
 })
 
 watch(() => props.iconColor, (v) => {
-  if (v) customColor.value = v
+  if (v)
+    customColor.value = v
 })
 
 function selectPreset(color: string) {
@@ -104,14 +106,14 @@ function goToFavorites() {
           :value="customColor"
           class="aspect-square h-8 w-8 cursor-pointer rounded-md border p-0"
           @input="onCustomColorChange"
-        />
+        >
         <input
           type="text"
           :value="customColor"
           class="flex-1 h-8 px-2 rounded-lg bg-[#B2EBF2] border-none text-xs font-mono text-black placeholder-black/30 focus:outline-none focus:ring-2 focus:ring-black/20"
           placeholder="#000000"
           @input="onCustomColorChange"
-        />
+        >
       </div>
     </div>
 

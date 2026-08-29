@@ -21,7 +21,8 @@ const selectedActionLabel = ref('Copy SVG')
 const CHECKERBOARD = `url("data:image/svg+xml,%3Csvg width='8' height='8' viewBox='0 0 8 8' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='8' height='8' fill='%23ebe7fb'/%3E%3Crect width='4' height='4' fill='%23dfd8fa'/%3E%3Crect x='4' y='4' width='4' height='4' fill='%23dfd8fa'/%3E%3C/svg%3E")`
 
 async function executeAction() {
-  if (!bags.value.length) return
+  if (!bags.value.length)
+    return
 
   if (selectedActionType.value === 'download-svg') {
     await PackZip(collections, bags.value, 'icones-bags', 'svg')
@@ -39,7 +40,9 @@ async function executeAction() {
       await navigator.clipboard.writeText(joined)
       copied.value = true
       copyLabel.value = `Copied ${bags.value.length} icon${bags.value.length !== 1 ? 's' : ''}`
-      setTimeout(() => { copied.value = false }, 1500)
+      setTimeout(() => {
+        copied.value = false
+      }, 1500)
     }
     catch {}
   }
@@ -69,6 +72,7 @@ function toggleFramework() {
 
 function confirmClear(e: MouseEvent) {
   e.stopPropagation()
+  // eslint-disable-next-line no-alert
   if (confirm('Remove all icons from bag?')) {
     clearBag()
   }
@@ -99,7 +103,7 @@ function confirmClear(e: MouseEvent) {
           @click.stop="toggleRaw"
         >
           <span class="truncate">Copy asset</span>
-          <svg class="w-3.5 h-3.5 shrink-0 ml-1 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          <svg class="w-3.5 h-3.5 shrink-0 ml-1 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6" /></svg>
         </button>
 
         <div
@@ -107,9 +111,15 @@ function confirmClear(e: MouseEvent) {
           class="absolute left-0 top-full mt-1.5 w-44 rounded-2xl bg-[#DDD2FC] p-1.5 shadow-xl border border-white/20 z-50 flex flex-col gap-0.5"
           @click.stop
         >
-          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectRaw('svg', 'Copy SVG')">Copy SVG</button>
-          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectRaw('data_url', 'Copy Data URL')">Copy Data URL</button>
-          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectRaw('download-svg', 'Download ZIP')">Download ZIP</button>
+          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectRaw('svg', 'Copy SVG')">
+            Copy SVG
+          </button>
+          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectRaw('data_url', 'Copy Data URL')">
+            Copy Data URL
+          </button>
+          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectRaw('download-svg', 'Download ZIP')">
+            Download ZIP
+          </button>
         </div>
       </div>
 
@@ -121,7 +131,7 @@ function confirmClear(e: MouseEvent) {
           @click.stop="toggleFramework"
         >
           <span class="truncate">Framework</span>
-          <svg class="w-3.5 h-3.5 shrink-0 ml-1 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6"/></svg>
+          <svg class="w-3.5 h-3.5 shrink-0 ml-1 opacity-60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m6 9 6 6 6-6" /></svg>
         </button>
 
         <div
@@ -129,12 +139,24 @@ function confirmClear(e: MouseEvent) {
           class="absolute right-0 top-full mt-1.5 w-40 rounded-2xl bg-[#DDD2FC] p-1.5 shadow-xl border border-white/20 z-50 flex flex-col gap-0.5"
           @click.stop
         >
-          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('vue', 'Copy Vue')">Vue</button>
-          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('jsx', 'Copy JSX')">JSX</button>
-          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('tsx', 'Copy TSX')">TSX</button>
-          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('svelte', 'Copy Svelte')">Svelte</button>
-          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('astro', 'Copy Astro')">Astro</button>
-          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('names', 'Copy Names')">Names only</button>
+          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('vue', 'Copy Vue')">
+            Vue
+          </button>
+          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('jsx', 'Copy JSX')">
+            JSX
+          </button>
+          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('tsx', 'Copy TSX')">
+            TSX
+          </button>
+          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('svelte', 'Copy Svelte')">
+            Svelte
+          </button>
+          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('astro', 'Copy Astro')">
+            Astro
+          </button>
+          <button class="w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold text-black hover:bg-[#C9B9F8] transition-colors" @click="handleSelectFramework('names', 'Copy Names')">
+            Names only
+          </button>
         </div>
       </div>
     </div>
@@ -180,14 +202,16 @@ function confirmClear(e: MouseEvent) {
           title="Remove from bag"
           @click.stop="removeFromBag(iconId)"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
         </button>
       </div>
     </div>
 
     <!-- Empty State -->
     <div v-else class="flex flex-col items-center justify-center py-8 rounded-xl bg-[#DDD2FC]/50 text-black/40 mb-2">
-      <p class="text-xs font-bold">No icons selected</p>
+      <p class="text-xs font-bold">
+        No icons selected
+      </p>
     </div>
 
     <!-- Footer Controls (Bottom Right) -->

@@ -3,10 +3,10 @@ import { useHead } from '@unhead/vue'
 import { AnimatePresence, LayoutGroup } from 'motion-v'
 import { computed, onMounted, ref, watch } from 'vue'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
+import NewHome from '../components/home/NewHome.vue'
 import IconCanvas from '../components/IconCanvas.vue'
 import IconDetail from '../components/IconDetail.vue'
 import SocialPill from '../components/SocialPill.vue'
-import NewHome from '../components/home/NewHome.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
 useHead({
@@ -84,7 +84,6 @@ watch(showDetail, (val) => {
 
 <template>
   <div class="relative h-screen overflow-hidden text-slate-900" :style="{ backgroundColor: bgColor }">
-
     <LayoutGroup>
       <AnimatePresence mode="popLayout">
         <NewHome

@@ -5,8 +5,8 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 import IconCanvas from '../../components/IconCanvas.vue'
 import IconDetail from '../../components/IconDetail.vue'
 import SocialPill from '../../components/SocialPill.vue'
-import { pushRecentCollection, setCurrentCollection, useCurrentCollection } from '../../store'
 import { useGlobalSearch } from '../../composables/useGlobalSearch'
+import { pushRecentCollection, setCurrentCollection, useCurrentCollection } from '../../store'
 
 const props = defineProps<{
   id: string
@@ -90,8 +90,9 @@ const canvasResults = computed<SearchResult[]>(() => {
     // Filter global results to only icons in this collection
     const collectionIconIds = new Set(allIcons.value.map(i => i.iconFull))
     const filtered = results.value.filter(r => collectionIconIds.has(r.iconFull))
-    if (filtered.length > 0)
+    if (filtered.length > 0) {
       base = filtered
+    }
     else {
       // Fallback: show random icons from collection
       const shuffled = [...allIcons.value].sort(() => Math.random() - 0.5)

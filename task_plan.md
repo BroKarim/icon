@@ -1,3 +1,15 @@
+TODO : 
+- niru : https://www.isocons.app/
+    - mulai dari icon detai
+    - popover untuk setting dan favorite
+- buat theme dark dan light
+- di icon detail itu sederhanak jdi + g usah lagi nampilin code
+  - copy svg, jsx, tsx, ...
+  - donwload png
+- tambhakan halam license, nengok isocons
+
+
+
 # Task Plan: Rebrand → New Home → Affiliate System
 
 ## Overview

@@ -38,7 +38,7 @@ const canvasResults = computed<SearchResult[]>(() => {
   const favs = favoriteIcons.value
   if (favs.length === 0)
     return []
-  if (favs.length >= 20)
+  if (favs.length >= 20) {
     return favs.map(id => ({
       collectionId: id.split(':')[0],
       collectionName: '',
@@ -46,6 +46,7 @@ const canvasResults = computed<SearchResult[]>(() => {
       iconFull: id,
       matchType: 'exact' as const,
     }))
+  }
   // Repeat pattern to have at least 20 icons
   const repeated: string[] = []
   while (repeated.length < 20) {
@@ -105,49 +106,49 @@ watch(showDetail, (val) => {
     />
     <IconCanvas
       :results="filteredCanvasResults"
-        :loading="false"
-        :icon-scale="iconScale"
-        :icon-color="iconColor"
-        :bg-color="bgColor"
-        @select="onSelect"
-      >
-        <template #center>
-          <div class="text-center z-999 px-8 py-12">
-            <h1 class="text-5xl font-bold tracking-tight text-black/80">
-              My Favorites
-            </h1>
-            <div class="mt-4 text-lg text-black/50">
-              {{ favoriteIcons.length }} icon{{ favoriteIcons.length !== 1 ? 's' : '' }} saved
-            </div>
-            <div v-if="favoriteIcons.length === 0" class="mt-6">
-              <p class="text-sm text-black/40">
-                No favorites yet. Browse icons and click "add to favorite" to save them here.
-              </p>
-              <RouterLink
-                to="/"
-                class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full bg-black text-white text-sm font-medium hover:bg-black/80 transition-colors"
-              >
-                Browse Icons
-              </RouterLink>
-            </div>
+      :loading="false"
+      :icon-scale="iconScale"
+      :icon-color="iconColor"
+      :bg-color="bgColor"
+      @select="onSelect"
+    >
+      <template #center>
+        <div class="text-center z-999 px-8 py-12">
+          <h1 class="text-5xl font-bold tracking-tight text-black/80">
+            My Favorites
+          </h1>
+          <div class="mt-4 text-lg text-black/50">
+            {{ favoriteIcons.length }} icon{{ favoriteIcons.length !== 1 ? 's' : '' }} saved
           </div>
-        </template>
-      </IconCanvas>
+          <div v-if="favoriteIcons.length === 0" class="mt-6">
+            <p class="text-sm text-black/40">
+              No favorites yet. Browse icons and click "add to favorite" to save them here.
+            </p>
+            <RouterLink
+              to="/"
+              class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full bg-black text-white text-sm font-medium hover:bg-black/80 transition-colors"
+            >
+              Browse Icons
+            </RouterLink>
+          </div>
+        </div>
+      </template>
+    </IconCanvas>
 
-      <Sheet v-model:open="showDetail">
-        <SheetContent
-          class="p-0 gap-0 w-full sm:max-w-md overflow-y-auto"
-          :style="{ backgroundColor: bgColor }"
-        >
-          <IconDetail
-            v-if="selectedIcon"
-            :icon="selectedIcon"
-            :show-collection="true"
-            :icon-color="iconColor"
-            @close="onClose"
-          />
-        </SheetContent>
-      </Sheet>
+    <Sheet v-model:open="showDetail">
+      <SheetContent
+        class="p-0 gap-0 w-full sm:max-w-md overflow-y-auto"
+        :style="{ backgroundColor: bgColor }"
+      >
+        <IconDetail
+          v-if="selectedIcon"
+          :icon="selectedIcon"
+          :show-collection="true"
+          :icon-color="iconColor"
+          @close="onClose"
+        />
+      </SheetContent>
+    </Sheet>
     <SocialPill />
   </div>
 </template>

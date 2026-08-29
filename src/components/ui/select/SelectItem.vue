@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { SelectItemProps } from "reka-ui"
-import { SelectItem, SelectItemIndicator, SelectItemText } from "reka-ui"
-import { cn } from "@/lib/utils"
+import type { SelectItemProps } from 'reka-ui'
+import { SelectItem, SelectItemIndicator, SelectItemText } from 'reka-ui'
+import { cn } from '@/lib/utils'
 
 const props = defineProps<SelectItemProps & { class?: string }>()
 </script>
@@ -20,7 +20,7 @@ const props = defineProps<SelectItemProps & { class?: string }>()
     <span class="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
       <SelectItemIndicator>
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M20 6 9 17l-5-5"/>
+          <path d="M20 6 9 17l-5-5" />
         </svg>
       </SelectItemIndicator>
     </span>

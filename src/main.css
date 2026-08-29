@@ -200,7 +200,7 @@ html:not(.dark) .shiki span {
   --input: oklch(96% 0 0);
   --ring: oklch(55.6% 0 0);
   --radius: 0.45rem;
-  --destructive: oklch(63.7% .237 25.331);
+  --destructive: oklch(63.7% 0.237 25.331);
   --destructive-foreground: oklch(98.5% 0 0);
   --sidebar: oklch(98.5% 0 0);
   --sidebar-foreground: oklch(26.9% 0 0);
@@ -230,9 +230,9 @@ html:not(.dark) .shiki span {
   --border: rgba(255, 255, 255, 0.06);
   --input: oklch(28% 0 0);
   --ring: oklch(70.8% 0 0);
-  --destructive: oklch(63.7% .237 25.331);
+  --destructive: oklch(63.7% 0.237 25.331);
   --destructive-foreground: oklch(98.5% 0 0);
-  --sidebar: oklch(21% .006 285.885);
+  --sidebar: oklch(21% 0.006 285.885);
   --sidebar-foreground: oklch(97% 0 0);
   --sidebar-primary: oklch(97% 0 0);
   --sidebar-primary-foreground: oklch(26.9% 0 0);

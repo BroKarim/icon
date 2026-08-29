@@ -1,5 +1,5 @@
-import type { CollectionMeta } from '../data'
 import type { AsyncFzf as AsyncFzfType } from 'fzf'
+import type { CollectionMeta } from '../data'
 import { collections } from '../data'
 import { searchAlias } from '../data/search-alias'
 
@@ -93,7 +93,8 @@ export function useGlobalSearch() {
     if (!fzfInstance.value)
       return
 
-    if (token !== searchToken) return
+    if (token !== searchToken)
+      return
 
     loading.value = true
     try {
@@ -102,7 +103,8 @@ export function useGlobalSearch() {
 
       if (useExtendedMatch.value || aliasedCandidates.value.length > 1) {
         const { AsyncFzf, asyncExtendedMatch } = await import('fzf')
-        if (token !== searchToken) return
+        if (token !== searchToken)
+          return
         const fzfExtended = new AsyncFzf(flatIndex.value, {
           casing: 'case-insensitive',
           match: asyncExtendedMatch,
@@ -114,7 +116,8 @@ export function useGlobalSearch() {
         matched = (await fzfInstance.value.find(searchString)).map(r => r.item)
       }
 
-      if (token !== searchToken) return
+      if (token !== searchToken)
+        return
 
       const q = query.value.toLowerCase().trim()
       results.value = matched
@@ -135,7 +138,8 @@ export function useGlobalSearch() {
   const debouncedSearch = useDebounceFn(runSearch, 200)
 
   watch(query, (val) => {
-    if (hasSearched.value) return
+    if (hasSearched.value)
+      return
     if (!val) {
       results.value = []
       return

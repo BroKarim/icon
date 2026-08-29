@@ -112,8 +112,13 @@ function getItemIndexForPosition(x: number, y: number): number {
 
 // ─── icon selection with coprime distribution + jitter ───────────────────────
 function gcd(a: number, b: number): number {
-  let x = Math.abs(a); let y = Math.abs(b)
-  while (y !== 0) { const t = y; y = x % y; x = t }
+  let x = Math.abs(a)
+  let y = Math.abs(b)
+  while (y !== 0) {
+    const t = y
+    y = x % y
+    x = t
+  }
   return x
 }
 
@@ -172,7 +177,8 @@ const visibleItems = computed(() => {
 
 // ─── grid calculation ─────────────────────────────────────────────────────────
 function calculateVisiblePositions() {
-  const w = cachedWidth; const h = cachedHeight
+  const w = cachedWidth
+  const h = cachedHeight
   if (!w && !h)
     return null
 
@@ -204,7 +210,7 @@ function updateGridItems() {
     const dx = offset.value.x - restPos.x
     const dy = offset.value.y - restPos.y
     const dist = Math.sqrt(dx * dx + dy * dy)
-    if (dist > 5 !== isMoving.value)
+    if ((dist > 5) !== isMoving.value)
       isMoving.value = dist > 5
     scheduleStopMoving()
     return
@@ -213,9 +219,11 @@ function updateGridItems() {
     position: pos,
     gridIndex: getItemIndexForPosition(pos.x, pos.y),
   }))
-  const dx = offset.value.x - restPos.x
-  const dy = offset.value.y - restPos.y
-  isMoving.value = Math.sqrt(dx * dx + dy * dy) > 5
+  {
+    const dx = offset.value.x - restPos.x
+    const dy = offset.value.y - restPos.y
+    isMoving.value = Math.sqrt(dx * dx + dy * dy) > 5
+  }
   scheduleStopMoving()
 }
 
@@ -256,7 +264,10 @@ function animate() {
 
 // ─── pointer handlers ─────────────────────────────────────────────────────────
 function handleDown(p: { x: number, y: number }) {
-  if (animationFrame) { cancelAnimationFrame(animationFrame); animationFrame = null }
+  if (animationFrame) {
+    cancelAnimationFrame(animationFrame)
+    animationFrame = null
+  }
   isDragging.value = true
   moved = false
   startPos = { x: p.x - offset.value.x, y: p.y - offset.value.y }
@@ -300,29 +311,44 @@ function handleMove(p: { x: number, y: number }) {
 
 function handleUp() {
   const timeSince = performance.now() - lastMoveTime
-  if (timeSince > 100)
+  if (timeSince > 100) {
     velocity = { x: 0, y: 0 }
-  else velocity = { x: velocity.x * VELOCITY_SCALE, y: velocity.y * VELOCITY_SCALE }
+  }
+  else {
+    velocity = { x: velocity.x * VELOCITY_SCALE, y: velocity.y * VELOCITY_SCALE }
+  }
   isDragging.value = false
   lastUpdateTime = performance.now()
   animationFrame = requestAnimationFrame(animate)
 }
 
-function onMouseDown(e: MouseEvent) { handleDown({ x: e.clientX, y: e.clientY }) }
-function onMouseMove(e: MouseEvent) { e.preventDefault(); handleMove({ x: e.clientX, y: e.clientY }) }
-function onMouseUp() { handleUp() }
+function onMouseDown(e: MouseEvent) {
+  handleDown({ x: e.clientX, y: e.clientY })
+}
+function onMouseMove(e: MouseEvent) {
+  e.preventDefault()
+  handleMove({ x: e.clientX, y: e.clientY })
+}
+function onMouseUp() {
+  handleUp()
+}
 
 function onTouchStart(e: TouchEvent) {
-  const t = e.touches[0]; if (!t)
+  const t = e.touches[0]
+  if (!t)
     return
   handleDown({ x: t.clientX, y: t.clientY })
 }
 function onTouchMove(e: TouchEvent) {
-  const t = e.touches[0]; if (!t)
+  const t = e.touches[0]
+  if (!t)
     return
-  e.preventDefault(); handleMove({ x: t.clientX, y: t.clientY })
+  e.preventDefault()
+  handleMove({ x: t.clientX, y: t.clientY })
 }
-function onTouchEnd() { handleUp() }
+function onTouchEnd() {
+  handleUp()
+}
 
 function onWheel(e: WheelEvent) {
   e.preventDefault()

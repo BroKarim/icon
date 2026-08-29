@@ -50,7 +50,6 @@ function onLogoClick() {
               <form class="w-full -mt-2 sm:-mt-3 md:-mt-6" @submit="onSubmit">
                 <div class="relative w-full min-w-0">
                   <input
-                    ref="inputRef"
                     v-model="query"
                     type="text"
                     autocomplete="off"

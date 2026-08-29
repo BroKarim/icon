@@ -7,12 +7,12 @@ import { Motion } from 'motion-v'
 import { createElement } from 'react'
 import { createRoot } from 'react-dom/client'
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { bags } from '../store'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
+import { bags } from '../store'
 import BagPopover from './BagPopover.vue'
 import SettingsPopover from './SettingsPopover.vue'
 
@@ -155,7 +155,8 @@ function renderHeaderGlass() {
         onInput: (e: Event) =>
           emit('update:modelValue', (e.target as HTMLInputElement).value),
         onKeyDown: (e: KeyboardEvent) => {
-          if (e.key === 'Enter') emit('submit')
+          if (e.key === 'Enter')
+            emit('submit')
         },
         style: {
           width: '100%',
@@ -180,8 +181,6 @@ function initHeaderGlass() {
     renderHeaderGlass()
   }
 }
-
-
 
 onMounted(() => {
   initHeaderGlass()
@@ -209,8 +208,6 @@ watch(
       inputRef.value.value = v
   },
 )
-
-
 </script>
 
 <template>
@@ -222,7 +219,6 @@ watch(
         </a>
         <Motion v-if="!hideSearchInput" layout-id="search-input" class="flex-1 relative rounded-full  bg-background/80 border border-[#222]/20  shadow-sm backdrop-blur">
           <div ref="mountRef" class="h-10 w-full" />
-
         </Motion>
         <!-- <VersionSwitcher /> -->
       </div>

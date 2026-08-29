@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { SelectContentEmits, SelectContentProps } from "reka-ui"
-import { SelectContent, SelectPortal, SelectViewport, useForwardPropsEmits } from "reka-ui"
-import { cn } from "@/lib/utils"
+import type { SelectContentEmits, SelectContentProps } from 'reka-ui'
+import { SelectContent, SelectPortal, SelectViewport, useForwardPropsEmits } from 'reka-ui'
+import { cn } from '@/lib/utils'
 
 const props = withDefaults(
   defineProps<SelectContentProps & { class?: string }>(),
-  { position: "popper" },
+  { position: 'popper' },
 )
 const emits = defineEmits<SelectContentEmits>()
 
