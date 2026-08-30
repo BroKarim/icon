@@ -1,6 +1,6 @@
 <!-- src/components/IconDetailModal.vue -->
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import {
   Dialog,
   DialogContent,
@@ -8,8 +8,9 @@ import {
   DialogPortal,
 } from '@/components/ui/dialog'
 import { collections } from '../data'
-import { inBag, toggleBag } from '../store'
-import { getIconSnippet } from '../utils/icons'
+import { inBag, pushRecentIcon, toggleBag } from '../store'
+import { dataUrlToBlob } from '../utils/dataUrlToBlob'
+import { Download, getIconSnippet, toComponentName } from '../utils/icons'
 
 const props = defineProps<{
   open: boolean
@@ -19,22 +20,93 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:open', val: boolean): void
+  (e: 'update:iconColor', val: string): void
   (e: 'close'): void
 }>()
 
-// Floating & Modal State
+// State
 const copied = ref(false)
 const copyLabel = ref('')
 const showCopyMenu = ref(false)
 const selectedCopyFormat = ref('SVG')
 
-// Dummy Visual Controls (sesuai referensi UI)
+// Visual Controls
 const isFill = ref(false)
-const direction = ref('Right')
-const edge = ref('sharp')
+const direction = ref<'Left' | 'Top' | 'Right'>('Right')
+const edge = ref<'sharp' | 'round'>('sharp')
 const stroke = ref('1px')
 const iconSize = ref(96)
 
+// Color presets
+const colorPresets = [
+  '#000000',
+  '#FFFFFF',
+  '#6B7280',
+  '#EF4444',
+  '#3B82F6',
+  '#22C55E',
+  '#EAB308',
+  '#A855F7',
+  '#F97316',
+]
+
+// Raw SVG for manipulation
+const rawSvg = ref('')
+
+async function fetchRawSvg() {
+  rawSvg.value = await getIconSnippet(collections, props.icon, 'svg', false, 'currentColor') || ''
+}
+
+watch(() => props.icon, () => {
+  fetchRawSvg()
+}, { immediate: true })
+
+// Customized SVG computed
+const customizedSvg = computed(() => {
+  if (!rawSvg.value)
+    return ''
+  let svg = rawSvg.value
+
+  // Stroke width manipulation
+  if (stroke.value !== '1px') {
+    const sw = stroke.value.replace('px', '')
+    svg = svg.replace(/stroke-width="[^"]*"/g, `stroke-width="${sw}"`)
+  }
+
+  // Fill mode
+  if (isFill.value) {
+    svg = svg.replace(/fill="none"/g, `fill="${props.iconColor || 'currentColor'}"`)
+    // Handle paths with no fill attribute
+    svg = svg.replace(/<path(?![^>]*fill=)/g, `<path fill="${props.iconColor || 'currentColor'}"`)
+    svg = svg.replace(/<circle(?![^>]*fill=)/g, `<circle fill="${props.iconColor || 'currentColor'}"`)
+    svg = svg.replace(/<rect(?![^>]*fill=)/g, `<rect fill="${props.iconColor || 'currentColor'}"`)
+  }
+  else {
+    // Reset: set fill to none for shapes that had the custom fill applied
+    const color = props.iconColor || 'currentColor'
+    const escapedColor = color.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const fillRegex = new RegExp(`fill="${escapedColor}"`, 'g')
+    svg = svg.replace(fillRegex, 'fill="none"')
+  }
+
+  // Color: replace currentColor with iconColor if specified
+  if (props.iconColor && props.iconColor !== 'currentColor') {
+    svg = svg.replace(/color:\s*currentColor/g, `color: ${props.iconColor}`)
+  }
+
+  return svg
+})
+
+// Direction transform
+const directionTransform = computed(() => {
+  switch (direction.value) {
+    case 'Left': return 'scaleX(-1)'
+    case 'Top': return 'scaleY(-1)'
+    default: return 'none'
+  }
+})
+
+// Computed
 const collection = computed(() => {
   if (!props.icon)
     return null
@@ -50,6 +122,17 @@ const iconName = computed(() => {
 
 // Dot Matrix Background
 const DOT_GRID = `radial-gradient(circle, rgba(99, 102, 241, 0.25) 1.5px, transparent 1.5px)`
+
+// Copy formats
+const copyFormats = [
+  { label: 'SVG', key: 'svg' },
+  { label: 'JSX', key: 'jsx' },
+  { label: 'TSX', key: 'tsx' },
+  { label: 'Vue', key: 'vue' },
+  { label: 'Svelte', key: 'svelte' },
+  { label: 'Astro', key: 'astro' },
+  { label: 'Data URL', key: 'data_url' },
+]
 
 function handleClose() {
   emit('update:open', false)
@@ -74,28 +157,31 @@ async function executeCopy(type: string, label: string) {
   catch {}
 }
 
-function handleDownload(_format: 'svg' | 'png') {
-  // Download logic triggers here
+async function handleDownload(format: 'svg' | 'png') {
+  pushRecentIcon(props.icon)
+  const text = await getIconSnippet(collections, props.icon, format, false, props.iconColor || 'currentColor')
+  if (!text)
+    return
+  const name = `${toComponentName(props.icon)}.${format}`
+  const blob = format === 'png'
+    ? dataUrlToBlob(text)
+    : new Blob([text], { type: 'text/plain;charset=utf-8' })
+  Download(blob, name)
 }
 </script>
 
 <template>
   <Dialog :open="open" @update:open="emit('update:open', $event)">
     <DialogPortal>
-      <!-- 1. Backdrop Blur Intens (Light Mode Focused) -->
       <DialogOverlay class="fixed inset-0 z-50 bg-white/70 backdrop-blur-md transition-all duration-200" />
 
       <DialogContent class="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 border-0 bg-transparent p-0 shadow-none outline-none max-w-[880px] w-[92vw]">
-        <!-- 2. Floating Toolbar (Di Atas Modal) -->
+        <!-- Floating Toolbar -->
         <div class="flex items-center justify-between mb-3 px-1 font-mono text-xs">
-          <!-- Floating Left: Name, Collection, Bag Pill -->
           <div class="flex items-center gap-2">
-            <!-- Icon Name Badge -->
             <span class="rounded-full bg-white/90 px-3.5 py-1.5 font-bold text-zinc-800 shadow-sm border border-black/5 backdrop-blur-sm">
               {{ iconName }}
             </span>
-
-            <!-- Collection Badge -->
             <RouterLink
               v-if="collection"
               :to="`/collection/${collection.id}`"
@@ -103,8 +189,6 @@ function handleDownload(_format: 'svg' | 'png') {
             >
               {{ collection.name }}
             </RouterLink>
-
-            <!-- Bag Toggle Pill -->
             <button
               type="button"
               class="flex items-center gap-1.5 rounded-full bg-white/90 px-3.5 py-1.5 text-zinc-600 shadow-sm border border-black/5 backdrop-blur-sm hover:text-black transition-all"
@@ -115,8 +199,6 @@ function handleDownload(_format: 'svg' | 'png') {
               <span>{{ inBag(icon) ? 'In bag' : 'Add to bag' }}</span>
             </button>
           </div>
-
-          <!-- Floating Right: Close Button -->
           <button
             type="button"
             class="flex items-center gap-1 rounded-full bg-white/90 px-3.5 py-1.5 text-zinc-600 shadow-sm border border-black/5 backdrop-blur-sm hover:text-black transition-colors"
@@ -127,9 +209,9 @@ function handleDownload(_format: 'svg' | 'png') {
           </button>
         </div>
 
-        <!-- 3. Main Dialog Box (2-Column Studio Grid) -->
+        <!-- Main Dialog Box -->
         <div class="relative flex flex-col md:flex-row bg-white rounded-[32px] shadow-[0_20px_50px_rgba(0,0,0,0.08)] border border-black/5 overflow-hidden">
-          <!-- Sisi Kiri: Dot Matrix Canvas Preview -->
+          <!-- Left: Preview -->
           <div
             class="flex-1 min-h-[320px] md:min-h-[460px] relative flex items-center justify-center border-b md:border-b-0 md:border-r border-zinc-100"
             :style="{
@@ -138,8 +220,19 @@ function handleDownload(_format: 'svg' | 'png') {
               backgroundColor: '#FAFAFC',
             }"
           >
-            <div class="relative z-10 transition-transform duration-200">
+            <div
+              class="relative z-10 transition-transform duration-200"
+              :class="edge === 'round' ? 'rounded-full overflow-hidden' : ''"
+              :style="{ transform: directionTransform }"
+            >
+              <div
+                v-if="customizedSvg"
+                class="transition-all select-none"
+                :style="{ width: `${iconSize}px`, height: `${iconSize}px`, color: iconColor || 'currentColor' }"
+                v-html="customizedSvg"
+              />
               <Icon
+                v-else
                 :icon="icon"
                 class="transition-all select-none"
                 :style="{
@@ -150,10 +243,10 @@ function handleDownload(_format: 'svg' | 'png') {
             </div>
           </div>
 
-          <!-- Sisi Kanan: Studio Controls -->
+          <!-- Right: Controls -->
           <div class="w-full md:w-[380px] p-7 flex flex-col justify-between font-mono bg-white">
             <div class="flex flex-col gap-5">
-              <!-- Control: Fill Toggle -->
+              <!-- Fill Toggle -->
               <div class="flex items-center justify-between text-xs text-zinc-600">
                 <span>Fill</span>
                 <button
@@ -169,12 +262,12 @@ function handleDownload(_format: 'svg' | 'png') {
                 </button>
               </div>
 
-              <!-- Control: Direction (Segmented Pill) -->
+              <!-- Direction -->
               <div class="flex items-center justify-between text-xs text-zinc-600">
                 <span>Direction</span>
                 <div class="flex bg-sky-50 rounded-xl p-1 gap-1">
                   <button
-                    v-for="d in ['Left', 'Top', 'Right']"
+                    v-for="d in ['Left', 'Top', 'Right'] as const"
                     :key="d"
                     type="button"
                     class="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
@@ -186,7 +279,7 @@ function handleDownload(_format: 'svg' | 'png') {
                 </div>
               </div>
 
-              <!-- Control: Edge (Segmented Pill) -->
+              <!-- Edge -->
               <div class="flex items-center justify-between text-xs text-zinc-600">
                 <span>Edge</span>
                 <div class="flex bg-sky-50 rounded-xl p-1 gap-1">
@@ -209,7 +302,7 @@ function handleDownload(_format: 'svg' | 'png') {
                 </div>
               </div>
 
-              <!-- Control: Stroke Selector -->
+              <!-- Stroke -->
               <div class="flex items-center justify-between text-xs text-zinc-600">
                 <span>Stroke</span>
                 <div class="flex bg-sky-50 rounded-xl p-1 gap-1 items-center">
@@ -232,7 +325,7 @@ function handleDownload(_format: 'svg' | 'png') {
                 </div>
               </div>
 
-              <!-- Control: Size Stepper -->
+              <!-- Size -->
               <div class="flex items-center justify-between text-xs text-zinc-600">
                 <span>Size</span>
                 <div class="flex items-center bg-sky-50 rounded-xl p-1">
@@ -254,17 +347,20 @@ function handleDownload(_format: 'svg' | 'png') {
                 </div>
               </div>
 
-              <!-- Control: Quick Action Row (Color Indicator + Copy Dropdown) -->
+              <!-- Color Presets + Copy -->
               <div class="flex items-center justify-between pt-3 border-t border-zinc-100 relative">
-                <!-- Color Indicator -->
-                <div class="flex items-center gap-2">
-                  <div
-                    class="w-5 h-5 rounded-full ring-2 ring-zinc-200"
-                    :style="{ backgroundColor: iconColor || '#000000' }"
+                <div class="flex items-center gap-1.5">
+                  <button
+                    v-for="c in colorPresets"
+                    :key="c"
+                    type="button"
+                    class="w-5 h-5 rounded-full ring-2 transition-all"
+                    :class="(iconColor || '#000000') === c ? 'ring-sky-500 ring-offset-1' : 'ring-zinc-200 hover:ring-zinc-400'"
+                    :style="{ backgroundColor: c }"
+                    @click="emit('update:iconColor', c)"
                   />
                 </div>
 
-                <!-- Copy Dropdown Trigger -->
                 <div class="relative">
                   <button
                     type="button"
@@ -275,19 +371,12 @@ function handleDownload(_format: 'svg' | 'png') {
                     <svg class="w-3 h-3 text-zinc-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6" /></svg>
                   </button>
 
-                  <!-- Dropdown Menu -->
                   <div
                     v-if="showCopyMenu"
                     class="absolute right-0 bottom-full mb-2 w-36 rounded-2xl bg-white p-1.5 shadow-xl border border-zinc-100 flex flex-col gap-0.5 z-30"
                   >
                     <button
-                      v-for="fmt in [
-                        { label: 'SVG', key: 'svg' },
-                        { label: 'JSX', key: 'jsx' },
-                        { label: 'TSX', key: 'tsx' },
-                        { label: 'Vue', key: 'vue' },
-                        { label: 'Data URL', key: 'data_url' },
-                      ]"
+                      v-for="fmt in copyFormats"
                       :key="fmt.key"
                       type="button"
                       class="w-full text-left px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition-colors"
@@ -300,7 +389,7 @@ function handleDownload(_format: 'svg' | 'png') {
               </div>
             </div>
 
-            <!-- Footer Action Buttons: Download SVG & PNG -->
+            <!-- Download Buttons -->
             <div class="grid grid-cols-2 gap-2.5 pt-6">
               <button
                 type="button"
@@ -310,7 +399,6 @@ function handleDownload(_format: 'svg' | 'png') {
                 <span>Download SVG</span>
                 <span>&darr;</span>
               </button>
-
               <button
                 type="button"
                 class="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-zinc-100 hover:bg-zinc-200 text-xs font-bold text-zinc-900 transition-all active:scale-[0.98]"
@@ -323,7 +411,7 @@ function handleDownload(_format: 'svg' | 'png') {
           </div>
         </div>
 
-        <!-- Toast Feedback -->
+        <!-- Toast -->
         <Transition name="fade">
           <div
             v-if="copied"

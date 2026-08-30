@@ -2,10 +2,11 @@
 import { useHead } from '@unhead/vue'
 import { AnimatePresence, LayoutGroup } from 'motion-v'
 import { computed, onMounted, ref, watch } from 'vue'
-import { Sheet, SheetContent } from '@/components/ui/sheet'
+// import IconDetail from '../components/IconDetail.vue'
+import IconDetailModal from '@/components/IconDetailModal.vue'
+// import { Sheet, SheetContent } from '@/components/ui/sheet'
 import NewHome from '../components/home/NewHome.vue'
 import IconCanvas from '../components/IconCanvas.vue'
-import IconDetail from '../components/IconDetail.vue'
 import SocialPill from '../components/SocialPill.vue'
 import { useGlobalSearch } from '../composables/useGlobalSearch'
 
@@ -120,7 +121,14 @@ watch(showDetail, (val) => {
 
     <SocialPill v-if="hasSearched" />
 
-    <Sheet v-model:open="showDetail">
+    <IconDetailModal
+      v-if="selectedIcon"
+      v-model:open="showDetail"
+      v-model:icon-color="iconColor"
+      :icon="selectedIcon"
+      @close="onClose"
+    />
+    <!-- <Sheet v-model:open="showDetail">
       <SheetContent
         class="p-0 gap-0 w-full sm:max-w-md overflow-y-auto"
         :style="{ backgroundColor: bgColor }"
@@ -133,6 +141,6 @@ watch(showDetail, (val) => {
           @close="onClose"
         />
       </SheetContent>
-    </Sheet>
+    </Sheet> -->
   </div>
 </template>
