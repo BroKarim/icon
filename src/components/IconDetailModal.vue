@@ -24,20 +24,17 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
-// State
 const copied = ref(false)
 const copyLabel = ref('')
 const showCopyMenu = ref(false)
 const selectedCopyFormat = ref('SVG')
 
-// Visual Controls
 const isFill = ref(false)
-const direction = ref<'Left' | 'Top' | 'Right'>('Right')
-const edge = ref<'sharp' | 'round'>('sharp')
+const direction = ref<'none' | 'horizontal' | 'vertical'>('none')
 const stroke = ref('1px')
 const iconSize = ref(96)
+const checkerboard = ref(false)
 
-// Color presets
 const colorPresets = [
   '#000000',
   '#FFFFFF',
@@ -50,7 +47,6 @@ const colorPresets = [
   '#F97316',
 ]
 
-// Raw SVG for manipulation
 const rawSvg = ref('')
 
 async function fetchRawSvg() {
@@ -61,52 +57,14 @@ watch(() => props.icon, () => {
   fetchRawSvg()
 }, { immediate: true })
 
-// Customized SVG computed
-const customizedSvg = computed(() => {
-  if (!rawSvg.value)
-    return ''
-  let svg = rawSvg.value
-
-  // Stroke width manipulation
-  if (stroke.value !== '1px') {
-    const sw = stroke.value.replace('px', '')
-    svg = svg.replace(/stroke-width="[^"]*"/g, `stroke-width="${sw}"`)
-  }
-
-  // Fill mode
-  if (isFill.value) {
-    svg = svg.replace(/fill="none"/g, `fill="${props.iconColor || 'currentColor'}"`)
-    // Handle paths with no fill attribute
-    svg = svg.replace(/<path(?![^>]*fill=)/g, `<path fill="${props.iconColor || 'currentColor'}"`)
-    svg = svg.replace(/<circle(?![^>]*fill=)/g, `<circle fill="${props.iconColor || 'currentColor'}"`)
-    svg = svg.replace(/<rect(?![^>]*fill=)/g, `<rect fill="${props.iconColor || 'currentColor'}"`)
-  }
-  else {
-    // Reset: set fill to none for shapes that had the custom fill applied
-    const color = props.iconColor || 'currentColor'
-    const escapedColor = color.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-    const fillRegex = new RegExp(`fill="${escapedColor}"`, 'g')
-    svg = svg.replace(fillRegex, 'fill="none"')
-  }
-
-  // Color: replace currentColor with iconColor if specified
-  if (props.iconColor && props.iconColor !== 'currentColor') {
-    svg = svg.replace(/color:\s*currentColor/g, `color: ${props.iconColor}`)
-  }
-
-  return svg
-})
-
-// Direction transform
 const directionTransform = computed(() => {
   switch (direction.value) {
-    case 'Left': return 'scaleX(-1)'
-    case 'Top': return 'scaleY(-1)'
+    case 'horizontal': return 'scaleX(-1)'
+    case 'vertical': return 'scaleY(-1)'
     default: return 'none'
   }
 })
 
-// Computed
 const collection = computed(() => {
   if (!props.icon)
     return null
@@ -120,10 +78,6 @@ const iconName = computed(() => {
   return props.icon.split(':')[1] || props.icon
 })
 
-// Dot Matrix Background
-const DOT_GRID = `radial-gradient(circle, rgba(99, 102, 241, 0.25) 1.5px, transparent 1.5px)`
-
-// Copy formats
 const copyFormats = [
   { label: 'SVG', key: 'svg' },
   { label: 'JSX', key: 'jsx' },
@@ -214,31 +168,24 @@ async function handleDownload(format: 'svg' | 'png') {
           <!-- Left: Preview -->
           <div
             class="flex-1 min-h-[320px] md:min-h-[460px] relative flex items-center justify-center border-b md:border-b-0 md:border-r border-zinc-100"
-            :style="{
-              backgroundImage: DOT_GRID,
-              backgroundSize: '20px 20px',
-              backgroundColor: '#FAFAFC',
-            }"
+            :class="checkerboard ? 'preview-checker' : ''"
+            :style="checkerboard ? {} : { backgroundColor: '#FAFAFC' }"
           >
             <div
-              class="relative z-10 transition-transform duration-200"
-              :class="edge === 'round' ? 'rounded-full overflow-hidden' : ''"
+              class="relative z-10 transition-transform duration-200 select-none"
               :style="{ transform: directionTransform }"
             >
-              <div
-                v-if="customizedSvg"
-                class="transition-all select-none"
+              <iconify-icon
+                v-if="rawSvg"
+                :icon="icon"
+                class="svg-preview"
                 :style="{ width: `${iconSize}px`, height: `${iconSize}px`, color: iconColor || 'currentColor' }"
-                v-html="customizedSvg"
               />
-              <Icon
+              <iconify-icon
                 v-else
                 :icon="icon"
                 class="transition-all select-none"
-                :style="{
-                  fontSize: `${iconSize}px`,
-                  color: iconColor || 'currentColor',
-                }"
+                :style="{ fontSize: `${iconSize}px`, color: iconColor || 'currentColor' }"
               />
             </div>
           </div>
@@ -267,37 +214,14 @@ async function handleDownload(format: 'svg' | 'png') {
                 <span>Direction</span>
                 <div class="flex bg-sky-50 rounded-xl p-1 gap-1">
                   <button
-                    v-for="d in ['Left', 'Top', 'Right'] as const"
+                    v-for="d in ['none', 'horizontal', 'vertical'] as const"
                     :key="d"
                     type="button"
                     class="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
                     :class="direction === d ? 'bg-sky-500 text-white shadow-sm' : 'text-sky-800/60 hover:text-sky-900'"
                     @click="direction = d"
                   >
-                    {{ d }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Edge -->
-              <div class="flex items-center justify-between text-xs text-zinc-600">
-                <span>Edge</span>
-                <div class="flex bg-sky-50 rounded-xl p-1 gap-1">
-                  <button
-                    type="button"
-                    class="px-4 py-1 rounded-lg text-xs font-semibold transition-all"
-                    :class="edge === 'sharp' ? 'bg-sky-500 text-white shadow-sm' : 'text-sky-800/60 hover:text-sky-900'"
-                    @click="edge = 'sharp'"
-                  >
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 20V4h16" /></svg>
-                  </button>
-                  <button
-                    type="button"
-                    class="px-4 py-1 rounded-lg text-xs font-semibold transition-all"
-                    :class="edge === 'round' ? 'bg-sky-500 text-white shadow-sm' : 'text-sky-800/60 hover:text-sky-900'"
-                    @click="edge = 'round'"
-                  >
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 20v-8a8 8 0 0 1 8-8h8" /></svg>
+                    {{ d === 'none' ? 'None' : d === 'horizontal' ? 'Flip H' : 'Flip V' }}
                   </button>
                 </div>
               </div>
@@ -343,6 +267,29 @@ async function handleDownload(format: 'svg' | 'png') {
                     @click="iconSize = Math.min(256, iconSize + 16)"
                   >
                     +
+                  </button>
+                </div>
+              </div>
+
+              <!-- Background -->
+              <div class="flex items-center justify-between text-xs text-zinc-600">
+                <span>Background</span>
+                <div class="flex bg-sky-50 rounded-xl p-1 gap-1">
+                  <button
+                    type="button"
+                    class="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
+                    :class="!checkerboard ? 'bg-sky-500 text-white shadow-sm' : 'text-sky-800/60 hover:text-sky-900'"
+                    @click="checkerboard = false"
+                  >
+                    Solid
+                  </button>
+                  <button
+                    type="button"
+                    class="px-3 py-1 rounded-lg text-xs font-semibold transition-all"
+                    :class="checkerboard ? 'bg-sky-500 text-white shadow-sm' : 'text-sky-800/60 hover:text-sky-900'"
+                    @click="checkerboard = true"
+                  >
+                    Checkered
                   </button>
                 </div>
               </div>
@@ -434,5 +381,39 @@ async function handleDownload(format: 'svg' | 'png') {
 .fade-leave-to {
   opacity: 0;
   transform: translate(-50%, -6px);
+}
+
+.preview-checker {
+  background-color: #fff;
+  background-image:
+    linear-gradient(45deg, #e5e5e5 25%, transparent 25%), linear-gradient(-45deg, #e5e5e5 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #e5e5e5 75%), linear-gradient(-45deg, transparent 75%, #e5e5e5 75%);
+  background-size: 16px 16px;
+  background-position:
+    0 0,
+    0 8px,
+    8px -8px,
+    -8px 0px;
+}
+
+/* CSS-driven SVG manipulation */
+
+/* Override SVG sizing to fill container */
+:deep(svg) {
+  width: 100%;
+  height: 100%;
+}
+
+/* Fill mode ON: fill shapes that have fill="none", hide stroke */
+:deep(svg [fill='none']) {
+  fill: currentColor;
+}
+:deep(svg [stroke]) {
+  stroke: none;
+}
+
+/* Stroke width override */
+:deep(svg *) {
+  stroke-width: v-bind(stroke);
 }
 </style>
