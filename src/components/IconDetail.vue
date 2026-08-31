@@ -11,10 +11,6 @@ const props = defineProps<{
   iconColor?: string
 }>()
 
-const emit = defineEmits<{
-  (e: 'close'): void
-}>()
-
 const copied = ref(false)
 const copyLabel = ref('')
 const selectedColor = ref(props.iconColor || '#000000')
@@ -31,13 +27,15 @@ const COLOR_PRESETS = [
 ]
 
 const collection = computed(() => {
-  if (!props.icon) return null
+  if (!props.icon)
+    return null
   const prefix = props.icon.split(':')[0]
   return collections.find(c => c.id === prefix) || null
 })
 
 const iconName = computed(() => {
-  if (!props.icon) return ''
+  if (!props.icon)
+    return ''
   return props.icon.split(':')[1] || props.icon
 })
 
@@ -60,7 +58,8 @@ async function copySnippet(type: string, label: string) {
 
 async function downloadAsset(type: 'svg' | 'png') {
   const snippet = await getIconSnippet(collections, props.icon, 'svg', false, selectedColor.value)
-  if (!snippet) return
+  if (!snippet)
+    return
 
   if (type === 'svg') {
     const blob = new Blob([snippet], { type: 'image/svg+xml;charset=utf-8' })
@@ -121,7 +120,7 @@ async function downloadAsset(type: 'svg' | 'png') {
           title="Favorite"
           @click="toggleFavorite(icon)"
         >
-          <svg class="w-4 h-4" viewBox="0 0 24 24" :fill="inFavorites(icon) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" :fill="inFavorites(icon) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" /></svg>
         </button>
 
         <button
@@ -131,7 +130,7 @@ async function downloadAsset(type: 'svg' | 'png') {
           title="Bag"
           @click="toggleBag(icon)"
         >
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" /><path d="M3 6h18" /><path d="M16 10a4 4 0 0 1-8 0" /></svg>
         </button>
       </div>
     </div>
